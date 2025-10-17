@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCafe Booking Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+            max-height: 100vh;
+            /* JavaScript will override these dimensions for strict sizing */
+            width: auto;
+            height: auto;
+        }
+        
+
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .admin-btn.admin-active {
+            background: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+
+        .date-selector {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .date-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .date-tab {
+            padding: 12px 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+            min-width: 0;
+            text-align: center;
+        }
+
+        .date-tab:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .date-tab.active {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .booking-grid {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scrollable-content {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .time-section {
+            margin-bottom: 20px;
+        }
+
+        .time-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .section-title {
+            background: white;
+            padding: 0 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #dc2626;
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-divider {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+            z-index: 1;
+        }
+
+        .lunch-break {
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            border: 2px dashed #cbd5e1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .lunch-break i {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .lunch-break-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+
+        .browser-config {
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            display: inline-block;
+            font-family: monospace;
+        }
+
+        .footer-section {
+            width: 100%;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border-radius: 0 0 20px 20px;
+            margin: 0;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            height: 40px;
+            min-height: 40px;
+        }
+
+        .footer-content {
+            padding: 12px 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .footer-content small {
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .time-slot {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            min-height: 65px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .time-slot:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
+        }
+
+        .time-slot.available {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-color: #0ea5e9;
+        }
+
+        .time-slot.booked {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-color: #dc2626;
+            cursor: pointer;
+        }
+
+        .time-slot.booked:hover {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+        }
+
+        .time-slot.booked.my-device {
+            border: 3px solid #00ff00 !important;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+            position: relative;
+        }
+
+        .time-slot.booked.my-device::before {
+            content: '★';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #00ff00;
+            color: black;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .time-slot.booked.my-device:hover {
+            border-color: #00ff00 !important;
+            box-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
+        }
+
+        .time-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .booked-text {
+            font-size: 0.9rem;
+            color: #991b1b;
+            font-weight: 500;
+        }
+
+        .booked-text.cancel-hint {
+            color: #dc2626;
+        }
+
+        .booked-text.empty-username {
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #374151;
+            font-size: 1.5rem;
+        }
+
+        .privacy-notice {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 0 0 15px 0;
+            color: #92400e;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-clear {
+            background: #ef4444;
+            color: white;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .clear-saved-info {
+            margin-top: 15px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            display: none; /* Hidden by default, shown only when username is saved */
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+
+
+
+        .booking-grid {
+            max-height: calc(100vh - var(--header-height, 200px));
+            overflow-y: auto;
+        }
+
+
+        /* Landscape Configuration */
+        @media (orientation: landscape) {
+            .container {
+                margin: 20px auto !important;
+                max-height: calc(100vh - 40px) !important;
+                overflow: hidden !important;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                transform: none !important;
+                width: calc(100vw - 40px) !important;
+                height: calc(100vh - 40px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-sizing: border-box !important;
+            }
+            
+            .header h1 {
+                font-size: 2.3rem;
+            }
+            
+            .booking-grid {
+                padding: 15px;
+                padding-bottom: 15px;
+                max-height: none !important;
+                overflow: visible !important;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
+                min-height: 0 !important;
+            }
+            
+            /* Dynamic grid layout for landscape - utilizes full available height */
+        .time-slots {
+            display: grid !important;
+            grid-template-columns: repeat(6, 1fr) !important;
+            gap: 8px !important;
+            justify-content: center !important;
+            align-items: stretch !important;
+            height: auto !important;
+            margin-bottom: 10px !important;
+        }
+            
+            /* Time slots with dynamic height - will be set by JavaScript */
+        .time-slot {
+            /* width and height will be set by JavaScript */
+            padding: 5px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+            
+            /* Ensure morning and afternoon sections use same grid with dynamic height */
+            .morning-slots .time-slots,
+            .afternoon-slots .time-slots {
+                display: grid !important;
+                grid-template-columns: repeat(6, 1fr) !important;
+                gap: 8px !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+            
+            /* Time sections should flex to fill available space */
+            .time-section {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
+            }
+            
+            .time-text {
+                font-size: 1rem;
+            }
+            
+            .time-section {
+                margin-bottom: 8px;
+            }
+            
+            .section-header {
+                margin-bottom: 8px;
+            }
+            
+            .lunch-break {
+                margin: 5px 0;
+                padding: 8px;
+            }
+        }
+
+        /* Mobile Performance Optimization */
+        @media (max-width: 768px) {
+            .time-slot {
+                will-change: transform, background-color;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
+            
+            .time-slot.booked {
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0);
+            }
+        }
+        
+
+        /* Portrait Configuration */
+        @media (orientation: portrait) {
+            .container {
+                margin: 20px auto !important;
+                position: relative !important;
+                /* width: 95%; - Removed to allow JavaScript sizing */
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .time-slot {
+                /* min-height removed to allow JavaScript height calculation */
+                padding: 10px;
+            }
+            
+            .time-text {
+                font-size: 0.9rem;
+            }
+            
+            .date-tabs {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: nowrap;
+            }
+            
+            .date-tab {
+                flex: 1;
+                min-width: 0;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            /* Admin button - circular with icon only in portrait */
+            .header .admin-btn {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 1.2rem !important;
+                position: absolute !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            
+            .header .admin-btn span {
+                display: none !important;
+            }
+            
+            .header .admin-btn i {
+                margin: 0 !important;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calendar-check"></i> TechCafe Booking Portal</h1>
+            <p>Book your preferred time slot for today and upcoming days</p>
+            <button id="adminBtn" class="admin-btn" onclick="showAdminModal()">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </button>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="scrollable-content">
+            <div class="date-selector">
+                <div class="date-tabs">
+                    {% for date in dates %}
+                    <div class="date-tab {% if loop.first %}active{% endif %}" 
+                         data-date="{{ date.date }}" 
+                         onclick="selectDate('{{ date.date }}', this)">
+                        <div>{{ date.short }}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ date.display.split(',')[1].strip() }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="booking-grid">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Loading bookings...</div>
+            </div>
+            <div id="timeSlots">
+                <!-- Morning Section (09:00-12:00) -->
+                <div class="time-section">
+                    <div class="section-header">
+                        <div class="section-divider"></div>
+                        <div class="section-title">
+                            <i class="fas fa-sun"></i> Morning Slots (09:00 - 12:00)
+                        </div>
+                    </div>
+                    <div class="time-slots" id="morningSlots">
+                        {% for slot in morning_slots %}
+                        <div class="time-slot available" 
+                             data-time="{{ slot }}">
+                            <div class="time-text">{{ slot }}</div>
+                            <div class="booked-text" style="display: none;">Available</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Lunch Break -->
+                <div class="lunch-break">
+                    <i class="fas fa-utensils"></i>
+                    <div class="lunch-break-text">Lunch Break (12:00 - 14:00)</div>
+                </div>
+
+                <!-- Afternoon Section (14:00-18:00) -->
+                <div class="time-section">
+                    <div class="section-header">
+                        <div class="section-divider"></div>
+                        <div class="section-title">
+                            <i class="fas fa-moon"></i> Afternoon Slots (14:00 - 18:00)
+                        </div>
+                    </div>
+                    <div class="time-slots" id="afternoonSlots">
+                        {% for slot in afternoon_slots %}
+                        <div class="time-slot available" 
+                             data-time="{{ slot }}">
+                            <div class="time-text">{{ slot }}</div>
+                            <div class="booked-text" style="display: none;">Available</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            </div> <!-- End scrollable-content -->
+            
+            <!-- Red Footer Section -->
+            <div class="footer-section">
+                <div class="footer-content">
+                    <small>© 2024 MYMSNGROUP. All rights reserved.</small>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-plus"></i> Book Your Slot</h3>
+            <p class="privacy-notice"><strong>⚠️ Your name will be shown publicly. Leave empty for privacy.</strong></p>
+            <input type="text" id="usernameInput" placeholder="Enter your name (optional)" maxlength="50">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+            <div class="clear-saved-info">
+                <button class="btn btn-clear" onclick="clearSavedUsername()">
+                    <i class="fas fa-trash-alt"></i> Clear Saved Name
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-times"></i> Cancel Booking</h3>
+            <p>Are you sure you want to cancel this booking?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="confirmCancellation()">Yes, Cancel</button>
+                <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-shield"></i> Admin Access</h3>
+            <p>Enter admin password:</p>
+            <input type="password" id="adminPasswordInput" placeholder="Enter admin password" maxlength="50">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="verifyAdminPassword()">Access Admin</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Script loaded successfully
+        console.log('Script tag loaded');
+        
+        let currentDate = '{{ dates[0].date }}';
+        let currentSlot = null;
+        let bookings = {};
+        let autoRefreshInterval = null;
+        let deviceId = '';
+        let isAdminSession = false;
+
+        // Generate or retrieve device ID
+        function getOrCreateDeviceId() {
+            // Check if device ID exists in localStorage
+            deviceId = localStorage.getItem('device_id');
+            
+            if (!deviceId) {
+                // Generate a unique device ID based on browser fingerprint
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substr(2, 9);
+                const userAgent = navigator.userAgent.substr(0, 50);
+                deviceId = 'device_' + timestamp + '_' + random + '_' + btoa(userAgent).substr(0, 10);
+                
+                // Store in localStorage (persistent across sessions)
+                localStorage.setItem('device_id', deviceId);
+                console.log('Generated new device ID:', deviceId);
+            } else {
+                console.log('Using existing device ID:', deviceId);
+            }
+            
+            return deviceId;
+        }
+
+        // Flag to prevent multiple calls during initialization
+        let isInitializing = false;
+        let isAdjustingPortrait = false; // Flag to prevent multiple portrait adjustments
+        
+        // Dynamic screen size detection and optimization - APPLY TO ALL DEVICES
+        function detectScreenSize() {
+            console.log('detectScreenSize called, isInitializing:', isInitializing);
+            
+            // Skip if we're in the middle of initialization to prevent race conditions
+            if (isInitializing) {
+                console.log('Skipping detectScreenSize - initialization in progress');
+                return;
+            }
+            
+            // Skip if we're in portrait mode to prevent re-calculations (except during initial load)
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (width <= height && !isInitializing) {
+                console.log('Skipping detectScreenSize - portrait mode detected, preventing re-calculations');
+                return;
+            }
+            
+            try {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                // Ensure we have valid dimensions
+                if (width <= 0 || height <= 0) {
+                    console.log('Invalid dimensions, retrying in 100ms...');
+                    setTimeout(detectScreenSize, 100);
+                    return;
+                }
+                
+                // Mobile-specific viewport stability check
+                // Simple viewport check - back to working approach
+                if (width <= 0 || height <= 0) {
+                    console.log('Invalid dimensions, retrying in 100ms...');
+                    setTimeout(detectScreenSize, 100);
+                    return;
+                }
+                console.log('Screen size:', width, 'x', height);
+                
+                // Apply strict container sizing to ALL devices
+                    const container = document.querySelector('.container');
+                    if (!container) return;
+                    
+                // Calculate container dimensions - STRICT: screen size minus 40px margins
+                const containerWidth = width - 40; // 40px for left and right margins
+                const footerHeight = 40; // Footer height
+                const containerHeight = height - 40; // 40px for top and bottom margins
+                
+                // Apply container sizing and positioning for BOTH orientations
+                if (width > height) {
+                    // Landscape: Apply both dimensions and positioning with proper margins
+                    container.style.setProperty('width', containerWidth + 'px', 'important');
+                    container.style.setProperty('max-width', containerWidth + 'px', 'important');
+                    container.style.setProperty('height', containerHeight + 'px', 'important');
+                    container.style.setProperty('max-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('min-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('margin', '20px auto', 'important');
+                    container.style.setProperty('position', 'relative', 'important');
+                    container.style.setProperty('top', '0', 'important');
+                    container.style.setProperty('left', '0', 'important');
+                    container.style.setProperty('transform', 'none', 'important');
+                    container.style.setProperty('overflow', 'hidden', 'important');
+                    container.style.setProperty('box-sizing', 'border-box', 'important');
+                } else {
+                    // Portrait: Apply dimensions and positioning
+                    container.style.setProperty('width', containerWidth + 'px', 'important');
+                    container.style.setProperty('max-width', containerWidth + 'px', 'important');
+                    container.style.setProperty('height', containerHeight + 'px', 'important');
+                    container.style.setProperty('max-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('min-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('overflow', 'hidden', 'important');
+                    container.style.setProperty('box-sizing', 'border-box', 'important');
+                    container.style.setProperty('margin', '20px auto', 'important');
+                    container.style.setProperty('position', 'relative', 'important');
+                    container.style.setProperty('left', '0', 'important');
+                    container.style.setProperty('right', '0', 'important');
+                    container.style.setProperty('transform', 'none', 'important');
+                }
+                
+                // Simple container positioning - back to working approach
+                console.log('Container dimensions set:', containerWidth + 'x' + containerHeight);
+                console.log('Screen dimensions:', width + 'x' + height);
+                console.log('Container should have 20px margins on all sides');
+                
+                console.log('Container dimensions:', containerWidth + 'x' + containerHeight);
+                
+                // Apply dynamic height calculations only for landscape orientation (width > height)
+                if (width > height) {
+                    // Force container to exact height before calling layout function
+                    container.style.setProperty('height', containerHeight + 'px', 'important');
+                    container.style.setProperty('max-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('min-height', containerHeight + 'px', 'important');
+                    container.style.setProperty('overflow', 'hidden', 'important');
+                    
+                    // Call landscape-specific layout function immediately for landscape mode
+                    adjustLandscapeLayout(width, height);
+                } else {
+                    // For portrait orientation, just apply container sizing
+                    console.log('Portrait orientation detected, applying container sizing only');
+                    applyContainerSizing();
+                }
+            } catch (error) {
+                console.error('Error in detectScreenSize:', error);
+            }
+        }
+        
+        function adjustLandscapeLayout(width, height) {
+            try {
+                const container = document.querySelector('.container');
+                if (!container) return;
+                
+                // Reset Admin button to normal state for landscape mode
+                resetAdminButtonForLandscape();
+                
+                // Use the calculated container height, not the actual offsetHeight which might be different
+                const containerHeight = height - 40; // Same calculation as detectScreenSize
+                
+                // Get heights of fixed elements
+                const header = document.querySelector('.header');
+                const dateSelector = document.querySelector('.date-selector');
+                const bookingGrid = document.querySelector('.booking-grid');
+                const morningSlots = document.querySelector('#morningSlots');
+                const afternoonSlots = document.querySelector('#afternoonSlots');
+                
+                if (header && dateSelector && bookingGrid && morningSlots && afternoonSlots) {
+                    // Use the calculated container height
+                    console.log('Container height:', containerHeight + 'px');
+                    
+                    // Calculate heights of fixed elements
+                    const headerHeight = header.offsetHeight;
+                    const footerHeight = 40; // Footer height
+                    
+                    // Calculate usable space: container height minus header and footer
+                    const usableHeight = containerHeight - headerHeight - footerHeight;
+                    console.log('Header height:', headerHeight + 'px');
+                    console.log('Footer height:', footerHeight + 'px');
+                    console.log('Usable space (header to footer):', usableHeight + 'px');
+                    
+                    // Calculate heights of content elements within usable space
+                    const dateSelectorHeight = dateSelector.offsetHeight;
+                    const lunchBreakHeight = document.querySelector('.lunch-break')?.offsetHeight || 0;
+                    const sectionHeadersHeight = Array.from(document.querySelectorAll('.section-header')).reduce((total, header) => total + header.offsetHeight, 0);
+                    
+                    // Calculate available height for time slots (usable space minus content elements)
+                    const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 80; // 80px for padding/margins (very conservative)
+                    const availableHeight = usableHeight - contentHeights;
+                    
+                    console.log('Date selector height:', dateSelectorHeight + 'px');
+                    console.log('Lunch break height:', lunchBreakHeight + 'px');
+                    console.log('Section headers height:', sectionHeadersHeight + 'px');
+                    console.log('Content heights total:', contentHeights + 'px');
+                    console.log('Available height for time slots:', availableHeight + 'px');
+                    
+                    // Calculate optimal dimensions for time slot buttons to fully utilize usable space
+                    const morningSlotsCount = morningSlots.children.length; // 12 slots
+                    const afternoonSlotsCount = afternoonSlots.children.length; // 16 slots
+                    const totalSlots = morningSlotsCount + afternoonSlotsCount;
+                    
+                    // Get container width for width calculations
+                    const containerWidth = container.offsetWidth;
+                    const availableWidth = containerWidth - 40; // Account for container padding
+                    
+                    // Calculate grid dimensions (6 columns for landscape)
+                    const columns = 6;
+                    const morningRows = Math.ceil(morningSlotsCount / columns); // 2 rows
+                    const afternoonRows = Math.ceil(afternoonSlotsCount / columns); // 3 rows
+                    const totalRows = morningRows + afternoonRows; // 5 rows total
+                    
+                    // Calculate optimal button dimensions
+                    const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for 8px gaps
+                    const buttonHeight = Math.floor(availableHeight / totalRows); // Distribute height evenly across rows
+                    
+                    // Safety check: ensure button height doesn't exceed available space with extra buffer
+                    const maxButtonHeight = Math.floor((availableHeight - 20) / totalRows); // 20px extra buffer
+                    const finalButtonHeight = Math.min(buttonHeight, maxButtonHeight);
+                    
+                    console.log('Container width:', containerWidth + 'px');
+                    console.log('Available width:', availableWidth + 'px');
+                    console.log('Morning slots count:', morningSlotsCount, '(rows:', morningRows + ')');
+                    console.log('Afternoon slots count:', afternoonSlotsCount, '(rows:', afternoonRows + ')');
+                    console.log('Total rows:', totalRows);
+                    console.log('Calculated button width:', buttonWidth + 'px');
+                    console.log('Calculated button height:', finalButtonHeight + 'px');
+                    
+                    // Verify total height doesn't exceed available space
+                    const totalSlotsHeight = finalButtonHeight * totalRows;
+                    console.log('Total slots height:', totalSlotsHeight + 'px');
+                    console.log('Height utilization:', Math.round((totalSlotsHeight / availableHeight) * 100) + '%');
+                    
+                    // Apply calculated dimensions to time slot buttons
+                    const allTimeSlots = document.querySelectorAll('.time-slot');
+                    console.log('Found time slots:', allTimeSlots.length);
+                    console.log('Applying dimensions - Width:', buttonWidth + 'px', 'Height:', finalButtonHeight + 'px');
+                    
+                    allTimeSlots.forEach((slot, index) => {
+                        slot.style.setProperty('width', buttonWidth + 'px', 'important');
+                        slot.style.setProperty('height', finalButtonHeight + 'px', 'important');
+                        slot.style.setProperty('min-height', finalButtonHeight + 'px', 'important');
+                        slot.style.setProperty('max-height', finalButtonHeight + 'px', 'important');
+                        slot.style.setProperty('flex-shrink', '0', 'important');
+                        
+                        if (index < 3) { // Log first 3 slots for debugging
+                            console.log(`Slot ${index + 1} dimensions applied:`, slot.style.width, slot.style.height);
+                        }
+                    });
+                    
+                    // Set container heights using the calculated button height
+                    const morningContainerHeight = finalButtonHeight * morningRows;
+                    const afternoonContainerHeight = finalButtonHeight * afternoonRows;
+                    
+                    // Apply heights to slot containers
+                    morningSlots.style.height = morningContainerHeight + 'px';
+                    afternoonSlots.style.height = afternoonContainerHeight + 'px';
+                    
+                    // Align lunch break width with time slot grid
+                    const lunchBreak = document.querySelector('.lunch-break');
+                    if (lunchBreak) {
+                        // Calculate the exact width of the time slot grid
+                        const gridWidth = (buttonWidth * columns) + ((columns - 1) * 8); // 8px gap between slots
+                        lunchBreak.style.width = gridWidth + 'px';
+                        lunchBreak.style.margin = '10px auto';
+                        console.log('Lunch break width set to:', gridWidth + 'px');
+                    }
+                    
+                    // Verify content fits within container
+                    const totalContentHeight = contentHeights + totalSlotsHeight;
+                    console.log('Total content height:', totalContentHeight + 'px');
+                    console.log('Container height:', containerHeight + 'px');
+                    console.log('Content fits in container:', totalContentHeight <= containerHeight);
+                    
+                    // Final safety check: if still too close to container edge, reduce button height further
+                    if (totalContentHeight > (containerHeight - 10)) {
+                        const excessHeight = totalContentHeight - (containerHeight - 10);
+                        const heightReduction = Math.ceil(excessHeight / totalRows) + 5;
+                        const emergencyButtonHeight = Math.max(30, finalButtonHeight - heightReduction);
+                        
+                        console.log('Emergency height reduction applied:', emergencyButtonHeight + 'px');
+                        
+                        // Reapply with emergency height
+                        allTimeSlots.forEach(slot => {
+                            slot.style.setProperty('height', emergencyButtonHeight + 'px', 'important');
+                            slot.style.setProperty('min-height', emergencyButtonHeight + 'px', 'important');
+                            slot.style.setProperty('max-height', emergencyButtonHeight + 'px', 'important');
+                        });
+                        
+                        // Recalculate container heights
+                        const emergencyMorningHeight = emergencyButtonHeight * morningRows;
+                        const emergencyAfternoonHeight = emergencyButtonHeight * afternoonRows;
+                        
+                        morningSlots.style.height = emergencyMorningHeight + 'px';
+                        afternoonSlots.style.height = emergencyAfternoonHeight + 'px';
+                        
+                        console.log('Emergency dimensions applied to prevent cutoff');
+                    }
+                    
+                    // Safety check: if content exceeds container, reduce button heights
+                    if (totalContentHeight > containerHeight) {
+                        const excessHeight = totalContentHeight - containerHeight;
+                        const heightReduction = Math.ceil(excessHeight / totalRows) + 5; // Add 5px buffer
+                        const adjustedButtonHeight = Math.max(30, buttonHeight - heightReduction);
+                        
+                        console.log('Content exceeds container, adjusting button heights...');
+                        console.log('Excess height:', excessHeight + 'px');
+                        console.log('Height reduction per row:', heightReduction + 'px');
+                        console.log('Adjusted button height:', adjustedButtonHeight + 'px');
+                        
+                        // Reapply with adjusted height
+                        allTimeSlots.forEach(slot => {
+                            slot.style.height = adjustedButtonHeight + 'px';
+                            slot.style.minHeight = adjustedButtonHeight + 'px';
+                            slot.style.maxHeight = adjustedButtonHeight + 'px';
+                        });
+                        
+                        // Recalculate container heights
+                        const adjustedMorningHeight = adjustedButtonHeight * morningRows;
+                        const adjustedAfternoonHeight = adjustedButtonHeight * afternoonRows;
+                        
+                        morningSlots.style.height = adjustedMorningHeight + 'px';
+                        afternoonSlots.style.height = adjustedAfternoonHeight + 'px';
+                        
+                        console.log('Button dimensions adjusted for container fit');
+                    }
+                    
+                    //                     
+                    //                     const bookingGrid = document.querySelector('.booking-grid');
+                    if (bookingGrid) {
+                        bookingGrid.style.flex = '1';
+                        bookingGrid.style.display = 'flex';
+                        bookingGrid.style.flexDirection = 'column';
+                    }
+                    
+                    // Set scrollable content height to usable space and disable scrolling for landscape
+                    const scrollableContent = document.querySelector('.scrollable-content');
+                    if (scrollableContent) {
+                        scrollableContent.style.height = usableHeight + 'px';
+                        scrollableContent.style.maxHeight = usableHeight + 'px';
+                        scrollableContent.style.overflow = 'hidden'; // Disable scrolling for landscape
+                        console.log('Scrollable content height set to:', usableHeight + 'px');
+                    }
+                    
+                    // Position footer at bottom of container
+                    const footerSection = document.querySelector('.footer-section');
+                    if (footerSection) {
+                        footerSection.style.position = 'absolute';
+                        footerSection.style.bottom = '0';
+                        footerSection.style.left = '0';
+                        footerSection.style.width = '100%';
+                        footerSection.style.height = '40px';
+                        footerSection.style.zIndex = '10';
+                        console.log('Footer positioned at bottom of container');
+                    }
+                    
+                }
+                
+                console.log('Landscape dynamic layout applied successfully');
+                
+                
+                // Final enforcement: Ensure container height is exactly what we calculated
+                container.style.setProperty('height', containerHeight + 'px', 'important');
+                container.style.setProperty('max-height', containerHeight + 'px', 'important');
+                container.style.setProperty('min-height', containerHeight + 'px', 'important');
+                container.style.setProperty('overflow', 'hidden', 'important');
+                console.log('Final container height enforcement:', containerHeight + 'px');
+                
+            } catch (error) {
+                console.error('Error in adjustLandscapeLayout:', error);
+            }
+        }
+        
+        
+        // Apply container sizing for portrait orientation
+        function applyContainerSizing() {
+            try {
+                const container = document.querySelector('.container');
+                if (!container) return;
+                
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                // Apply strict container sizing
+                const containerWidth = width - 40;
+                const containerHeight = Math.min(height - 40, window.innerHeight - 40);
+                
+                container.style.setProperty('width', containerWidth + 'px', 'important');
+                container.style.setProperty('max-width', containerWidth + 'px', 'important');
+                container.style.setProperty('height', containerHeight + 'px', 'important');
+                container.style.setProperty('max-height', containerHeight + 'px', 'important');
+                container.style.setProperty('overflow', 'hidden', 'important');
+                container.style.setProperty('position', 'relative', 'important');
+                
+                // Calculate usable space for portrait mode
+                const header = document.querySelector('.header');
+                const footerHeight = 40; // Updated footer height
+                const headerHeight = header ? header.offsetHeight : 0;
+                const usableHeight = containerHeight - headerHeight - footerHeight;
+                
+                // Set scrollable content height to usable space
+                const scrollableContent = document.querySelector('.scrollable-content');
+                if (scrollableContent) {
+                    scrollableContent.style.height = usableHeight + 'px';
+                    scrollableContent.style.maxHeight = usableHeight + 'px';
+                    scrollableContent.style.overflow = 'hidden'; // No scrolling in portrait
+                    console.log('Portrait scrollable content height set to:', usableHeight + 'px');
+                }
+                
+                // Position footer at bottom of container for portrait
+                const footerSection = document.querySelector('.footer-section');
+                if (footerSection) {
+                    footerSection.style.position = 'absolute';
+                    footerSection.style.bottom = '0';
+                    footerSection.style.left = '0';
+                    footerSection.style.width = '100%';
+                    footerSection.style.height = '40px';
+                    footerSection.style.zIndex = '10';
+                    console.log('Footer positioned at bottom of container (portrait)');
+                }
+                
+                // Apply portrait-specific CSS via JavaScript
+                applyPortraitCSS();
+                
+                // Add dynamic time slot height calculation for portrait (single call to prevent multiple adjustments)
+                setTimeout(() => {
+                    adjustPortraitLayout(containerWidth, containerHeight);
+                }, 100);
+                
+                console.log('Container sizing applied for portrait orientation:', containerWidth + 'x' + containerHeight);
+            } catch (error) {
+                console.error('Error in applyContainerSizing:', error);
+            }
+        }
+        
+        function applyPortraitCSS() {
+            try {
+                console.log('Applying portrait-specific CSS via JavaScript...');
+                
+                // Force Admin button to be circular in portrait mode
+                const adminBtn = document.querySelector('.admin-btn');
+                if (adminBtn) {
+                    adminBtn.style.setProperty('width', '50px', 'important');
+                    adminBtn.style.setProperty('height', '50px', 'important');
+                    adminBtn.style.setProperty('border-radius', '50%', 'important');
+                    adminBtn.style.setProperty('padding', '0', 'important');
+                    adminBtn.style.setProperty('display', 'flex', 'important');
+                    adminBtn.style.setProperty('align-items', 'center', 'important');
+                    adminBtn.style.setProperty('justify-content', 'center', 'important');
+                    adminBtn.style.setProperty('font-size', '1.2rem', 'important');
+                    adminBtn.style.setProperty('position', 'absolute', 'important');
+                    adminBtn.style.setProperty('top', '20px', 'important');
+                    adminBtn.style.setProperty('right', '20px', 'important');
+                    
+                    // Update button text for portrait mode (icon only)
+                    updateAdminButtonText();
+                    
+                    // Reset icon margins
+                    const adminIcon = adminBtn.querySelector('i');
+                    if (adminIcon) {
+                        adminIcon.style.setProperty('margin', '0', 'important');
+                    }
+                    
+                    console.log('Admin button styled for portrait mode');
+                }
+                
+                // Apply portrait-specific time slot styling
+                const timeSlots = document.querySelectorAll('.time-slot');
+                timeSlots.forEach(slot => {
+                    // min-height removed to allow dynamic height calculation
+                    slot.style.setProperty('padding', '10px', 'important');
+                });
+                
+                console.log('Portrait CSS applied successfully');
+            } catch (error) {
+                console.error('Error applying portrait CSS:', error);
+            }
+        }
+        
+        function adjustPortraitLayout(containerWidth, containerHeight) {
+            // Prevent multiple simultaneous adjustments
+            if (isAdjustingPortrait) {
+                console.log('Portrait adjustment already in progress, skipping...');
+                return;
+            }
+            
+            isAdjustingPortrait = true;
+            
+            try {
+                console.log('=== ADJUSTING PORTRAIT LAYOUT ===');
+                console.log('Container dimensions:', containerWidth + 'x' + containerHeight);
+                
+                // Get heights of fixed elements
+                const header = document.querySelector('.header');
+                const dateSelector = document.querySelector('.date-selector');
+                const lunchBreak = document.querySelector('.lunch-break');
+                const sectionHeaders = document.querySelectorAll('.section-header');
+                
+                const headerHeight = header ? header.offsetHeight : 0;
+                const dateSelectorHeight = dateSelector ? dateSelector.offsetHeight : 0;
+                const lunchBreakHeight = lunchBreak ? lunchBreak.offsetHeight : 0;
+                const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, header) => total + header.offsetHeight, 0);
+                const footerHeight = 40;
+                
+                // Calculate usable space: container height minus header and footer
+                const usableHeight = containerHeight - headerHeight - footerHeight;
+                
+                // Calculate content heights (date selector + lunch break + section headers + ultra minimal padding)
+                const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 5; // Ultra reduced to 5px for padding/margins
+                const availableHeight = usableHeight - contentHeights;
+                
+                console.log('Portrait layout calculations:');
+                console.log('Container height:', containerHeight + 'px');
+                console.log('Header height:', headerHeight + 'px');
+                console.log('Footer height:', footerHeight + 'px');
+                console.log('Usable height:', usableHeight + 'px');
+                console.log('Date selector height:', dateSelectorHeight + 'px');
+                console.log('Lunch break height:', lunchBreakHeight + 'px');
+                console.log('Section headers height:', sectionHeadersHeight + 'px');
+                console.log('Content heights total:', contentHeights + 'px');
+                console.log('Available height for time slots:', availableHeight + 'px');
+                
+                // Get all time slots
+                const allTimeSlots = document.querySelectorAll('.time-slot');
+                const morningSlots = document.querySelectorAll('#morningSlots .time-slot');
+                const afternoonSlots = document.querySelectorAll('#afternoonSlots .time-slot');
+                
+                const morningSlotsCount = morningSlots.length;
+                const afternoonSlotsCount = afternoonSlots.length;
+                const totalSlots = allTimeSlots.length;
+                
+                console.log('Time slots count - Morning:', morningSlotsCount, 'Afternoon:', afternoonSlotsCount, 'Total:', totalSlots);
+                
+                if (totalSlots > 0 && availableHeight > 0) {
+                    // Portrait mode: 4 columns for time slots
+                    const columns = 4;
+                    const morningRows = Math.ceil(morningSlotsCount / columns);
+                    const afternoonRows = Math.ceil(afternoonSlotsCount / columns);
+                    const totalRows = morningRows + afternoonRows;
+                    
+                    // Calculate button dimensions
+                    const availableWidth = containerWidth - 40; // Account for container padding
+                    const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for gaps
+                    
+                    // ULTRA-AGGRESSIVE height calculation to eliminate white space
+                    const minButtonHeight = 15; // Ultra minimal minimum height
+                    let buttonHeight = Math.floor(availableHeight * 1.05 / totalRows); // Start with 105% of available height
+                    
+                    console.log('Initial button height calculation:', buttonHeight + 'px');
+                    console.log('Available height per row:', Math.floor(availableHeight / totalRows) + 'px');
+                    
+                    // Ensure minimum height but be very aggressive
+                    buttonHeight = Math.max(minButtonHeight, buttonHeight);
+                    
+                    // Calculate what the total height would be
+                    let totalContentHeight = (buttonHeight * totalRows) + contentHeights;
+                    let remainingSpace = usableHeight - totalContentHeight;
+                    
+                    console.log('After initial calculation:');
+                    console.log('Total content height:', totalContentHeight + 'px');
+                    console.log('Remaining space:', remainingSpace + 'px');
+                    
+                    // If we have ANY remaining space, use it all
+                    if (remainingSpace > 1) {
+                        const extraHeight = Math.floor(remainingSpace / totalRows);
+                        if (extraHeight > 0) {
+                            buttonHeight += extraHeight;
+                            totalContentHeight = (buttonHeight * totalRows) + contentHeights;
+                            remainingSpace = usableHeight - totalContentHeight;
+                            console.log('Added extra height:', extraHeight + 'px');
+                            console.log('New remaining space:', remainingSpace + 'px');
+                        }
+                    }
+                    
+                    // Final ultra-aggressive check: if still space left, use it
+                    if (remainingSpace > 0) {
+                        const finalExtra = Math.floor(remainingSpace / totalRows);
+                        if (finalExtra > 0) {
+                            buttonHeight += finalExtra;
+                            console.log('Final extra height added:', finalExtra + 'px');
+                        }
+                        
+                        // Even more aggressive: add 1px to each row if there's still space
+                        if (remainingSpace > totalRows) {
+                            buttonHeight += 1;
+                            console.log('Added 1px more to each row for maximum space utilization');
+                        }
+                    }
+                    
+                    // Only reduce if we're actually overflowing
+                    const finalTotalHeight = (buttonHeight * totalRows) + contentHeights;
+                    if (finalTotalHeight > usableHeight + 5) { // Allow 5px tolerance
+                        buttonHeight = Math.floor((usableHeight - contentHeights) / totalRows);
+                        console.log('EMERGENCY: Reduced button height to fit:', buttonHeight + 'px');
+                    }
+                    
+                    console.log('FINAL button height:', buttonHeight + 'px');
+                    console.log('FINAL total height:', (buttonHeight * totalRows) + contentHeights + 'px');
+                    console.log('FINAL remaining space:', usableHeight - ((buttonHeight * totalRows) + contentHeights) + 'px');
+                    
+                    console.log('Portrait button calculations:');
+                    console.log('Columns:', columns);
+                    console.log('Morning rows:', morningRows);
+                    console.log('Afternoon rows:', afternoonRows);
+                    console.log('Total rows:', totalRows);
+                    console.log('Button width:', buttonWidth + 'px');
+                    console.log('Button height:', buttonHeight + 'px');
+                    
+                    // Apply dimensions to all time slots
+                    allTimeSlots.forEach(slot => {
+                        slot.style.setProperty('width', buttonWidth + 'px', 'important');
+                        slot.style.setProperty('height', buttonHeight + 'px', 'important');
+                        slot.style.setProperty('min-height', buttonHeight + 'px', 'important');
+                        slot.style.setProperty('box-sizing', 'border-box', 'important');
+                        slot.style.setProperty('flex-shrink', '0', 'important');
+                        
+                        // Force the height with direct assignment to override any CSS
+                        slot.style.height = buttonHeight + 'px';
+                        slot.style.minHeight = buttonHeight + 'px';
+                        slot.style.maxHeight = buttonHeight + 'px';
+                    });
+                    
+                    // Adjust lunch break width to match time slot grid
+                    if (lunchBreak) {
+                        const gridWidth = (buttonWidth * columns) + ((columns - 1) * 8); // 8px gap between slots
+                        lunchBreak.style.width = gridWidth + 'px';
+                        lunchBreak.style.margin = '10px auto';
+                        console.log('Lunch break width set to:', gridWidth + 'px');
+                    }
+                    
+                    console.log('Portrait layout adjustment completed');
+                    
+                    // Final height enforcement - ensure all slots use the calculated height
+                    setTimeout(() => {
+                        const finalSlots = document.querySelectorAll('.time-slot');
+                        finalSlots.forEach(slot => {
+                            slot.style.height = buttonHeight + 'px';
+                            slot.style.minHeight = buttonHeight + 'px';
+                            slot.style.maxHeight = buttonHeight + 'px';
+                        });
+                        console.log('Final height enforcement applied:', buttonHeight + 'px');
+                    }, 50);
+                    
+                    // Force a final check and adjustment
+                    setTimeout(() => {
+                        const finalSlots = document.querySelectorAll('.time-slot');
+                        if (finalSlots.length > 0) {
+                            console.log('=== FINAL PORTRAIT HEIGHT CHECK ===');
+                            const container = document.querySelector('.container');
+                            if (container) {
+                                const currentContainerHeight = container.offsetHeight;
+                                const header = document.querySelector('.header');
+                                const footer = document.querySelector('.footer-section');
+                                const headerHeight = header ? header.offsetHeight : 0;
+                                const footerHeight = footer ? footer.offsetHeight : 40;
+                                const currentUsableHeight = currentContainerHeight - headerHeight - footerHeight;
+                                
+                                console.log('Final check - Container height:', currentContainerHeight);
+                                console.log('Final check - Usable height:', currentUsableHeight);
+                                
+                                // If we still have significant unused space, force larger buttons
+                                const currentButtonHeight = finalSlots[0].offsetHeight;
+                                const totalRows = Math.ceil(finalSlots.length / 4);
+                                const currentTotalHeight = (currentButtonHeight * totalRows) + contentHeights;
+                                const unusedSpace = currentUsableHeight - currentTotalHeight;
+                                
+                                console.log('Final check - Current button height:', currentButtonHeight);
+                                console.log('Final check - Unused space:', unusedSpace);
+                                
+                                if (unusedSpace > 20) {
+                                    const extraHeight = Math.floor(unusedSpace / totalRows);
+                                    if (extraHeight > 0) {
+                                        console.log('FORCING extra height:', extraHeight + 'px');
+                                        finalSlots.forEach(slot => {
+                                            const newHeight = currentButtonHeight + extraHeight;
+                                            slot.style.height = newHeight + 'px';
+                                            slot.style.minHeight = newHeight + 'px';
+                                            slot.style.maxHeight = newHeight + 'px';
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }, 200);
+                } else {
+                    console.log('No time slots found or no available height for portrait layout');
+                }
+                
+            } catch (error) {
+                console.error('Error in adjustPortraitLayout:', error);
+            } finally {
+                // Reset the flag after adjustment is complete
+                isAdjustingPortrait = false;
+            }
+        }
+
+        // Reset Admin button to normal state for landscape mode
+        function resetAdminButtonForLandscape() {
+            const adminBtn = document.querySelector('.admin-btn');
+            if (adminBtn) {
+                console.log('Resetting Admin button for landscape mode');
+                adminBtn.style.width = '';
+                adminBtn.style.height = '';
+                adminBtn.style.borderRadius = '';
+                adminBtn.style.padding = '';
+                adminBtn.style.display = '';
+                adminBtn.style.alignItems = '';
+                adminBtn.style.justifyContent = '';
+                adminBtn.style.fontSize = '';
+                
+                // Update button text based on admin state
+                updateAdminButtonText();
+                
+                // Reset icon margin
+                const adminIcon = adminBtn.querySelector('i');
+                if (adminIcon) {
+                    adminIcon.style.margin = '';
+                }
+            }
+        }
+
+        // Force portrait mode fixes immediately
+        function forcePortraitFixes() {
+            console.log('=== FORCING portrait mode fixes ===');
+            console.log('Current window dimensions:', window.innerWidth + 'x' + window.innerHeight);
+            console.log('Orientation:', window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+            
+            // Only apply portrait fixes if we're actually in portrait mode
+            const isPortrait = window.innerWidth <= window.innerHeight;
+            if (!isPortrait) {
+                console.log('Not in portrait mode, skipping portrait fixes');
+                return;
+            }
+            
+            // Add a visual indicator that the function is running
+            console.log('🔧 FORCE PORTRAIT FIXES FUNCTION IS RUNNING 🔧');
+            
+            // Force Admin button to be circular
+            const adminBtn = document.querySelector('.admin-btn');
+            console.log('Admin button found:', !!adminBtn);
+            if (adminBtn) {
+                console.log('Admin button current styles:');
+                console.log('- width:', adminBtn.style.width || 'not set');
+                console.log('- height:', adminBtn.style.height || 'not set');
+                console.log('- borderRadius:', adminBtn.style.borderRadius || 'not set');
+                console.log('- display:', adminBtn.style.display || 'not set');
+                
+                console.log('Applying circular styling...');
+                adminBtn.style.width = '50px';
+                adminBtn.style.height = '50px';
+                adminBtn.style.borderRadius = '50%';
+                adminBtn.style.padding = '0';
+                adminBtn.style.display = 'flex';
+                adminBtn.style.alignItems = 'center';
+                adminBtn.style.justifyContent = 'center';
+                adminBtn.style.fontSize = '1.2rem';
+                adminBtn.style.position = 'absolute';
+                adminBtn.style.top = '20px';
+                adminBtn.style.right = '20px';
+                
+                // Update button text for portrait mode (icon only)
+                updateAdminButtonText();
+                
+                // Reset icon margins
+                const adminIcon = adminBtn.querySelector('i');
+                console.log('Admin icon found:', !!adminIcon);
+                if (adminIcon) {
+                    adminIcon.style.margin = '0';
+                    console.log('Admin icon margin reset');
+                }
+                
+                console.log('Admin button styling completed');
+                console.log('Final admin button styles:');
+                console.log('- width:', adminBtn.style.width);
+                console.log('- height:', adminBtn.style.height);
+                console.log('- borderRadius:', adminBtn.style.borderRadius);
+                console.log('- display:', adminBtn.style.display);
+            } else {
+                console.log('ERROR: Admin button not found!');
+            }
+            
+            // Force time slot height calculation
+            setTimeout(() => {
+                console.log('=== Starting time slot height calculation ===');
+                const container = document.querySelector('.container');
+                console.log('Container found:', !!container);
+                if (container) {
+                    const containerWidth = container.offsetWidth;
+                    const containerHeight = container.offsetHeight;
+                    console.log('Container dimensions:', containerWidth + 'x' + containerHeight);
+                    
+                    // Get all time slots
+                    const allTimeSlots = document.querySelectorAll('.time-slot');
+                    console.log('Found time slots:', allTimeSlots.length);
+                    
+                    if (allTimeSlots.length === 0) {
+                        console.log('ERROR: No time slots found! This might be the issue.');
+                        return;
+                    }
+                    
+                    if (allTimeSlots.length > 0) {
+                        // Calculate available space more aggressively
+                        const header = document.querySelector('.header');
+                        const footer = document.querySelector('.footer-section');
+                        const dateSelector = document.querySelector('.date-selector');
+                        const lunchBreak = document.querySelector('.lunch-break');
+                        const sectionHeaders = document.querySelectorAll('.section-header');
+                        
+                        const headerHeight = header ? header.offsetHeight : 0;
+                        const footerHeight = footer ? footer.offsetHeight : 40;
+                        const dateSelectorHeight = dateSelector ? dateSelector.offsetHeight : 0;
+                        const lunchBreakHeight = lunchBreak ? lunchBreak.offsetHeight : 0;
+                        const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, h) => total + h.offsetHeight, 0);
+                        
+                        const usableHeight = containerHeight - headerHeight - footerHeight;
+                        const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 20; // Minimal padding
+                        const availableHeight = usableHeight - contentHeights;
+                        
+                        console.log('Height calculations:');
+                        console.log('- Container height:', containerHeight);
+                        console.log('- Header height:', headerHeight);
+                        console.log('- Footer height:', footerHeight);
+                        console.log('- Usable height:', usableHeight);
+                        console.log('- Content heights:', contentHeights);
+                        console.log('- Available height:', availableHeight);
+                        
+                        // Calculate button dimensions
+                        const columns = 4; // Portrait mode should have 4 columns
+                        const morningSlots = document.querySelectorAll('#morningSlots .time-slot');
+                        const afternoonSlots = document.querySelectorAll('#afternoonSlots .time-slot');
+                        const morningRows = Math.ceil(morningSlots.length / columns);
+                        const afternoonRows = Math.ceil(afternoonSlots.length / columns);
+                        const totalRows = morningRows + afternoonRows;
+                        
+                        const buttonWidth = Math.floor((containerWidth - 40 - (columns - 1) * 8) / columns);
+                        let buttonHeight = Math.floor(availableHeight / totalRows);
+                        
+                        // Make it more aggressive
+                        buttonHeight = Math.max(60, Math.floor(availableHeight * 0.9 / totalRows));
+                        
+                        console.log('Button calculations:');
+                        console.log('- Total rows:', totalRows);
+                        console.log('- Button width:', buttonWidth);
+                        console.log('- Button height:', buttonHeight);
+                        
+                        // Apply to all time slots
+                        allTimeSlots.forEach((slot, index) => {
+                            slot.style.width = buttonWidth + 'px';
+                            slot.style.height = buttonHeight + 'px';
+                            slot.style.minHeight = buttonHeight + 'px';
+                            slot.style.boxSizing = 'border-box';
+                            slot.style.flexShrink = '0';
+                            
+                            if (index < 5) { // Log first few slots
+                                console.log(`Slot ${index}: ${slot.dataset.time} - ${buttonWidth}x${buttonHeight}`);
+                            }
+                        });
+                        
+                        console.log('Time slots forced to new dimensions');
+                    }
+                }
+            }, 100);
+        }
+        
+        // Add event listeners using event delegation (more reliable)
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== PAGE LOADED - DOMContentLoaded event fired ===');
+            console.log('Page loaded, initializing...'); // Debug log
+            
+            // Simple initialization - no complex mobile detection
+            console.log('DOMContentLoaded - starting simple initialization');
+            
+            // Immediate container positioning fix for both orientations
+            const container = document.querySelector('.container');
+            if (container) {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                console.log('Immediate positioning - Screen:', width + 'x' + height);
+                
+                if (width > height) { // Landscape mode
+                    console.log('Landscape mode detected - applying immediate positioning');
+                    container.style.width = (width - 40) + 'px';
+                    container.style.height = (height - 40) + 'px';
+                    container.style.minHeight = (height - 40) + 'px';
+                    container.style.margin = '20px auto';
+                    container.style.position = 'relative';
+                    container.style.top = '0';
+                    container.style.left = '0';
+                    container.style.transform = 'none';
+                    container.style.overflow = 'hidden';
+                    container.style.maxHeight = (height - 40) + 'px';
+                    console.log('Landscape immediate positioning applied');
+                    
+                    // Apply immediate time slot sizing to prevent scale-up effect
+                    console.log('DOMContentLoaded - applying immediate landscape layout');
+                    adjustLandscapeLayout(width, height);
+                } else { // Portrait mode
+                    console.log('Portrait mode detected - applying immediate positioning');
+                    container.style.width = (width - 40) + 'px';
+                    container.style.height = (height - 40) + 'px';
+                    container.style.minHeight = (height - 40) + 'px';
+                    container.style.margin = '20px auto';
+                    container.style.position = 'relative';
+                    container.style.left = '0';
+                    container.style.right = '0';
+                    container.style.transform = 'none';
+                    container.style.overflow = 'hidden';
+                    container.style.maxHeight = (height - 40) + 'px';
+                    console.log('Portrait immediate positioning applied');
+                }
+            }
+            
+            // Portrait fixes will be handled by the proper initialization flow
+            
+            // Apply fixes multiple times to ensure they work
+            function applyDirectFixes() {
+                // Check if we're in portrait mode
+                const isPortrait = window.innerWidth <= window.innerHeight;
+                
+                if (isPortrait) {
+                    // Direct Admin button fix for portrait mode
+                    const adminBtn = document.querySelector('.admin-btn');
+                    if (adminBtn) {
+                        adminBtn.style.width = '50px';
+                        adminBtn.style.height = '50px';
+                        adminBtn.style.borderRadius = '50%';
+                        adminBtn.style.padding = '0';
+                        adminBtn.style.display = 'flex';
+                        adminBtn.style.alignItems = 'center';
+                        adminBtn.style.justifyContent = 'center';
+                        
+                        const adminText = adminBtn.querySelector('span');
+                        if (adminText) {
+                            adminText.style.display = 'none';
+                        }
+                    }
+                    
+                    // Direct time slot height fix for portrait mode
+                    const allTimeSlots = document.querySelectorAll('.time-slot');
+                    if (allTimeSlots.length > 0) {
+                        const container = document.querySelector('.container');
+                        if (container) {
+                            const containerHeight = container.offsetHeight;
+                            const header = document.querySelector('.header');
+                            const footer = document.querySelector('.footer-section');
+                            const headerHeight = header ? header.offsetHeight : 0;
+                            const footerHeight = footer ? footer.offsetHeight : 40;
+                            const usableHeight = containerHeight - headerHeight - footerHeight;
+                            
+                            // Add safety margins for other content (date selector, lunch break, section headers)
+                            const dateSelector = document.querySelector('.date-selector');
+                            const lunchBreak = document.querySelector('.lunch-break');
+                            const sectionHeaders = document.querySelectorAll('.section-header');
+                            
+                            const dateSelectorHeight = dateSelector ? dateSelector.offsetHeight : 0;
+                            const lunchBreakHeight = lunchBreak ? lunchBreak.offsetHeight : 0;
+                            const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, header) => total + header.offsetHeight, 0);
+                            
+                            const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 60; // 60px for padding/margins and safety
+                            const availableHeight = usableHeight - contentHeights;
+                            
+                            // Calculate button dimensions for portrait mode
+                            const columns = 4; // Portrait mode should have 4 columns, not 2
+                            const morningSlots = document.querySelectorAll('#morningSlots .time-slot');
+                            const afternoonSlots = document.querySelectorAll('#afternoonSlots .time-slot');
+                            const morningRows = Math.ceil(morningSlots.length / columns);
+                            const afternoonRows = Math.ceil(afternoonSlots.length / columns);
+                            const totalRows = morningRows + afternoonRows;
+                            
+                            // Calculate button width - ensure it fits in container
+                            const containerWidth = container.offsetWidth;
+                            const availableWidth = containerWidth - 40; // Account for container padding
+                            const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for gaps
+                            const buttonHeight = Math.floor(availableHeight * 0.9 / totalRows); // Use 90% of available height (after accounting for other content)
+                            
+                            console.log('Portrait mode - applying dimensions to', allTimeSlots.length, 'time slots');
+                            console.log('Container width:', containerWidth, 'Available width:', availableWidth);
+                            console.log('Columns:', columns, 'Button width:', buttonWidth);
+                            console.log('Button dimensions:', buttonWidth + 'x' + Math.max(60, buttonHeight));
+                            
+                            // Ensure the grid containers are set to 4 columns
+                            const morningSlotsContainer = document.querySelector('#morningSlots');
+                            const afternoonSlotsContainer = document.querySelector('#afternoonSlots');
+                            if (morningSlotsContainer) {
+                                morningSlotsContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                                morningSlotsContainer.style.gap = '8px';
+                            }
+                            if (afternoonSlotsContainer) {
+                                afternoonSlotsContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                                afternoonSlotsContainer.style.gap = '8px';
+                            }
+                            
+                            allTimeSlots.forEach((slot, index) => {
+                                slot.style.width = buttonWidth + 'px';
+                                slot.style.height = Math.max(60, buttonHeight) + 'px';
+                                slot.style.minHeight = Math.max(60, buttonHeight) + 'px';
+                                slot.style.boxSizing = 'border-box';
+                                slot.style.flexShrink = '0';
+                                
+                                // Ensure the time text is visible
+                                const timeText = slot.querySelector('.time-text');
+                                if (timeText) {
+                                    timeText.style.display = 'block';
+                                    timeText.style.visibility = 'visible';
+                                    timeText.style.opacity = '1';
+                                    timeText.style.textAlign = 'center';
+                                    timeText.style.lineHeight = '1.2';
+                                    timeText.style.padding = '5px';
+                                    timeText.style.fontSize = '0.9rem';
+                                    timeText.style.fontWeight = '600';
+                                    
+                                    // Debug: Log first few slots
+                                    if (index < 5) {
+                                        console.log(`Slot ${index}: ${slot.dataset.time} - Text: "${timeText.textContent}" - Visible: ${timeText.style.display}`);
+                                    }
+                                } else {
+                                    console.log(`ERROR: No time-text found in slot ${index} (${slot.dataset.time})`);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Direct fixes will be handled by the proper initialization flow
+            
+            // Initialize device ID
+            getOrCreateDeviceId();
+            // Single click handler to avoid conflicts
+            document.addEventListener('click', function(e) {
+                console.log('Click detected on:', e.target.tagName, e.target.className);
+                
+                // Check if clicked element or its parent is a time slot
+                let timeSlot = e.target.closest('.time-slot');
+                if (!timeSlot && e.target.classList.contains('time-slot')) {
+                    timeSlot = e.target;
+                }
+                
+                if (timeSlot) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const time = timeSlot.getAttribute('data-time');
+                    console.log('Time slot clicked:', time);
+                    handleSlotClick(time);
+                } else {
+                    console.log('Clicked outside time slot');
+                }
+            });
+            
+            // Track touch interactions
+            let touchStartElement = null;
+            let hasMoved = false;
+
+            document.body.addEventListener('touchstart', function(e) {
+                touchStartElement = e.target.closest('.time-slot');
+                hasMoved = false;
+                if (touchStartElement) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            document.body.addEventListener('touchmove', function(e) {
+                if (touchStartElement) {
+                    const currentElement = document.elementFromPoint(
+                        e.touches[0].clientX,
+                        e.touches[0].clientY
+                    );
+                    if (currentElement && !touchStartElement.contains(currentElement)) {
+                        hasMoved = true;
+                    }
+                }
+            });
+
+            document.body.addEventListener('touchend', function(e) {
+                if (touchStartElement && !hasMoved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const time = touchStartElement.dataset.time;
+                    console.log('Slot touched without movement:', time);
+                    handleSlotClick(time);
+                }
+                touchStartElement = null;
+                hasMoved = false;
+            }, { passive: false });
+            
+            // Debug: Check if time slots exist immediately
+            const timeSlots = document.querySelectorAll('.time-slot');
+            console.log('Found time slots:', timeSlots.length);
+            timeSlots.forEach((slot, index) => {
+                console.log(`Slot ${index}:`, slot.dataset.time, slot.getAttribute('data-time'));
+                // Time slots found and ready
+            });
+            
+            // Start loading bookings immediately, even before layout
+            console.log('Starting immediate booking load...');
+            loadBookings(currentDate).then(() => {
+                console.log('Initial booking load completed');
+            }).catch(error => {
+                console.error('Initial booking load error:', error);
+            });
+            
+            // Simple fallback - back to working approach
+            setTimeout(() => {
+                if (bookings && Object.keys(bookings).length > 0) {
+                    console.log('Fallback: Force updating booking display');
+                    updateTimeSlotsImmediate();
+                }
+            }, 200);
+            
+            // Simple initialization - back to working approach
+            console.log('Starting simple initialization');
+            
+            setTimeout(function() {
+                console.log('Starting initialization...');
+                isInitializing = true; // Set flag to prevent other calls
+                try {
+                    // Run layout detection with mobile-specific timing
+                    detectScreenSize();
+                    console.log('detectScreenSize completed');
+                    
+                    // Update browser config
+                    updateBrowserConfig();
+                    console.log('Browser config updated');
+                    
+                    // Portrait fixes will be handled by applyContainerSizing for portrait mode
+                    
+                    // Clear initialization flag after a short delay
+                    setTimeout(() => {
+                        isInitializing = false; // Clear flag after initialization is complete
+                        
+                        // Mobile-specific additional layout check
+                        // Removed multiple detectScreenSize calls to prevent re-adjustments
+                        // if (isMobile) {
+                        //     console.log('Mobile: Running additional layout check...');
+                        //     setTimeout(() => {
+                        //         detectScreenSize();
+                        //     }, 200);
+                        //     setTimeout(() => {
+                        //         detectScreenSize();
+                        //     }, 500);
+                        // }
+                    }, 500);
+                    
+                    console.log('Initialization completed');
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    isInitializing = false; // Clear flag on error
+                }
+            }, initDelay); // Mobile-specific delay for viewport stability
+        });
+
+        // Auto-refresh functionality
+        function startAutoRefresh() {
+            // Refresh every 2 seconds to show new bookings faster
+            autoRefreshInterval = setInterval(function() {
+                console.log('Auto-refreshing bookings...');
+                loadBookings(currentDate);
+            }, 2000); // Reduced from 3 seconds to 2 seconds
+        }
+
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                console.log('Auto-refresh stopped');
+            }
+        }
+
+        // Start auto-refresh when page loads
+        setTimeout(function() {
+            startAutoRefresh();
+            console.log('Auto-refresh started (every 3 seconds)');
+        }, 2000); // Start after 2 seconds to let initial load complete
+
+        // Pause auto-refresh when user is interacting with modals
+        function pauseAutoRefresh() {
+            stopAutoRefresh();
+            console.log('Auto-refresh paused (modal open)');
+        }
+
+        function resumeAutoRefresh() {
+            startAutoRefresh();
+            console.log('Auto-refresh resumed');
+        }
+
+        // Function to update browser configuration display
+        function updateBrowserConfig() {
+            const configElement = document.getElementById('browserConfig');
+            const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+            configElement.textContent = 'Current Config: ' + (isLandscape ? 'Landscape' : 'Portrait');
+        }
+
+        // Re-detect on window resize - DISABLED for portrait mode to prevent re-calculations
+        window.addEventListener('resize', function() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // Only recalculate for landscape mode, not portrait
+            if (width > height) {
+                setTimeout(() => {
+                    detectScreenSize();
+                    updateBrowserConfig();
+                }, 100); // Debounce resize events
+            } else {
+                console.log('Resize detected in portrait mode - skipping recalculation to prevent layout changes');
+            }
+        });
+        
+        // Mobile-specific scroll handler to fix layout issues - DISABLED to prevent multiple re-adjustments
+        // let scrollTimeout;
+        // window.addEventListener('scroll', function() {
+        //     clearTimeout(scrollTimeout);
+        //     scrollTimeout = setTimeout(() => {
+        //         console.log('Scroll detected - recalculating layout');
+        //         detectScreenSize();
+        //     }, 150);
+        // });
+
+        // Re-detect on orientation change - DISABLED for portrait mode to prevent re-calculations
+        window.addEventListener('orientationchange', function() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // Only recalculate when switching TO landscape mode, not when staying in portrait
+            if (width > height) {
+                setTimeout(() => {
+                    detectScreenSize();
+                    console.log('Orientation changed to landscape - recalculating');
+                }, 300);
+            } else {
+                console.log('Orientation change in portrait mode - skipping recalculation to prevent layout changes');
+                // Still apply CSS fixes but don't recalculate layout
+                setTimeout(() => {
+                    applyPortraitCSS();
+                }, 100);
+            }
+        });
+        
+        // Force refresh time slot dimensions on any layout change
+        function refreshTimeSlotDimensions() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (width > height) {
+                setTimeout(() => {
+                    adjustLandscapeLayout(width, height);
+                }, 200);
+            }
+        }
+        
+        // Additional event listeners for time slot refresh - DISABLED for portrait mode to prevent re-calculations
+        window.addEventListener('load', function() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (width > height) {
+                refreshTimeSlotDimensions();
+            } else {
+                console.log('Load event in portrait mode - skipping time slot refresh to prevent layout changes');
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (width > height) {
+                refreshTimeSlotDimensions();
+            } else {
+                console.log('DOMContentLoaded in portrait mode - skipping time slot refresh to prevent layout changes');
+            }
+        });
+
+        function selectDate(date, element) {
+            // Update active tab
+            document.querySelectorAll('.date-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            
+            currentDate = date;
+            loadBookings(date);
+        }
+
+        // Simple cache for booking data
+        const bookingCache = new Map();
+        const CACHE_DURATION = 2000; // 2 seconds cache
+        
+        // Simple browser detection - back to working approach
+        console.log('Browser detection completed');
+
+        function loadBookings(date) {
+            console.log('loadBookings called with date:', date);
+            return new Promise((resolve, reject) => {
+                try {
+                    // Check cache first
+                    const cacheKey = date;
+                    const cached = bookingCache.get(cacheKey);
+                    const now = Date.now();
+                    
+                    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+                        console.log('Using cached booking data for', date);
+                        // Immediately update display without waiting
+                        updateBookingsFromData(cached.data);
+                        resolve(cached.data);
+                        return;
+                    }
+                    
+                    // Don't show loading spinner for auto-refresh to avoid flashing
+                    const isAutoRefresh = !document.querySelector('.loading-spinner');
+                    
+                    if (!isAutoRefresh) {
+                        showLoading(true);
+                    }
+                    
+                    // Add timestamp to prevent duplicate requests
+                    const requestId = `${date}_${now}`;
+                    console.log('Fetching fresh booking data for', date, 'Request ID:', requestId);
+                    
+                    fetch(`/get_bookings?date=${date}&_t=${now}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Cache the data
+                                bookingCache.set(cacheKey, {
+                                    data: data,
+                                    timestamp: now
+                                });
+                                
+                                // Update display
+                                updateBookingsFromData(data);
+                            } else {
+                                console.error('Failed to load bookings:', data.message);
+                            }
+                            
+                            if (!isAutoRefresh) {
+                                showLoading(false);
+                            }
+                            resolve(data);
+                        })
+                        .catch(error => {
+                            console.error('Error loading bookings:', error);
+                            if (!isAutoRefresh) {
+                                showLoading(false);
+                            }
+                            reject(error);
+                        });
+                } catch (error) {
+                    console.error('Error in loadBookings:', error);
+                    if (!isAutoRefresh) {
+                        showLoading(false);
+                    }
+                    reject(error);
+                }
+            });
+        }
+        
+        function updateBookingsFromData(data) {
+            if (data.success) {
+                console.log('updateBookingsFromData called with:', data.bookings);
+                const newBookings = data.bookings;
+                
+                // Always update display for initial load or if bookings exist
+                const isInitialLoad = !bookings || Object.keys(bookings).length === 0;
+                const hasBookings = newBookings && Object.keys(newBookings).length > 0;
+                const hasChanges = compareBookings(bookings, newBookings);
+                
+                if (isInitialLoad || hasChanges || hasBookings) {
+                    console.log('Updating display - Initial:', isInitialLoad, 'Changes:', hasChanges, 'HasBookings:', hasBookings);
+                    bookings = newBookings;
+                    
+                    // Force immediate update without waiting for animations
+                    updateTimeSlotsImmediate();
+                    
+                    // Then apply smooth transitions
+                    setTimeout(() => {
+                        updateTimeSlotsSmooth();
+                    }, 10);
+                } else {
+                    console.log('No booking changes detected');
+                }
+                
+                // Preload adjacent dates for faster switching
+                preloadAdjacentDates(data.date);
+            }
+        }
+        
+        function updateTimeSlotsImmediate() {
+            console.log('updateTimeSlotsImmediate called');
+            const slots = document.querySelectorAll('.time-slot');
+            console.log('Found slots for immediate update:', slots.length);
+            
+            // Simple update - back to working approach
+            updateSlotsDesktop(slots);
+        }
+        
+        function updateSlotsMobile(slots) {
+            console.log('Mobile-optimized slot update');
+            // Process slots in smaller batches to avoid blocking
+            const batchSize = 5;
+            let currentIndex = 0;
+            
+            function processBatch() {
+                const endIndex = Math.min(currentIndex + batchSize, slots.length);
+                
+                for (let i = currentIndex; i < endIndex; i++) {
+                    const slot = slots[i];
+                    const time = slot.dataset.time;
+                    
+                    if (bookings[time]) {
+                        // Mobile-optimized: Direct style manipulation
+                        slot.style.transition = 'none'; // Disable transitions for speed
+                        slot.classList.remove('available');
+                        slot.classList.add('booked');
+                        
+                        // Check if this booking was made by the current device
+                        if (bookings[time].device_id === deviceId) {
+                            slot.classList.add('my-device');
+                        } else {
+                            slot.classList.remove('my-device');
+                        }
+                        
+                        const bookedText = slot.querySelector('.booked-text');
+                        const username = bookings[time].username || 'Booked';
+                        
+                        // Check if text would overflow and hide name if needed
+                        if (shouldHideBookerName(slot, username)) {
+                            bookedText.textContent = '';
+                            bookedText.style.display = 'none';
+                            bookedText.classList.remove('cancel-hint', 'empty-username');
+                        } else {
+                            bookedText.textContent = username;
+                            bookedText.style.display = 'block';
+                            bookedText.classList.add('cancel-hint');
+                            
+                            // Add italic style for empty usernames
+                            if (!bookings[time].username) {
+                                bookedText.classList.add('empty-username');
+                            } else {
+                                bookedText.classList.remove('empty-username');
+                            }
+                        }
+                    } else {
+                        // Mobile-optimized: Direct style manipulation
+                        slot.style.transition = 'none'; // Disable transitions for speed
+                        slot.classList.remove('booked', 'my-device');
+                        slot.classList.add('available');
+                        
+                        const bookedText = slot.querySelector('.booked-text');
+                        bookedText.style.display = 'none';
+                        bookedText.classList.remove('cancel-hint', 'empty-username');
+                    }
+                }
+                
+                currentIndex = endIndex;
+                
+                if (currentIndex < slots.length) {
+                    // Process next batch
+                    requestAnimationFrame(processBatch);
+                } else {
+                    console.log('Mobile update completed');
+                    // Re-enable transitions after update
+                    setTimeout(() => {
+                        slots.forEach(slot => {
+                            slot.style.transition = '';
+                        });
+                    }, 50);
+                }
+            }
+            
+            processBatch();
+        }
+        
+        function updateSlotsDesktop(slots) {
+            console.log('Desktop slot update');
+            slots.forEach(slot => {
+                const time = slot.dataset.time;
+                
+                if (bookings[time]) {
+                    // Immediate update to booked state
+                    slot.classList.remove('available');
+                    slot.classList.add('booked');
+                    
+                    // Check if this booking was made by the current device
+                    if (bookings[time].device_id === deviceId) {
+                        slot.classList.add('my-device');
+                    } else {
+                        slot.classList.remove('my-device');
+                    }
+                    
+                    const bookedText = slot.querySelector('.booked-text');
+                    const username = bookings[time].username || 'Booked';
+                    
+                    // Check if text would overflow and hide name if needed
+                    if (shouldHideBookerName(slot, username)) {
+                        bookedText.textContent = '';
+                        bookedText.style.display = 'none';
+                        bookedText.classList.remove('cancel-hint', 'empty-username');
+                    } else {
+                        bookedText.textContent = username;
+                        bookedText.style.display = 'block';
+                        bookedText.classList.add('cancel-hint');
+                        
+                        // Add italic style for empty usernames
+                        if (!bookings[time].username) {
+                            bookedText.classList.add('empty-username');
+                        } else {
+                            bookedText.classList.remove('empty-username');
+                        }
+                    }
+                } else {
+                    // Immediate update to available state
+                    slot.classList.remove('booked', 'my-device');
+                    slot.classList.add('available');
+                    
+                    const bookedText = slot.querySelector('.booked-text');
+                    bookedText.style.display = 'none';
+                    bookedText.classList.remove('cancel-hint', 'empty-username');
+                }
+            });
+            console.log('Desktop update completed');
+        }
+        
+        function shouldHideBookerName(slot, username) {
+            // Get the slot dimensions
+            const slotRect = slot.getBoundingClientRect();
+            const slotHeight = slotRect.height;
+            
+            // Get the time text element
+            const timeText = slot.querySelector('.time-text');
+            if (!timeText) return true; // If no time text, hide name
+            
+            // Calculate available space for the booker name
+            // Reserve space for time text + padding + margins
+            const timeTextHeight = timeText.offsetHeight;
+            const padding = 30; // Total padding (15px top + 15px bottom)
+            const margin = 10; // Space between time and name
+            const minNameHeight = 20; // Minimum height needed for name text
+            
+            const availableHeight = slotHeight - timeTextHeight - padding - margin;
+            
+            // Hide name if there's not enough space
+            if (availableHeight < minNameHeight) {
+                console.log(`Hiding booker name for slot ${slot.dataset.time}: height=${slotHeight}px, available=${availableHeight}px`);
+                return true;
+            }
+            
+            // Also hide if slot is very narrow (width < 100px)
+            const slotWidth = slotRect.width;
+            if (slotWidth < 100) {
+                console.log(`Hiding booker name for slot ${slot.dataset.time}: width=${slotWidth}px too narrow`);
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function preloadAdjacentDates(currentDate) {
+            // Preload tomorrow and day after for faster date switching
+            const dates = ['today', 'tomorrow', 'day_after'];
+            const currentIndex = dates.indexOf(currentDate);
+            
+            if (currentIndex !== -1) {
+                // Preload next date
+                if (currentIndex < dates.length - 1) {
+                    const nextDate = dates[currentIndex + 1];
+                    if (!bookingCache.has(nextDate)) {
+                        console.log('Preloading next date:', nextDate);
+                        loadBookings(nextDate).catch(error => {
+                            console.log('Preload failed for', nextDate, error);
+                        });
+                    }
+                }
+                
+                // Preload previous date
+                if (currentIndex > 0) {
+                    const prevDate = dates[currentIndex - 1];
+                    if (!bookingCache.has(prevDate)) {
+                        console.log('Preloading previous date:', prevDate);
+                        loadBookings(prevDate).catch(error => {
+                            console.log('Preload failed for', prevDate, error);
+                        });
+                    }
+                }
+            }
+        }
+
+        // Compare bookings to detect changes
+        function compareBookings(oldBookings, newBookings) {
+            const oldKeys = Object.keys(oldBookings || {});
+            const newKeys = Object.keys(newBookings || {});
+            
+            // Different number of bookings
+            if (oldKeys.length !== newKeys.length) {
+                return true;
+            }
+            
+            // Check if any booking changed
+            for (let time of oldKeys) {
+                if (!newBookings[time] || oldBookings[time].username !== newBookings[time].username) {
+                    return true;
+                }
+            }
+            
+            // Check if any new booking was added
+            for (let time of newKeys) {
+                if (!oldBookings[time]) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function updateTimeSlotsSmooth() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                const time = slot.dataset.time;
+                const slotKey = `${currentDate}_${time}`;
+                
+                if (bookings[time]) {
+                    // Smooth transition to booked state
+                    if (!slot.classList.contains('booked')) {
+                        slot.style.transition = 'all 0.3s ease';
+                        slot.classList.remove('available');
+                        slot.classList.add('booked');
+                        
+                        // Check if this booking was made by the current device
+                        if (bookings[time].device_id === deviceId) {
+                            slot.classList.add('my-device');
+                        } else {
+                            slot.classList.remove('my-device');
+                        }
+                        
+                        const bookedText = slot.querySelector('.booked-text');
+                        const username = bookings[time].username || 'Booked';
+                        
+                        // Check if text would overflow and hide name if needed
+                        if (shouldHideBookerName(slot, username)) {
+                            bookedText.textContent = '';
+                            bookedText.style.display = 'none';
+                            bookedText.classList.remove('cancel-hint', 'empty-username');
+                        } else {
+                            bookedText.textContent = username;
+                            bookedText.style.display = 'block';
+                            bookedText.classList.add('cancel-hint');
+                            
+                            // Add italic style for empty usernames
+                            if (!bookings[time].username) {
+                                bookedText.classList.add('empty-username');
+                            } else {
+                                bookedText.classList.remove('empty-username');
+                            }
+                        }
+                        
+                        // Remove transition after animation
+                        setTimeout(() => {
+                            slot.style.transition = '';
+                        }, 300);
+                    }
+                } else {
+                    // Smooth transition to available state
+                    if (slot.classList.contains('booked')) {
+                        slot.style.transition = 'all 0.3s ease';
+                        slot.classList.remove('booked', 'my-device');
+                        slot.classList.add('available');
+                        slot.querySelector('.booked-text').textContent = 'Available';
+                        slot.querySelector('.booked-text').style.display = 'none';
+                        slot.querySelector('.booked-text').classList.remove('cancel-hint');
+                        
+                        // Remove transition after animation
+                        setTimeout(() => {
+                            slot.style.transition = '';
+                        }, 300);
+                    }
+                }
+            });
+        }
+
+        function updateTimeSlots() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                const time = slot.dataset.time;
+                const slotKey = `${currentDate}_${time}`;
+                
+                if (bookings[time]) {
+                    slot.classList.remove('available');
+                    slot.classList.add('booked');
+                    
+                    // Check if this booking was made by the current device
+                    if (bookings[time].device_id === deviceId) {
+                        slot.classList.add('my-device');
+                    } else {
+                        slot.classList.remove('my-device');
+                    }
+                    
+                    const bookedText = slot.querySelector('.booked-text');
+                    const username = bookings[time].username || 'Booked';
+                    bookedText.textContent = username;
+                    bookedText.style.display = 'block';
+                    bookedText.classList.add('cancel-hint');
+                    
+                    // Add italic style for empty usernames
+                    if (!bookings[time].username) {
+                        bookedText.classList.add('empty-username');
+                    } else {
+                        bookedText.classList.remove('empty-username');
+                    }
+                } else {
+                    slot.classList.remove('booked', 'my-device');
+                    slot.classList.add('available');
+                    slot.querySelector('.booked-text').textContent = 'Available';
+                    slot.querySelector('.booked-text').style.display = 'none';
+                    slot.querySelector('.booked-text').classList.remove('cancel-hint');
+                }
+            });
+        }
+
+        function handleSlotClick(time) {
+            console.log('handleSlotClick called with:', time);
+            currentSlot = time;
+            const slot = document.querySelector(`[data-time="${time}"]`);
+            
+            if (!slot) {
+                console.error('Slot not found for time:', time);
+                return;
+            }
+            
+            if (slot.classList.contains('booked')) {
+                // Check if this booking was made by the current device OR if user is admin
+                if ((bookings[time] && bookings[time].device_id === deviceId) || isAdminSession) {
+                    // Update cancel modal message based on admin status
+                    const cancelModal = document.getElementById('cancelModal');
+                    const cancelMessage = cancelModal.querySelector('p');
+                    
+                    if (isAdminSession && (!bookings[time] || bookings[time].device_id !== deviceId)) {
+                        cancelMessage.innerHTML = 'Admin Mode: Are you sure you want to cancel this booking?<br><br>';
+                    } else {
+                        cancelMessage.innerHTML = 'Are you sure you want to cancel this booking?<br><br>';
+                    }
+                    
+                    cancelModal.style.display = 'block';
+                    pauseAutoRefresh();
+                } else {
+                    // Show message that user cannot cancel other's bookings
+                    showNotification('You can only cancel your own bookings', 'error');
+                }
+            } else {
+                // Show booking modal
+                document.getElementById('bookingModal').style.display = 'block';
+                pauseAutoRefresh();
+                
+                // Load saved username from localStorage
+                const savedUsername = localStorage.getItem('booking_username');
+                if (savedUsername) {
+                    document.getElementById('usernameInput').value = savedUsername;
+                    // Show the clear button
+                    document.querySelector('.clear-saved-info').style.display = 'block';
+                } else {
+                    // Hide the clear button if no saved username
+                    document.querySelector('.clear-saved-info').style.display = 'none';
+                }
+                
+                document.getElementById('usernameInput').focus();
+            }
+        }
+
+        function confirmBooking() {
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            console.log('confirmBooking called with username:', username || '(empty)');
+
+            // Save username to localStorage for future use (even if empty)
+            localStorage.setItem('booking_username', username);
+
+            fetch('/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: currentDate,
+                    time: currentSlot,
+                    username: username || '', // Leave blank if empty
+                    device_id: deviceId // Include device ID for tracking
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    loadBookings(currentDate);
+                    const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
+                    showNotification(message, 'success');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error booking slot:', error);
+                alert('An error occurred while booking. Please try again.');
+            });
+        }
+
+        function confirmCancellation() {
+            fetch('/cancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: currentDate,
+                    time: currentSlot,
+                    device_id: deviceId, // Include device ID for verification
+                    is_admin: isAdminSession // Include admin status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    loadBookings(currentDate);
+                    showNotification('Booking cancelled!', 'success');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error cancelling booking:', error);
+                alert('An error occurred while cancelling. Please try again.');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            document.getElementById('cancelModal').style.display = 'none';
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('adminPasswordInput').value = '';
+            resumeAutoRefresh(); // Resume auto-refresh when modal closes
+        }
+
+        function clearSavedUsername() {
+            // Clear the saved username from localStorage
+            localStorage.removeItem('booking_username');
+            
+            // Clear the input field
+            document.getElementById('usernameInput').value = '';
+            
+            // Show confirmation message
+            showNotification('Saved name cleared!', 'success');
+            
+            // Focus on the input field
+            document.getElementById('usernameInput').focus();
+        }
+
+        // Admin functionality
+        function showAdminModal() {
+            if (isAdminSession) {
+                // If already admin, allow to exit
+                exitAdminSession();
+                return;
+            }
+            document.getElementById('adminModal').style.display = 'block';
+            pauseAutoRefresh();
+            const passwordInput = document.getElementById('adminPasswordInput');
+            passwordInput.focus();
+            
+            // Add Enter key event listener
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyAdminPassword();
+                }
+            });
+        }
+
+        function verifyAdminPassword() {
+            const password = document.getElementById('adminPasswordInput').value.trim();
+            
+            if (password === 'Nomura') {
+                isAdminSession = true;
+                document.getElementById('adminBtn').classList.add('admin-active');
+                updateAdminButtonText();
+                closeModal();
+                showNotification('Admin access granted! You can now cancel any booking.', 'success');
+                console.log('Admin session activated');
+            } else {
+                showNotification('Invalid admin password', 'error');
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('adminPasswordInput').focus();
+            }
+        }
+
+        function exitAdminSession() {
+            isAdminSession = false;
+            document.getElementById('adminBtn').classList.remove('admin-active');
+            updateAdminButtonText();
+            showNotification('Admin session ended', 'info');
+            console.log('Admin session ended');
+        }
+
+        function updateAdminButtonText() {
+            const adminBtn = document.getElementById('adminBtn');
+            const isPortrait = window.innerHeight > window.innerWidth;
+            
+            if (isAdminSession) {
+                if (isPortrait) {
+                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i>';
+                } else {
+                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin Active';
+                }
+            } else {
+                if (isPortrait) {
+                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i>';
+                } else {
+                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin';
+                }
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Enhanced Toast Notification System
+        let notificationStack = [];
+        
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            const notificationId = Date.now() + Math.random();
+            
+            // Determine icon based on type
+            let icon = '';
+            let bgColor = '';
+            switch(type) {
+                case 'success':
+                    icon = '✓';
+                    bgColor = '#10b981';
+                    break;
+                case 'error':
+                    icon = '⚠';
+                    bgColor = '#ef4444';
+                    break;
+                case 'info':
+                    icon = 'ℹ';
+                    bgColor = '#3b82f6';
+                    break;
+                default:
+                    icon = 'ℹ';
+                    bgColor = '#6b7280';
+            }
+            
+            // Calculate position based on existing notifications - all top center
+            const existingNotifications = document.querySelectorAll('.toast-notification');
+            const topOffset = 20 + (existingNotifications.length * 70); // Stack vertically with 70px spacing
+            
+            // Apply enhanced styling
+            notification.className = 'toast-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: ${topOffset}px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-20px);
+                background: ${bgColor};
+                color: white;
+                padding: 18px 20px;
+                border-radius: 12px;
+                z-index: 10000;
+                font-weight: 500;
+                font-size: 14px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                gap: 8px;
+                max-width: 350px;
+                min-width: 200px;
+                opacity: 0;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            `;
+            
+            // Add icon and message
+            notification.innerHTML = `
+                <span style="font-size: 16px; font-weight: bold; line-height: 1.2; display: flex; align-items: flex-start; padding-top: 2px;">${icon}</span>
+                <span style="line-height: 1.2; display: flex; align-items: flex-start;">${message}</span>
+            `;
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            notificationStack.push({ id: notificationId, element: notification });
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            
+            // Click to dismiss
+            notification.addEventListener('click', () => {
+                dismissNotification(notificationId);
+            });
+            
+            // Auto dismiss after duration
+            const duration = type === 'error' ? 4000 : 3000; // Errors stay longer
+            setTimeout(() => {
+                dismissNotification(notificationId);
+            }, duration);
+        }
+        
+        function dismissNotification(notificationId) {
+            const notificationIndex = notificationStack.findIndex(n => n.id === notificationId);
+            if (notificationIndex === -1) return;
+            
+            const notification = notificationStack[notificationIndex].element;
+            
+            // Animate out
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(-20px)';
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+                
+                // Remove from stack
+                notificationStack.splice(notificationIndex, 1);
+                
+                // Reposition remaining notifications
+                repositionNotifications();
+            }, 300);
+        }
+        
+        function repositionNotifications() {
+            const notifications = document.querySelectorAll('.toast-notification');
+            notifications.forEach((notification, index) => {
+                const topOffset = 20 + (index * 70);
+                notification.style.top = `${topOffset}px`;
+            });
+        }
+
+        // Close modals when clicking outside - REMOVED TO AVOID CONFLICTS
+        // window.onclick = function(event) {
+        //     const bookingModal = document.getElementById('bookingModal');
+        //     const cancelModal = document.getElementById('cancelModal');
+        //     
+        //     if (event.target === bookingModal) {
+        //         closeModal();
+        //     }
+        //     if (event.target === cancelModal) {
+        //         closeModal();
+        //     }
+        // }
+
+        // Handle Enter key in username input - with error handling
+        try {
+            const usernameInput = document.getElementById('usernameInput');
+            if (usernameInput) {
+                usernameInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        confirmBooking();
+                    }
+                });
+            }
+        } catch (error) {
+            console.log('Username input not found yet:', error);
+        }
+    </script>
+</body>
+</html>

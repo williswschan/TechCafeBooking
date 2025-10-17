@@ -1,0 +1,109 @@
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.1.57:5000/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 247-862-609
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:08] "GET /get_bookings?date=2025-10-17&_t=1760638209524 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:10] "GET /get_bookings?date=2025-10-17&_t=1760638211530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:14] "GET /get_bookings?date=2025-10-17&_t=1760638215516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:16] "GET /get_bookings?date=2025-10-17&_t=1760638217526 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:20] "GET /get_bookings?date=2025-10-17&_t=1760638221518 HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/script/cursor/TechCafeBooking-Mac/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 247-862-609
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:22] "GET /get_bookings?date=2025-10-17&_t=1760638223523 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:26] "GET /get_bookings?date=2025-10-17&_t=1760638227530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:30] "GET /get_bookings?date=2025-10-17&_t=1760638231516 HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/script/cursor/TechCafeBooking-Mac/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 247-862-609
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:34] "GET /get_bookings?date=2025-10-17&_t=1760638235529 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:38] "GET /get_bookings?date=2025-10-17&_t=1760638239529 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:42] "GET /get_bookings?date=2025-10-17&_t=1760638243519 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:44] "GET /get_bookings?date=2025-10-17&_t=1760638245528 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:46] "GET /get_bookings?date=2025-10-17&_t=1760638247528 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:50] "GET /get_bookings?date=2025-10-17&_t=1760638251530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:54] "GET /get_bookings?date=2025-10-17&_t=1760638254470 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:54] "GET /get_bookings?date=2025-10-17&_t=1760638255530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:56] "GET /get_bookings?date=2025-10-17&_t=1760638256568 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.2.11 - - [17/Oct/2025 02:10:58] "GET /test-portrait HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:58] "GET /get_bookings?date=2025-10-17&_t=1760638258642 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:10:58] "GET /get_bookings?date=2025-10-17&_t=1760638259516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:00] "GET /get_bookings?date=2025-10-17&_t=1760638260739 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:00] "GET /get_bookings?date=2025-10-17&_t=1760638261525 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:02] "GET /get_bookings?date=2025-10-17&_t=1760638262839 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:04] "GET /get_bookings?date=2025-10-17&_t=1760638265530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:05] "GET /get_bookings?date=2025-10-17&_t=1760638265555 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:08] "GET /get_bookings?date=2025-10-17&_t=1760638268566 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:08] "GET /get_bookings?date=2025-10-17&_t=1760638269525 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:10] "GET /get_bookings?date=2025-10-17&_t=1760638271526 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:11] "GET /get_bookings?date=2025-10-17&_t=1760638271604 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:14] "GET /get_bookings?date=2025-10-17&_t=1760638274637 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:14] "GET /get_bookings?date=2025-10-17&_t=1760638275515 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:16] "GET /get_bookings?date=2025-10-17&_t=1760638277526 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:17] "GET /get_bookings?date=2025-10-17&_t=1760638277583 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:18] "GET /get_bookings?date=2025-10-17&_t=1760638279527 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:20] "GET /get_bookings?date=2025-10-17&_t=1760638280542 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:22] "GET /get_bookings?date=2025-10-17&_t=1760638283520 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:23] "GET /get_bookings?date=2025-10-17&_t=1760638283600 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:24] "GET /get_bookings?date=2025-10-17&_t=1760638285528 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:26] "GET /get_bookings?date=2025-10-17&_t=1760638286600 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:28] "GET /get_bookings?date=2025-10-17&_t=1760638289516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:29] "GET /get_bookings?date=2025-10-17&_t=1760638289615 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:30] "GET /get_bookings?date=2025-10-17&_t=1760638291523 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:32] "GET /get_bookings?date=2025-10-17&_t=1760638292583 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:34] "GET /get_bookings?date=2025-10-17&_t=1760638295516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:35] "GET /get_bookings?date=2025-10-17&_t=1760638295625 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:36] "GET /get_bookings?date=2025-10-17&_t=1760638297527 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:38] "GET /get_bookings?date=2025-10-17&_t=1760638298640 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:40] "GET /get_bookings?date=2025-10-17&_t=1760638301526 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:41] "GET /get_bookings?date=2025-10-17&_t=1760638301599 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:42] "GET /get_bookings?date=2025-10-17&_t=1760638303531 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:44] "GET /get_bookings?date=2025-10-17&_t=1760638304545 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:46] "GET /get_bookings?date=2025-10-17&_t=1760638307525 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:47] "GET /get_bookings?date=2025-10-17&_t=1760638307582 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:48] "GET /get_bookings?date=2025-10-17&_t=1760638309525 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:50] "GET /get_bookings?date=2025-10-17&_t=1760638310630 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:52] "GET /get_bookings?date=2025-10-17&_t=1760638313520 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:53] "GET /get_bookings?date=2025-10-17&_t=1760638313583 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:54] "GET /get_bookings?date=2025-10-17&_t=1760638315520 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:56] "GET /get_bookings?date=2025-10-17&_t=1760638316630 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:56] "GET /get_bookings?date=2025-10-17&_t=1760638317523 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:11:59] "GET /get_bookings?date=2025-10-17&_t=1760638319639 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:00] "GET /get_bookings?date=2025-10-17&_t=1760638321519 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:02] "GET /get_bookings?date=2025-10-17&_t=1760638322582 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:04] "GET /get_bookings?date=2025-10-17&_t=1760638325518 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:05] "GET /get_bookings?date=2025-10-17&_t=1760638325634 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:06] "GET /get_bookings?date=2025-10-17&_t=1760638327519 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:08] "GET /get_bookings?date=2025-10-17&_t=1760638328630 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:08] "GET /get_bookings?date=2025-10-17&_t=1760638329527 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:11] "GET /get_bookings?date=2025-10-17&_t=1760638331599 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:12] "GET /get_bookings?date=2025-10-17&_t=1760638333520 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:14] "GET /get_bookings?date=2025-10-17&_t=1760638334588 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:16] "GET /get_bookings?date=2025-10-17&_t=1760638337516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:17] "GET /get_bookings?date=2025-10-17&_t=1760638337622 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:18] "GET /get_bookings?date=2025-10-17&_t=1760638339522 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:20] "GET /get_bookings?date=2025-10-17&_t=1760638340588 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:20] "GET /get_bookings?date=2025-10-17&_t=1760638341525 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:22] "GET /get_bookings?date=2025-10-17&_t=1760638343530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:23] "GET /get_bookings?date=2025-10-17&_t=1760638343543 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:26] "GET /get_bookings?date=2025-10-17&_t=1760638346601 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:26] "GET /get_bookings?date=2025-10-17&_t=1760638347516 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:28] "GET /get_bookings?date=2025-10-17&_t=1760638349526 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:29] "GET /get_bookings?date=2025-10-17&_t=1760638349545 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:32] "GET /get_bookings?date=2025-10-17&_t=1760638352581 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:32] "GET /get_bookings?date=2025-10-17&_t=1760638353519 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:34] "GET /get_bookings?date=2025-10-17&_t=1760638355529 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:35] "GET /get_bookings?date=2025-10-17&_t=1760638355558 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:38] "GET /get_bookings?date=2025-10-17&_t=1760638358605 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:38] "GET /get_bookings?date=2025-10-17&_t=1760638359530 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:41] "GET /get_bookings?date=2025-10-17&_t=1760638361614 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.201 - - [17/Oct/2025 02:12:42] "GET /get_bookings?date=2025-10-17&_t=1760638363528 HTTP/1.1" 200 -
