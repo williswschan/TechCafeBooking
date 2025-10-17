@@ -122,9 +122,11 @@ def cancel_booking():
     del bookings[slot_key]
     return jsonify({'success': True, 'message': 'Booking cancelled'})
 
-@app.route('/get_bookings')
+@app.route('/get_bookings', methods=['GET', 'POST'])
 def get_bookings():
-    date = request.args.get('date')
+    # Try to get date from both args and form data
+    date = request.args.get('date') or request.form.get('date')
+    
     if not date:
         return jsonify({'success': False, 'message': 'Date required'})
     
@@ -135,6 +137,7 @@ def get_bookings():
             date_bookings[time] = booking
     
     return jsonify({'success': True, 'bookings': date_bookings})
+
 
 @app.route('/test')
 def test_page():

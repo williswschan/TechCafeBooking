@@ -1872,44 +1872,39 @@
                 hasMoved = false;
             }, { passive: false });
             
-            // Debug: Check if time slots exist immediately
+            // Check if time slots exist immediately
             const timeSlots = document.querySelectorAll('.time-slot');
-            console.log('Found time slots:', timeSlots.length);
             timeSlots.forEach((slot, index) => {
-                console.log(`Slot ${index}:`, slot.dataset.time, slot.getAttribute('data-time'));
                 // Time slots found and ready
             });
             
             // Start loading bookings immediately, even before layout
-            console.log('Starting immediate booking load...');
-            loadBookings(currentDate).then(() => {
-                console.log('Initial booking load completed');
-            }).catch(error => {
-                console.error('Initial booking load error:', error);
-            });
+            const loadStartTime = Date.now();
             
-            // Simple fallback - back to working approach
-            setTimeout(() => {
-                if (bookings && Object.keys(bookings).length > 0) {
-                    console.log('Fallback: Force updating booking display');
-                    updateTimeSlotsImmediate();
-                }
-            }, 200);
+            // Load bookings for desktop
+            if (!isMobile) {
+                loadBookings(currentDate).then(() => {
+                    const loadEndTime = Date.now();
+                    // Force immediate display update after booking load
+                    setTimeout(() => {
+                        updateTimeSlotsImmediate();
+                    }, 50);
+                }).catch(error => {
+                    console.error('Initial booking load error:', error);
+                });
+            }
+            
             
             // Simple initialization - back to working approach
-            console.log('Starting simple initialization');
             
             setTimeout(function() {
-                console.log('Starting initialization...');
                 isInitializing = true; // Set flag to prevent other calls
                 try {
                     // Run layout detection with mobile-specific timing
                     detectScreenSize();
-                    console.log('detectScreenSize completed');
                     
                     // Update browser config
                     updateBrowserConfig();
-                    console.log('Browser config updated');
                     
                     // Portrait fixes will be handled by applyContainerSizing for portrait mode
                     
@@ -2063,10 +2058,46 @@
         const CACHE_DURATION = 2000; // 2 seconds cache
         
         // Simple browser detection - back to working approach
-        console.log('Browser detection completed');
+        
+        // Mobile-optimized loading using POST with form data
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            // Start mobile loading immediately
+            setTimeout(() => {
+                const formData = new FormData();
+                formData.append('date', currentDate);
+                
+                fetch('/get_bookings', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bookings = data.bookings;
+                        
+                        // Update display
+                        const slots = document.querySelectorAll('.time-slot');
+                        slots.forEach(slot => {
+                            const time = slot.dataset.time;
+                            if (bookings[time]) {
+                                slot.className = 'time-slot booked';
+                                if (bookings[time].device_id === deviceId) {
+                                    slot.classList.add('my-device');
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Mobile loading error:', error);
+                });
+            }, 100);
+        }
+        
 
         function loadBookings(date) {
-            console.log('loadBookings called with date:', date);
+            
             return new Promise((resolve, reject) => {
                 try {
                     // Check cache first
@@ -2091,16 +2122,22 @@
                     
                     // Add timestamp to prevent duplicate requests
                     const requestId = `${date}_${now}`;
+                    const fetchStart = Date.now();
                     console.log('Fetching fresh booking data for', date, 'Request ID:', requestId);
                     
                     fetch(`/get_bookings?date=${date}&_t=${now}`)
                         .then(response => {
+                            const fetchEnd = Date.now();
+                            console.log('Fetch response received in', fetchEnd - fetchStart, 'ms');
                             if (!response.ok) {
                                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                             }
                             return response.json();
                         })
                         .then(data => {
+                            const dataProcessEnd = Date.now();
+                            console.log('Data processing completed in', dataProcessEnd - fetchStart, 'ms');
+                            
                             if (data.success) {
                                 // Cache the data
                                 bookingCache.set(cacheKey, {
@@ -2109,7 +2146,10 @@
                                 });
                                 
                                 // Update display
+                                const displayStart = Date.now();
                                 updateBookingsFromData(data);
+                                const displayEnd = Date.now();
+                                console.log('Display update completed in', displayEnd - displayStart, 'ms');
                             } else {
                                 console.error('Failed to load bookings:', data.message);
                             }
@@ -2152,6 +2192,15 @@
                     
                     // Force immediate update without waiting for animations
                     updateTimeSlotsImmediate();
+                    
+                    // Mobile-specific additional update to ensure display
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        console.log('Mobile: Additional booking display update');
+                        setTimeout(() => {
+                            updateTimeSlotsImmediate();
+                        }, 100);
+                    }
                     
                     // Then apply smooth transitions
                     setTimeout(() => {
