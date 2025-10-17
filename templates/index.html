@@ -565,7 +565,7 @@
         /* Mobile-specific optimizations */
         @media (max-width: 768px) {
             .typeahead-dropdown {
-                max-height: 150px; /* Smaller on mobile */
+                max-height: 300px; /* Show 4 names on mobile */
                 border-radius: 8px; /* Less rounded on mobile */
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
                 /* Enhanced mobile scrolling */
@@ -3333,7 +3333,7 @@
                 
                 // Adjust max-height based on available space
                 const availableHeight = viewportHeight - inputRect.bottom - 20;
-                const maxHeight = Math.min(150, Math.max(100, availableHeight));
+                const maxHeight = Math.min(300, Math.max(100, availableHeight));
                 dropdown.style.maxHeight = maxHeight + 'px';
                 
                 // Ensure it's above mobile keyboards
