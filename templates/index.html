@@ -913,8 +913,8 @@
                     <div class="date-tab {% if loop.first %}active{% endif %}" 
                          data-date="{{ date.date }}" 
                          onclick="selectDate('{{ date.date }}', this)">
-                        <div>{{ date.short }}</div>
-                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ date.display.split(',')[1].strip() }}</div>
+                        <div>{{ date.display.split('<br>')[0] }}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ date.display.split('<br>')[1] }}</div>
                     </div>
                     {% endfor %}
                 </div>

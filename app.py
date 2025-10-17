@@ -56,16 +56,32 @@ def get_time_slots():
     return slots
 
 def get_available_dates():
-    """Get today, tomorrow, and day after tomorrow"""
+    """Get today, tomorrow, and day after tomorrow, skipping weekends"""
     today = datetime.now().date()
     dates = []
-    for i in range(3):
-        date = today + timedelta(days=i)
-        dates.append({
-            'date': date.strftime("%Y-%m-%d"),
-            'display': date.strftime("%A, %B %d"),
-            'short': date.strftime("%a %d")
-        })
+    current_date = today
+    days_added = 0
+    
+    # Always include today
+    dates.append({
+        'date': current_date.strftime("%Y-%m-%d"),
+        'display': f"{current_date.strftime('%d (%a)')}<br>{current_date.strftime('%b %y')}",
+        'short': current_date.strftime("%a %b")
+    })
+    days_added += 1
+    
+    # Add next 2 business days (skip weekends)
+    while days_added < 3:
+        current_date += timedelta(days=1)
+        # Skip Saturday (5) and Sunday (6)
+        if current_date.weekday() not in [5, 6]:
+            dates.append({
+                'date': current_date.strftime("%Y-%m-%d"),
+                'display': f"{current_date.strftime('%d (%a)')}<br>{current_date.strftime('%b %y')}",
+                'short': current_date.strftime("%a %b")
+            })
+            days_added += 1
+    
     return dates
 
 @app.route('/')
