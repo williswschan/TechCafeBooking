@@ -2047,15 +2047,7 @@
                 console.log('Load event in portrait mode - skipping time slot refresh to prevent layout changes');
             }
         });
-        document.addEventListener('DOMContentLoaded', function() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            if (width > height) {
-                refreshTimeSlotDimensions();
-            } else {
-                console.log('DOMContentLoaded in portrait mode - skipping time slot refresh to prevent layout changes');
-            }
-        });
+        // Removed duplicate DOMContentLoaded listener - consolidated into main one
 
         function selectDate(date, element) {
             // Update active tab
@@ -2179,85 +2171,70 @@
             const slots = document.querySelectorAll('.time-slot');
             console.log('Found slots for immediate update:', slots.length);
             
-            // Simple update - back to working approach
-            updateSlotsDesktop(slots);
+            // Detect mobile and use appropriate update method
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                console.log('Mobile device detected - using mobile-optimized update');
+                updateSlotsMobile(slots);
+            } else {
+                console.log('Desktop device detected - using desktop update');
+                updateSlotsDesktop(slots);
+            }
         }
         
         function updateSlotsMobile(slots) {
-            console.log('Mobile-optimized slot update');
-            // Process slots in smaller batches to avoid blocking
-            const batchSize = 5;
-            let currentIndex = 0;
-            
-            function processBatch() {
-                const endIndex = Math.min(currentIndex + batchSize, slots.length);
+            console.log('Mobile-optimized slot update - immediate processing');
+            // Process all slots immediately for faster mobile loading
+            slots.forEach(slot => {
+                const time = slot.dataset.time;
                 
-                for (let i = currentIndex; i < endIndex; i++) {
-                    const slot = slots[i];
-                    const time = slot.dataset.time;
+                if (bookings[time]) {
+                    // Mobile-optimized: Direct style manipulation
+                    slot.style.transition = 'none'; // Disable transitions for speed
+                    slot.classList.remove('available');
+                    slot.classList.add('booked');
                     
-                    if (bookings[time]) {
-                        // Mobile-optimized: Direct style manipulation
-                        slot.style.transition = 'none'; // Disable transitions for speed
-                        slot.classList.remove('available');
-                        slot.classList.add('booked');
-                        
-                        // Check if this booking was made by the current device
-                        if (bookings[time].device_id === deviceId) {
-                            slot.classList.add('my-device');
-                        } else {
-                            slot.classList.remove('my-device');
-                        }
-                        
-                        const bookedText = slot.querySelector('.booked-text');
-                        const username = bookings[time].username || 'Booked';
-                        
-                        // Check if text would overflow and hide name if needed
-                        if (shouldHideBookerName(slot, username)) {
-                            bookedText.textContent = '';
-                            bookedText.style.display = 'none';
-                            bookedText.classList.remove('cancel-hint', 'empty-username');
-                        } else {
-                            bookedText.textContent = username;
-                            bookedText.style.display = 'block';
-                            bookedText.classList.add('cancel-hint');
-                            
-                            // Add italic style for empty usernames
-                            if (!bookings[time].username) {
-                                bookedText.classList.add('empty-username');
-                            } else {
-                                bookedText.classList.remove('empty-username');
-                            }
-                        }
+                    // Check if this booking was made by the current device
+                    if (bookings[time].device_id === deviceId) {
+                        slot.classList.add('my-device');
                     } else {
-                        // Mobile-optimized: Direct style manipulation
-                        slot.style.transition = 'none'; // Disable transitions for speed
-                        slot.classList.remove('booked', 'my-device');
-                        slot.classList.add('available');
-                        
-                        const bookedText = slot.querySelector('.booked-text');
+                        slot.classList.remove('my-device');
+                    }
+                    
+                    const bookedText = slot.querySelector('.booked-text');
+                    const username = bookings[time].username || 'Booked';
+                    
+                    // Check if text would overflow and hide name if needed
+                    if (shouldHideBookerName(slot, username)) {
+                        bookedText.textContent = '';
                         bookedText.style.display = 'none';
                         bookedText.classList.remove('cancel-hint', 'empty-username');
+                    } else {
+                        bookedText.textContent = username;
+                        bookedText.style.display = 'block';
+                        bookedText.classList.add('cancel-hint');
+                        
+                        // Add italic style for empty usernames
+                        if (!bookings[time].username) {
+                            bookedText.classList.add('empty-username');
+                        } else {
+                            bookedText.classList.remove('empty-username');
+                        }
                     }
-                }
-                
-                currentIndex = endIndex;
-                
-                if (currentIndex < slots.length) {
-                    // Process next batch
-                    requestAnimationFrame(processBatch);
                 } else {
-                    console.log('Mobile update completed');
-                    // Re-enable transitions after update
-                    setTimeout(() => {
-                        slots.forEach(slot => {
-                            slot.style.transition = '';
-                        });
-                    }, 50);
+                    // Mobile-optimized: Direct style manipulation
+                    slot.style.transition = 'none'; // Disable transitions for speed
+                    slot.classList.remove('booked', 'my-device');
+                    slot.classList.add('available');
+                    
+                    const bookedText = slot.querySelector('.booked-text');
+                    bookedText.style.display = 'none';
+                    bookedText.classList.remove('cancel-hint', 'empty-username');
                 }
-            }
+            });
             
-            processBatch();
+            console.log('Mobile update completed - immediate processing');
         }
         
         function updateSlotsDesktop(slots) {
