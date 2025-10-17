@@ -2079,10 +2079,8 @@
             document.body.addEventListener('touchstart', function(e) {
                 touchStartElement = e.target.closest('.time-slot');
                 hasMoved = false;
-                if (touchStartElement) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
+                // Don't prevent default - allow scrolling even on time slots
+            }, { passive: true });
 
             document.body.addEventListener('touchmove', function(e) {
                 if (touchStartElement) {
@@ -2098,15 +2096,18 @@
 
             document.body.addEventListener('touchend', function(e) {
                 if (touchStartElement && !hasMoved) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const time = touchStartElement.dataset.time;
-                    console.log('Slot touched without movement:', time);
-                    handleSlotClick(time);
+                    // Small delay to allow scroll to complete first
+                    setTimeout(() => {
+                        if (touchStartElement && !hasMoved) {
+                            const time = touchStartElement.dataset.time;
+                            console.log('Slot tapped (not scrolled):', time);
+                            handleSlotClick(time);
+                        }
+                    }, 50); // 50ms delay to distinguish tap from scroll
                 }
                 touchStartElement = null;
                 hasMoved = false;
-            }, { passive: false });
+            }, { passive: true });
             
             // Check if time slots exist immediately
             const timeSlots = document.querySelectorAll('.time-slot');
@@ -2119,15 +2120,15 @@
             
             // Load bookings for desktop
             if (!isMobile) {
-                loadBookings(currentDate).then(() => {
+            loadBookings(currentDate).then(() => {
                     const loadEndTime = Date.now();
                     // Force immediate display update after booking load
                     setTimeout(() => {
                         updateTimeSlotsImmediate();
                     }, 50);
-                }).catch(error => {
-                    console.error('Initial booking load error:', error);
-                });
+            }).catch(error => {
+                console.error('Initial booking load error:', error);
+            });
             }
             
             
@@ -2176,7 +2177,7 @@
                 if (isMobile) {
                     loadBookingsMobile(currentDate);
                 } else {
-                    loadBookings(currentDate);
+                loadBookings(currentDate);
                 }
             }, 2000); // Reduced from 3 seconds to 2 seconds
         }
@@ -2292,7 +2293,7 @@
             if (isMobile) {
                 loadBookingsMobile(date);
             } else {
-                loadBookings(date);
+            loadBookings(date);
             }
         }
 
@@ -2468,7 +2469,7 @@
                 updateSlotsMobile(slots);
             } else {
                 console.log('Desktop device detected - using desktop update');
-                updateSlotsDesktop(slots);
+            updateSlotsDesktop(slots);
             }
         }
         
@@ -2476,51 +2477,51 @@
             console.log('Mobile-optimized slot update - immediate processing');
             // Process all slots immediately for faster mobile loading
             slots.forEach(slot => {
-                const time = slot.dataset.time;
-                
-                if (bookings[time]) {
-                    // Mobile-optimized: Direct style manipulation
-                    slot.style.transition = 'none'; // Disable transitions for speed
-                    slot.classList.remove('available');
-                    slot.classList.add('booked');
+                    const time = slot.dataset.time;
                     
-                    // Check if this booking was made by the current device
-                    if (bookings[time].device_id === deviceId) {
-                        slot.classList.add('my-device');
+                    if (bookings[time]) {
+                        // Mobile-optimized: Direct style manipulation
+                        slot.style.transition = 'none'; // Disable transitions for speed
+                        slot.classList.remove('available');
+                        slot.classList.add('booked');
+                        
+                        // Check if this booking was made by the current device
+                        if (bookings[time].device_id === deviceId) {
+                            slot.classList.add('my-device');
+                        } else {
+                            slot.classList.remove('my-device');
+                        }
+                        
+                        const bookedText = slot.querySelector('.booked-text');
+                        const username = bookings[time].username || 'Booked';
+                        
+                        // Check if text would overflow and hide name if needed
+                        if (shouldHideBookerName(slot, username)) {
+                            bookedText.textContent = '';
+                            bookedText.style.display = 'none';
+                            bookedText.classList.remove('cancel-hint', 'empty-username');
+                        } else {
+                            bookedText.textContent = username;
+                            bookedText.style.display = 'block';
+                            bookedText.classList.add('cancel-hint');
+                            
+                            // Add italic style for empty usernames
+                            if (!bookings[time].username) {
+                                bookedText.classList.add('empty-username');
+                            } else {
+                                bookedText.classList.remove('empty-username');
+                            }
+                        }
                     } else {
-                        slot.classList.remove('my-device');
-                    }
-                    
-                    const bookedText = slot.querySelector('.booked-text');
-                    const username = bookings[time].username || 'Booked';
-                    
-                    // Check if text would overflow and hide name if needed
-                    if (shouldHideBookerName(slot, username)) {
-                        bookedText.textContent = '';
+                        // Mobile-optimized: Direct style manipulation
+                        slot.style.transition = 'none'; // Disable transitions for speed
+                        slot.classList.remove('booked', 'my-device');
+                        slot.classList.add('available');
+                        
+                        const bookedText = slot.querySelector('.booked-text');
                         bookedText.style.display = 'none';
                         bookedText.classList.remove('cancel-hint', 'empty-username');
-                    } else {
-                        bookedText.textContent = username;
-                        bookedText.style.display = 'block';
-                        bookedText.classList.add('cancel-hint');
-                        
-                        // Add italic style for empty usernames
-                        if (!bookings[time].username) {
-                            bookedText.classList.add('empty-username');
-                        } else {
-                            bookedText.classList.remove('empty-username');
-                        }
                     }
-                } else {
-                    // Mobile-optimized: Direct style manipulation
-                    slot.style.transition = 'none'; // Disable transitions for speed
-                    slot.classList.remove('booked', 'my-device');
-                    slot.classList.add('available');
-                    
-                    const bookedText = slot.querySelector('.booked-text');
-                    bookedText.style.display = 'none';
-                    bookedText.classList.remove('cancel-hint', 'empty-username');
-                }
             });
             
             console.log('Mobile update completed - immediate processing');
@@ -2807,13 +2808,13 @@
                 
                 // Load saved username from localStorage (only if not in kiosk mode)
                 if (!isKioskMode) {
-                    const savedUsername = localStorage.getItem('booking_username');
-                    if (savedUsername) {
-                        document.getElementById('usernameInput').value = savedUsername;
-                        // Show the clear button
-                        document.querySelector('.clear-saved-info').style.display = 'block';
-                    } else {
-                        // Hide the clear button if no saved username
+                const savedUsername = localStorage.getItem('booking_username');
+                if (savedUsername) {
+                    document.getElementById('usernameInput').value = savedUsername;
+                    // Show the clear button
+                    document.querySelector('.clear-saved-info').style.display = 'block';
+                } else {
+                    // Hide the clear button if no saved username
                         document.querySelector('.clear-saved-info').style.display = 'none';
                     }
                 } else {
@@ -2827,7 +2828,7 @@
                 
                 // Focus input field only in kiosk mode (for immediate interaction)
                 if (isKioskMode) {
-                    document.getElementById('usernameInput').focus();
+                document.getElementById('usernameInput').focus();
                 }
             }
         }
@@ -2839,7 +2840,7 @@
 
             // Save username to localStorage for future use (only if not in kiosk mode)
             if (!isKioskMode) {
-                localStorage.setItem('booking_username', username);
+            localStorage.setItem('booking_username', username);
             }
 
             fetch('/book', {
@@ -2861,7 +2862,7 @@
                     if (isMobile) {
                         loadBookingsMobile(currentDate);
                     } else {
-                        loadBookings(currentDate);
+                    loadBookings(currentDate);
                     }
                     const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
                     showNotification(message, 'success');
@@ -2895,7 +2896,7 @@
                     if (isMobile) {
                         loadBookingsMobile(currentDate);
                     } else {
-                        loadBookings(currentDate);
+                    loadBookings(currentDate);
                     }
                     showNotification('Booking cancelled!', 'success');
                 } else {
@@ -3001,7 +3002,7 @@
 
         // Enhanced Toast Notification System
         let notificationStack = [];
-        
+
         function showNotification(message, type) {
             // Create notification element
             const notification = document.createElement('div');
@@ -3099,7 +3100,7 @@
             // Remove after animation
             setTimeout(() => {
                 if (notification.parentNode) {
-                    notification.remove();
+                notification.remove();
                 }
                 
                 // Remove from stack
