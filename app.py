@@ -13,6 +13,26 @@ logger = logging.getLogger(__name__)
 # In-memory storage for bookings (in production, use a database)
 bookings = {}
 
+# Load display names from file (cached in memory for performance)
+display_names = []
+
+def load_display_names():
+    """Load display names from display_name.txt file"""
+    global display_names
+    try:
+        with open('display_name.txt', 'r', encoding='utf-8') as f:
+            display_names = [line.strip() for line in f.readlines() if line.strip()]
+        logger.info(f"Loaded {len(display_names)} display names")
+    except FileNotFoundError:
+        logger.warning("display_name.txt not found, using empty list")
+        display_names = []
+    except Exception as e:
+        logger.error(f"Error loading display names: {e}")
+        display_names = []
+
+# Load names at startup
+load_display_names()
+
 def get_time_slots():
     """Generate time slots from 09:00 to 18:00 with 15-minute intervals, excluding lunch hours (12:00-14:00)"""
     slots = []
@@ -138,136 +158,10 @@ def get_bookings():
     
     return jsonify({'success': True, 'bookings': date_bookings})
 
-
-@app.route('/test')
-def test_page():
-    return render_template_string('''
-<!DOCTYPE html>
-<html>
-<head><title>Test</title></head>
-<body>
-    <h1>Test Page</h1>
-    <button onclick="test()">Click Me</button>
-    <div id="result"></div>
-    <script>
-        function test() {
-            document.getElementById('result').innerHTML = 'Working!';
-            alert('JavaScript working!');
-        }
-        alert('Page loaded!');
-    </script>
-</body>
-</html>
-    ''')
-
-@app.route('/minimal')
-def minimal_test():
-    return render_template_string('''
-<!DOCTYPE html>
-<html>
-<head><title>Minimal Test</title></head>
-<body>
-    <h1>Minimal Click Test</h1>
-    <div class="time-slot" data-time="09:00" style="width:100px;height:50px;background:lightblue;margin:10px;cursor:pointer;display:inline-block;text-align:center;line-height:50px;border:2px solid blue;">09:00</div>
-    <div class="time-slot" data-time="09:15" style="width:100px;height:50px;background:lightblue;margin:10px;cursor:pointer;display:inline-block;text-align:center;line-height:50px;border:2px solid blue;">09:15</div>
-    
-    <script>
-        alert('Script starting...');
-        
-        document.addEventListener('click', function(e) {
-            alert('Click detected on: ' + e.target.tagName);
-            if (e.target.classList.contains('time-slot')) {
-                const time = e.target.getAttribute('data-time');
-                alert('Time slot clicked: ' + time);
-            }
-        });
-        
-        alert('Script loaded completely');
-    </script>
-</body>
-</html>
-    ''')
-
-@app.route('/test-portrait')
-def test_portrait():
-    with open('test_portrait.html', 'r') as f:
-        return f.read()
-
-@app.route('/debug')
-def debug_page():
-    return render_template_string('''
-<!DOCTYPE html>
-<html>
-<head><title>Debug Test</title></head>
-<body>
-    <h1>Debug Test - Portrait Mode Fixes</h1>
-    <div id="admin-btn" class="admin-btn" style="position:absolute;top:20px;right:20px;background:red;color:white;padding:10px;border-radius:5px;">
-        <i class="fas fa-user-shield"></i>
-        <span>Admin</span>
-    </div>
-    
-    <div style="margin-top:100px;">
-        <h2>Time Slots Test</h2>
-        <div class="time-slot" data-time="09:00" style="width:100px;height:50px;background:lightblue;margin:10px;cursor:pointer;display:inline-block;text-align:center;line-height:50px;border:2px solid blue;">09:00</div>
-        <div class="time-slot" data-time="09:15" style="width:100px;height:50px;background:lightblue;margin:10px;cursor:pointer;display:inline-block;text-align:center;line-height:50px;border:2px solid blue;">09:15</div>
-        <div class="time-slot" data-time="09:30" style="width:100px;height:50px;background:lightblue;margin:10px;cursor:pointer;display:inline-block;text-align:center;line-height:50px;border:2px solid blue;">09:30</div>
-    </div>
-    
-    <div id="status" style="margin-top:20px;padding:10px;background:#f0f0f0;"></div>
-    
-    <script>
-        function forcePortraitFixes() {
-            document.getElementById('status').innerHTML += '<p>🔧 FORCE PORTRAIT FIXES FUNCTION IS RUNNING 🔧</p>';
-            
-            // Force Admin button to be circular
-            const adminBtn = document.getElementById('admin-btn');
-            if (adminBtn) {
-                document.getElementById('status').innerHTML += '<p>Admin button found: true</p>';
-                adminBtn.style.width = '50px';
-                adminBtn.style.height = '50px';
-                adminBtn.style.borderRadius = '50%';
-                adminBtn.style.padding = '0';
-                adminBtn.style.display = 'flex';
-                adminBtn.style.alignItems = 'center';
-                adminBtn.style.justifyContent = 'center';
-                
-                // Hide text
-                const adminText = adminBtn.querySelector('span');
-                if (adminText) {
-                    adminText.style.display = 'none';
-                    document.getElementById('status').innerHTML += '<p>Admin text hidden</p>';
-                }
-                
-                document.getElementById('status').innerHTML += '<p>Admin button styled as circular</p>';
-            } else {
-                document.getElementById('status').innerHTML += '<p>ERROR: Admin button not found!</p>';
-            }
-            
-            // Force time slot height calculation
-            const allTimeSlots = document.querySelectorAll('.time-slot');
-            document.getElementById('status').innerHTML += '<p>Found time slots: ' + allTimeSlots.length + '</p>';
-            
-            allTimeSlots.forEach((slot, index) => {
-                slot.style.width = '120px';
-                slot.style.height = '80px';
-                slot.style.minHeight = '80px';
-                document.getElementById('status').innerHTML += '<p>Slot ' + index + ' styled: ' + slot.dataset.time + '</p>';
-            });
-        }
-        
-        // Run the function immediately
-        document.getElementById('status').innerHTML += '<p>Page loaded, running forcePortraitFixes()...</p>';
-        forcePortraitFixes();
-        
-        // Also run it after a delay
-        setTimeout(() => {
-            document.getElementById('status').innerHTML += '<p>Running forcePortraitFixes() after delay...</p>';
-            forcePortraitFixes();
-        }, 1000);
-    </script>
-</body>
-</html>
-    ''')
+@app.route('/get_names', methods=['GET'])
+def get_names():
+    """API endpoint to get all display names for type-ahead functionality"""
+    return jsonify({'success': True, 'names': display_names})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

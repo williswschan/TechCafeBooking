@@ -75,6 +75,73 @@
             transform: translateY(-2px);
         }
 
+        /* Kiosk Mode Button Styles */
+        .kiosk-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kiosk-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .kiosk-btn.kiosk-active {
+            background: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .kiosk-btn.kiosk-active:hover {
+            background: #059669;
+            border-color: #059669;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Mobile responsive for both buttons */
+        @media (max-width: 768px) {
+            .kiosk-btn, .admin-btn {
+                padding: 0 !important;
+                font-size: 0.8rem;
+                border-radius: 50% !important;
+                gap: 0 !important;
+                width: 40px !important;
+                height: 40px !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
+                max-width: 40px !important;
+                max-height: 40px !important;
+                justify-content: center;
+                align-items: center;
+                display: flex !important;
+                box-sizing: border-box !important;
+            }
+            
+            .kiosk-btn span, .admin-btn span {
+                display: none !important;
+            }
+            
+            .kiosk-btn i, .admin-btn i {
+                font-size: 16px;
+                line-height: 1;
+            }
+        }
+
         .admin-btn.admin-active {
             background: #10b981;
             border-color: #10b981;
@@ -398,6 +465,166 @@
             border-color: #dc2626;
         }
 
+        /* Type-ahead dropdown styles */
+        .typeahead-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .typeahead-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 9999; /* Higher z-index for mobile */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Enhanced mobile scrolling */
+            overscroll-behavior: contain;
+            scroll-behavior: smooth;
+            touch-action: pan-y;
+            /* Better scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+        
+        /* Webkit scrollbar styling for better mobile experience */
+        .typeahead-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 3px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        .typeahead-item {
+            padding: 15px; /* Larger touch targets for mobile */
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+            font-size: 1rem; /* Slightly larger text for mobile */
+            min-height: 44px; /* Minimum touch target size */
+            display: flex;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+            -webkit-touch-callout: none; /* Disable callout on iOS */
+            -webkit-user-select: none; /* Disable text selection */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            /* Better touch scrolling support */
+            touch-action: manipulation;
+            /* Prevent accidental selections during scroll */
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+
+        .typeahead-item:hover,
+        .typeahead-item:active {
+            background-color: #f8fafc;
+        }
+
+        .typeahead-item:last-child {
+            border-bottom: none;
+        }
+
+        .typeahead-item.highlighted {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .typeahead-item .highlight {
+            background-color: #fef3c7;
+            font-weight: 600;
+        }
+
+        .typeahead-item.highlighted .highlight {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .typeahead-dropdown {
+                max-height: 150px; /* Smaller on mobile */
+                border-radius: 8px; /* Less rounded on mobile */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                /* Enhanced mobile scrolling */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                scroll-behavior: smooth;
+                touch-action: pan-y;
+                /* Ensure dropdown is above mobile keyboards */
+                position: fixed;
+                top: auto;
+                bottom: auto;
+                left: 10px;
+                right: 10px;
+                max-width: calc(100vw - 20px);
+                /* Better mobile positioning */
+                transform: translateY(0);
+                /* Match input width exactly */
+                width: auto;
+                min-width: 0;
+                /* Improved scrolling with better indicators */
+                background: white;
+                /* Add subtle scroll indicators */
+                border: 2px solid #e5e7eb;
+                border-top: none;
+            }
+            
+            .typeahead-item {
+                padding: 16px; /* Even larger touch targets on mobile */
+                font-size: 1.1rem;
+                min-height: 48px;
+                /* Prevent text selection on mobile */
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                /* Better touch feedback */
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+                /* Improved touch scrolling */
+                touch-action: manipulation;
+                /* Enhanced mobile touch handling */
+                -webkit-touch-callout: none;
+                -webkit-user-drag: none;
+                /* Better scroll behavior */
+                pointer-events: auto;
+            }
+            
+            /* Better mobile scrolling for the dropdown */
+            .typeahead-dropdown {
+                /* Enhanced mobile scrolling */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                scroll-behavior: smooth;
+                touch-action: pan-y;
+                /* Better scrollbar for mobile */
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e0 transparent;
+            }
+        }
+
         .modal-buttons {
             display: flex;
             gap: 15px;
@@ -668,6 +895,10 @@
         <div class="header">
             <h1><i class="fas fa-calendar-check"></i> TechCafe Booking Portal</h1>
             <p>Book your preferred time slot for today and upcoming days</p>
+            <button id="kioskBtn" class="kiosk-btn" onclick="toggleKioskMode()">
+                <i class="fas fa-desktop"></i>
+                <span>Kiosk</span>
+            </button>
             <button id="adminBtn" class="admin-btn" onclick="showAdminModal()">
                 <i class="fas fa-user-shield"></i>
                 <span>Admin</span>
@@ -756,7 +987,10 @@
         <div class="modal-content">
             <h3><i class="fas fa-user-plus"></i> Book Your Slot</h3>
             <p class="privacy-notice"><strong>⚠️ Your name will be shown publicly. Leave empty for privacy.</strong></p>
-            <input type="text" id="usernameInput" placeholder="Enter your name (optional)" maxlength="50">
+            <div class="typeahead-container">
+                <input type="text" id="usernameInput" placeholder="Enter your name (optional)" maxlength="50" autocomplete="off">
+                <div id="typeaheadDropdown" class="typeahead-dropdown"></div>
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -2569,18 +2803,30 @@
                 document.getElementById('bookingModal').style.display = 'block';
                 pauseAutoRefresh();
                 
-                // Load saved username from localStorage
-                const savedUsername = localStorage.getItem('booking_username');
-                if (savedUsername) {
-                    document.getElementById('usernameInput').value = savedUsername;
-                    // Show the clear button
-                    document.querySelector('.clear-saved-info').style.display = 'block';
+                // Load saved username from localStorage (only if not in kiosk mode)
+                if (!isKioskMode) {
+                    const savedUsername = localStorage.getItem('booking_username');
+                    if (savedUsername) {
+                        document.getElementById('usernameInput').value = savedUsername;
+                        // Show the clear button
+                        document.querySelector('.clear-saved-info').style.display = 'block';
+                    } else {
+                        // Hide the clear button if no saved username
+                        document.querySelector('.clear-saved-info').style.display = 'none';
+                    }
                 } else {
-                    // Hide the clear button if no saved username
+                    // In kiosk mode, always clear the input and hide clear button
+                    document.getElementById('usernameInput').value = '';
                     document.querySelector('.clear-saved-info').style.display = 'none';
                 }
                 
-                document.getElementById('usernameInput').focus();
+                // Reinitialize type-ahead for the modal
+                initializeTypeahead();
+                
+                // Focus input field only in kiosk mode (for immediate interaction)
+                if (isKioskMode) {
+                    document.getElementById('usernameInput').focus();
+                }
             }
         }
 
@@ -2589,8 +2835,10 @@
             
             console.log('confirmBooking called with username:', username || '(empty)');
 
-            // Save username to localStorage for future use (even if empty)
-            localStorage.setItem('booking_username', username);
+            // Save username to localStorage for future use (only if not in kiosk mode)
+            if (!isKioskMode) {
+                localStorage.setItem('booking_username', username);
+            }
 
             fetch('/book', {
                 method: 'POST',
@@ -2881,18 +3129,346 @@
         //     }
         // }
 
-        // Handle Enter key in username input - with error handling
-        try {
+        // Enter key handling is now included in initializeTypeahead()
+
+        // Type-ahead functionality for username input
+        let allNames = [];
+        let filteredNames = [];
+        let selectedIndex = -1;
+        let isTypeaheadVisible = false;
+        // Use existing isMobile variable or detect if not available
+        const isMobileDevice = typeof isMobile !== 'undefined' ? isMobile : /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Kiosk mode functionality
+        let isKioskMode = false;
+
+        function initializeKioskMode() {
+            // Load kiosk mode setting from localStorage
+            const savedKioskMode = localStorage.getItem('kiosk_mode');
+            isKioskMode = savedKioskMode === 'true';
+            
+            // Update button UI
+            updateKioskButton();
+        }
+
+        function toggleKioskMode() {
+            isKioskMode = !isKioskMode;
+            localStorage.setItem('kiosk_mode', isKioskMode.toString());
+            
+            // Clear saved username when entering kiosk mode
+            if (isKioskMode) {
+                localStorage.removeItem('booking_username');
+                // Clear any existing input
+                const usernameInput = document.getElementById('usernameInput');
+                if (usernameInput) {
+                    usernameInput.value = '';
+                }
+                // Hide clear button
+                const clearButton = document.querySelector('.clear-saved-info');
+                if (clearButton) {
+                    clearButton.style.display = 'none';
+                }
+            }
+            
+            // Update button appearance
+            updateKioskButton();
+        }
+
+        function updateKioskButton() {
+            const kioskBtn = document.getElementById('kioskBtn');
+            if (kioskBtn) {
+                if (isKioskMode) {
+                    kioskBtn.classList.add('kiosk-active');
+                    kioskBtn.innerHTML = '<i class="fas fa-desktop"></i><span>Kiosk</span>';
+                } else {
+                    kioskBtn.classList.remove('kiosk-active');
+                    kioskBtn.innerHTML = '<i class="fas fa-desktop"></i><span>Kiosk</span>';
+                }
+            }
+        }
+
+        // Load names from server
+        async function loadNames() {
+            try {
+                const response = await fetch('/get_names');
+                const data = await response.json();
+                if (data.success) {
+                    allNames = data.names;
+                    console.log(`Loaded ${allNames.length} names for type-ahead`);
+                }
+            } catch (error) {
+                console.error('Error loading names:', error);
+            }
+        }
+
+        // Filter names based on input
+        function filterNames(query) {
+            if (!query || query.length < 1) {
+                return [];
+            }
+            const lowerQuery = query.toLowerCase();
+            return allNames.filter(name => 
+                name.toLowerCase().includes(lowerQuery)
+            ).slice(0, 10); // Limit to 10 results
+        }
+
+        // Highlight matching text
+        function highlightText(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Show typeahead dropdown
+        function showTypeahead(names) {
+            const dropdown = document.getElementById('typeaheadDropdown');
+            if (!dropdown) return;
+
+            if (names.length === 0) {
+                hideTypeahead();
+                return;
+            }
+
+            dropdown.innerHTML = '';
+            
+            // Add subtle scroll indicator for mobile if there are many results
+            if (isMobileDevice && names.length > 5) {
+                const scrollIndicator = document.createElement('div');
+                scrollIndicator.style.cssText = 'padding: 6px 12px; font-size: 0.75rem; color: #999; text-align: center; background: #f8f9fa; border-bottom: 1px solid #e9ecef; position: sticky; top: 0; z-index: 1;';
+                scrollIndicator.textContent = 'Scroll for more names';
+                dropdown.appendChild(scrollIndicator);
+            }
+            
+            names.forEach((name, index) => {
+                const item = document.createElement('div');
+                item.className = 'typeahead-item';
+                item.innerHTML = highlightText(name, document.getElementById('usernameInput').value);
+                
+                // Track touch movement to distinguish between scroll and selection
+                let touchStartY = 0;
+                let touchMoved = false;
+                let touchStartTime = 0;
+                
+                // Touch start - record initial position and time
+                item.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                    touchMoved = false;
+                    touchStartTime = Date.now();
+                    // Don't prevent default here to allow scrolling
+                });
+                
+                // Touch move - detect if user is scrolling
+                item.addEventListener('touchmove', (e) => {
+                    const touchY = e.touches[0].clientY;
+                    const deltaY = Math.abs(touchY - touchStartY);
+                    
+                    // If moved more than 10px, consider it scrolling
+                    if (deltaY > 10) {
+                        touchMoved = true;
+                        // Add visual feedback that we're in scroll mode
+                        item.style.backgroundColor = '#f8fafc';
+                        item.style.transition = 'background-color 0.1s ease';
+                    }
+                });
+                
+                // Touch end - only select if it wasn't a scroll
+                item.addEventListener('touchend', (e) => {
+                    const touchDuration = Date.now() - touchStartTime;
+                    
+                    // Reset visual feedback
+                    item.style.backgroundColor = '';
+                    item.style.transition = '';
+                    
+                    // Only select if:
+                    // 1. Touch didn't move much (less than 10px)
+                    // 2. Touch was quick (less than 300ms)
+                    // 3. Touch didn't move at all
+                    if (!touchMoved && touchDuration < 300) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectName(name);
+                    }
+                });
+                
+                // Click event for desktop
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectName(name);
+                });
+                
+                // Prevent text selection on mobile
+                item.addEventListener('selectstart', (e) => {
+                    e.preventDefault();
+                });
+                
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+            isTypeaheadVisible = true;
+            selectedIndex = -1;
+            
+            // Mobile-specific positioning
+            if (isMobileDevice) {
+                const input = document.getElementById('usernameInput');
+                const inputRect = input.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                
+                // Position dropdown below input with proper mobile positioning
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = (inputRect.bottom + window.scrollY) + 'px';
+                // Match input width exactly
+                dropdown.style.left = inputRect.left + 'px';
+                dropdown.style.right = 'auto';
+                dropdown.style.width = inputRect.width + 'px';
+                dropdown.style.maxWidth = inputRect.width + 'px';
+                
+                // Adjust max-height based on available space
+                const availableHeight = viewportHeight - inputRect.bottom - 20;
+                const maxHeight = Math.min(150, Math.max(100, availableHeight));
+                dropdown.style.maxHeight = maxHeight + 'px';
+                
+                // Ensure it's above mobile keyboards
+                dropdown.style.zIndex = '99999';
+            }
+            
+            // Force reflow on mobile to ensure proper rendering
+            if (isMobileDevice) {
+                dropdown.offsetHeight;
+            }
+        }
+
+        // Hide typeahead dropdown
+        function hideTypeahead() {
+            const dropdown = document.getElementById('typeaheadDropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+            isTypeaheadVisible = false;
+            selectedIndex = -1;
+        }
+
+        // Select a name from dropdown
+        function selectName(name) {
+            const input = document.getElementById('usernameInput');
+            if (input) {
+                input.value = name;
+                hideTypeahead();
+                // Don't refocus on mobile as it can cause keyboard issues
+                if (!isMobileDevice) {
+                    input.focus();
+                }
+            }
+        }
+
+        // Handle keyboard navigation (desktop only)
+        function handleTypeaheadKeydown(e) {
+            if (!isTypeaheadVisible || isMobileDevice) return;
+
+            const dropdown = document.getElementById('typeaheadDropdown');
+            const items = dropdown.querySelectorAll('.typeahead-item');
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateHighlight(items);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && items[selectedIndex]) {
+                        selectName(items[selectedIndex].textContent);
+                    }
+                    break;
+                case 'Escape':
+                    hideTypeahead();
+                    break;
+            }
+        }
+
+        // Update highlighted item
+        function updateHighlight(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('highlighted', index === selectedIndex);
+            });
+        }
+
+        // Initialize type-ahead functionality
+        function initializeTypeahead() {
             const usernameInput = document.getElementById('usernameInput');
             if (usernameInput) {
-                usernameInput.addEventListener('keypress', function(e) {
+                // Ensure names are loaded
+                if (allNames.length === 0) {
+                    loadNames();
+                }
+                
+                // Remove existing event listeners to avoid duplicates
+                const newInput = usernameInput.cloneNode(true);
+                usernameInput.parentNode.replaceChild(newInput, usernameInput);
+                
+                // Input event for type-ahead
+                newInput.addEventListener('input', function(e) {
+                    const query = e.target.value;
+                    filteredNames = filterNames(query);
+                    showTypeahead(filteredNames);
+                });
+
+                // Focus event - different behavior for mobile
+                newInput.addEventListener('focus', function(e) {
+                    const query = e.target.value;
+                    if (query) {
+                        filteredNames = filterNames(query);
+                        showTypeahead(filteredNames);
+                    }
+                });
+
+                // Blur event - longer delay for mobile to allow touch events
+                newInput.addEventListener('blur', function() {
+                    const delay = isMobileDevice ? 300 : 150;
+                    setTimeout(hideTypeahead, delay);
+                });
+
+                // Keyboard navigation (desktop only)
+                if (!isMobileDevice) {
+                    newInput.addEventListener('keydown', handleTypeaheadKeydown);
+                }
+                
+                // Enter key for booking confirmation
+                newInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         confirmBooking();
                     }
                 });
             }
-        } catch (error) {
-            console.log('Username input not found yet:', error);
+        }
+
+        // Initialize type-ahead and kiosk mode when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNames();
+            initializeTypeahead();
+            initializeKioskMode();
+        });
+
+        // Hide typeahead when clicking/touching outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.typeahead-container')) {
+                hideTypeahead();
+            }
+        });
+
+        // Additional touch event handling for mobile
+        if (isMobileDevice) {
+            document.addEventListener('touchstart', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    hideTypeahead();
+                }
+            });
         }
     </script>
 </body>
