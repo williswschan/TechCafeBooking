@@ -1937,8 +1937,11 @@
         function startAutoRefresh() {
             // Refresh every 2 seconds to show new bookings faster
             autoRefreshInterval = setInterval(function() {
-                console.log('Auto-refreshing bookings...');
-                loadBookings(currentDate);
+                if (isMobile) {
+                    loadBookingsMobile(currentDate);
+                } else {
+                    loadBookings(currentDate);
+                }
             }, 2000); // Reduced from 3 seconds to 2 seconds
         }
 
@@ -2050,7 +2053,11 @@
             element.classList.add('active');
             
             currentDate = date;
-            loadBookings(date);
+            if (isMobile) {
+                loadBookingsMobile(date);
+            } else {
+                loadBookings(date);
+            }
         }
 
         // Simple cache for booking data
@@ -2061,37 +2068,34 @@
         
         // Mobile-optimized loading using POST with form data
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Mobile-specific loading function
+        function loadBookingsMobile(date) {
+            const formData = new FormData();
+            formData.append('date', date);
+            
+            return fetch('/get_bookings', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bookings = data.bookings;
+                    updateBookingsFromData(data);
+                }
+                return data;
+            })
+            .catch(error => {
+                console.error('Mobile loading error:', error);
+                return {success: false, error: error};
+            });
+        }
+        
         if (isMobile) {
             // Start mobile loading immediately
             setTimeout(() => {
-                const formData = new FormData();
-                formData.append('date', currentDate);
-                
-                fetch('/get_bookings', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        bookings = data.bookings;
-                        
-                        // Update display
-                        const slots = document.querySelectorAll('.time-slot');
-                        slots.forEach(slot => {
-                            const time = slot.dataset.time;
-                            if (bookings[time]) {
-                                slot.className = 'time-slot booked';
-                                if (bookings[time].device_id === deviceId) {
-                                    slot.classList.add('my-device');
-                                }
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Mobile loading error:', error);
-                });
+                loadBookingsMobile(currentDate);
             }, 100);
         }
         
@@ -2604,7 +2608,11 @@
             .then(data => {
                 if (data.success) {
                     closeModal();
-                    loadBookings(currentDate);
+                    if (isMobile) {
+                        loadBookingsMobile(currentDate);
+                    } else {
+                        loadBookings(currentDate);
+                    }
                     const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
                     showNotification(message, 'success');
                 } else {
@@ -2634,7 +2642,11 @@
             .then(data => {
                 if (data.success) {
                     closeModal();
-                    loadBookings(currentDate);
+                    if (isMobile) {
+                        loadBookingsMobile(currentDate);
+                    } else {
+                        loadBookings(currentDate);
+                    }
                     showNotification('Booking cancelled!', 'success');
                 } else {
                     alert(data.message);
