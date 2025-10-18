@@ -1,0 +1,12 @@
+{
+  "2025-10-18_09:00": {
+    "username": "Test User",
+    "device_id": "test123",
+    "booked_at": "2025-10-18T22:51:15.565564"
+  },
+  "2025-10-18_15:30": {
+    "username": "Test User",
+    "device_id": "test123",
+    "booked_at": "2025-10-18T15:33:44.218410"
+  }
+}

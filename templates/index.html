@@ -377,6 +377,51 @@
             box-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
         }
 
+        /* Time visualization styles */
+        .time-slot.time-past {
+            background: #d1d5db !important;
+            border-color: #9ca3af !important;
+            color: #6b7280 !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        .time-slot.time-past.booked {
+            background: #9ca3af !important;
+            border-color: #6b7280 !important;
+            color: #4b5563 !important;
+        }
+
+        .time-slot.time-past:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: #9ca3af !important;
+        }
+
+        .time-slot.time-past.booked:hover {
+            border-color: #6b7280 !important;
+        }
+
+        /* Admin can still book past slots - override the disabled styling */
+        .time-slot.time-past.admin-enabled {
+            cursor: pointer !important;
+            opacity: 1 !important;
+        }
+
+        .time-slot.time-past.admin-enabled:hover {
+            transform: scale(1.02) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .time-slot.time-current {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot.time-future {
+            /* Normal styling for future slots - inherits from base .time-slot styles */
+        }
+
         .time-text {
             font-size: 1.1rem;
             font-weight: 600;
@@ -1038,6 +1083,9 @@
         let currentSlot = null;
         let bookings = {};
         let autoRefreshInterval = null;
+        let dayChangeCheckInterval = null;
+        let lastKnownDate = '{{ dates[0].date }}';
+        let timeUpdateInterval = null;
         let deviceId = '';
         let isAdminSession = false;
 
@@ -2099,9 +2147,9 @@
                     // Small delay to allow scroll to complete first
                     setTimeout(() => {
                         if (touchStartElement && !hasMoved) {
-                            const time = touchStartElement.dataset.time;
+                    const time = touchStartElement.dataset.time;
                             console.log('Slot tapped (not scrolled):', time);
-                            handleSlotClick(time);
+                    handleSlotClick(time);
                         }
                     }, 50); // 50ms delay to distinguish tap from scroll
                 }
@@ -2125,6 +2173,7 @@
                     // Force immediate display update after booking load
                     setTimeout(() => {
                         updateTimeSlotsImmediate();
+                        updateTimeVisualization(); // Update time visualization after booking states are applied
                     }, 50);
             }).catch(error => {
                 console.error('Initial booking load error:', error);
@@ -2194,7 +2243,9 @@
         // Start auto-refresh when page loads
         setTimeout(function() {
             startAutoRefresh();
-            console.log('Auto-refresh started (every 3 seconds)');
+            startDayChangeDetection();
+            startTimeVisualization();
+            console.log('Auto-refresh started (every 2.5 seconds)');
         }, 2000); // Start after 2 seconds to let initial load complete
 
         // Pause auto-refresh when user is interacting with modals
@@ -2206,6 +2257,202 @@
         function resumeAutoRefresh() {
             startAutoRefresh();
             console.log('Auto-refresh resumed');
+        }
+
+        // Day change detection system
+        function startDayChangeDetection() {
+            // Check for day changes every 30 seconds
+            dayChangeCheckInterval = setInterval(checkForDayChange, 30000);
+            console.log('Day change detection started (checking every 30 seconds)');
+        }
+
+        function stopDayChangeDetection() {
+            if (dayChangeCheckInterval) {
+                clearInterval(dayChangeCheckInterval);
+                dayChangeCheckInterval = null;
+                console.log('Day change detection stopped');
+            }
+        }
+
+        function checkForDayChange() {
+            fetch('/get_current_dates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.dates.length > 0) {
+                        const currentFirstDate = data.dates[0].date;
+                        
+                        // Check if the first date has changed (indicating a day change)
+                        if (currentFirstDate !== lastKnownDate) {
+                            console.log('Day change detected!');
+                            console.log('Previous first date:', lastKnownDate);
+                            console.log('New first date:', currentFirstDate);
+                            
+                            // Show notification before cleanup
+                            showNotification('New day detected! Cleaning up past bookings...', 'info');
+                            
+                            // Cleanup past bookings before reload
+                            cleanupPastBookings()
+                                .then(() => {
+                                    // Show final notification and reload
+                                    showNotification('Past bookings backed up! Refreshing page...', 'success');
+                                    
+                                    // Reload the page after cleanup
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 2000);
+                                })
+                                .catch(error => {
+                                    console.error('Error during cleanup:', error);
+                                    showNotification('Cleanup failed, but refreshing page...', 'warning');
+                                    
+                                    // Still reload even if cleanup fails
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 2000);
+                                });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking for day change:', error);
+                });
+        }
+
+        function cleanupPastBookings() {
+            return fetch('/cleanup_past_bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`Cleanup completed: ${data.backed_up} bookings backed up, ${data.remaining} remaining`);
+                    if (data.backup_file) {
+                        console.log(`Backup saved to: ${data.backup_file}`);
+                    }
+                } else {
+                    console.error('Cleanup failed:', data.error);
+                    throw new Error(data.error);
+                }
+                return data;
+            });
+        }
+
+        // Time visualization system
+        function startTimeVisualization() {
+            // Update time visualization every minute
+            timeUpdateInterval = setInterval(updateTimeVisualization, 60000);
+            // Also update immediately
+            updateTimeVisualization();
+            console.log('Time visualization started (updating every minute)');
+        }
+
+        function stopTimeVisualization() {
+            if (timeUpdateInterval) {
+                clearInterval(timeUpdateInterval);
+                timeUpdateInterval = null;
+                console.log('Time visualization stopped');
+            }
+        }
+
+        function updateTimeVisualization() {
+            // Get server time instead of client time
+            fetch('/get_current_time')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const currentTime = data.time.total_minutes; // Server time in minutes since midnight
+                        const serverDate = data.time.iso_string.split('T')[0]; // Server date
+                        
+                        // Only show time visualization for today's date (server date)
+                        if (currentDate !== serverDate) {
+                            // Clear all time indicators if not viewing today
+                            clearTimeVisualization();
+                            return;
+                        }
+
+                        const slots = document.querySelectorAll('.time-slot');
+                        slots.forEach(slot => {
+                            const timeStr = slot.dataset.time;
+                            if (!timeStr) return;
+
+                            // Parse slot time (e.g., "09:00" -> 540 minutes)
+                            const [hours, minutes] = timeStr.split(':').map(Number);
+                            const slotTime = hours * 60 + minutes;
+                            const slotEndTime = slotTime + 15; // 15-minute slots
+
+                            // Remove existing time classes
+                            slot.classList.remove('time-past', 'time-current', 'time-future');
+                            slot.style.background = '';
+                            slot.style.backgroundImage = '';
+
+                            if (currentTime >= slotEndTime) {
+                                // Past slot - completely grey
+                                slot.classList.add('time-past');
+                                // Add admin-enabled class if in admin mode
+                                if (isAdminSession) {
+                                    slot.classList.add('admin-enabled');
+                                } else {
+                                    slot.classList.remove('admin-enabled');
+                                }
+                            } else if (currentTime >= slotTime && currentTime < slotEndTime) {
+                                // Current slot - partially grey based on progress
+                                slot.classList.add('time-current');
+                                const progress = (currentTime - slotTime) / 15; // 0 to 1
+                                updateCurrentSlotVisualization(slot, progress);
+                                // Current slot is always bookable, no admin class needed
+                                slot.classList.remove('admin-enabled');
+                            } else {
+                                // Future slot - normal colors
+                                slot.classList.add('time-future');
+                                slot.classList.remove('admin-enabled');
+                            }
+                        });
+                        
+                        console.log(`Time visualization updated - Server time: ${data.time.hours}:${data.time.minutes.toString().padStart(2, '0')}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting server time:', error);
+                    // Fallback to client time if server fails
+                    const now = new Date();
+                    const currentTime = now.getHours() * 60 + now.getMinutes();
+                    console.log('Falling back to client time:', currentTime);
+                });
+        }
+
+        function updateCurrentSlotVisualization(slot, progress) {
+            // Create gradient effect: grey (past) to normal color (future)
+            const isBooked = slot.classList.contains('booked');
+            const isAvailable = slot.classList.contains('available');
+            
+            if (isBooked) {
+                // Booked slot: grey to light red gradient (matching booked slot style)
+                slot.style.background = `linear-gradient(to right, 
+                    #d1d5db ${progress * 100}%, 
+                    #fef2f2 ${progress * 100}%)`;
+            } else if (isAvailable) {
+                // Available slot: grey to light blue gradient (matching available slot style)
+                slot.style.background = `linear-gradient(to right, 
+                    #d1d5db ${progress * 100}%, 
+                    #f0f9ff ${progress * 100}%)`;
+            } else {
+                // Default slot: grey to default color gradient
+                slot.style.background = `linear-gradient(to right, 
+                    #d1d5db ${progress * 100}%, 
+                    #6b7280 ${progress * 100}%)`;
+            }
+        }
+
+        function clearTimeVisualization() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                slot.classList.remove('time-past', 'time-current', 'time-future', 'admin-enabled');
+                slot.style.background = '';
+                slot.style.backgroundImage = '';
+            });
         }
 
         // Function to update browser configuration display
@@ -2320,6 +2567,7 @@
                 if (data.success) {
                     bookings = data.bookings;
                     updateBookingsFromData(data);
+                    updateTimeVisualization(); // Update time visualization after mobile booking load
                 }
                 return data;
             })
@@ -2789,6 +3037,12 @@
             }
             
             if (slot.classList.contains('booked')) {
+                // Check if normal user is trying to cancel a past slot booking
+                if (!isAdminSession && slot.classList.contains('time-past')) {
+                    showNotification('Cannot cancel past time slot bookings', 'error');
+                    return;
+                }
+                
                 // Check if this booking was made by the current device OR if user is admin
                 if ((bookings[time] && bookings[time].device_id === deviceId) || isAdminSession) {
                     // Update cancel modal message based on admin status
@@ -2808,6 +3062,14 @@
                     showNotification('You can only cancel your own bookings', 'error');
                 }
             } else {
+                // Check if normal user is trying to book a past slot (but allow current slot)
+                if (!isAdminSession) {
+                    if (slot.classList.contains('time-past')) {
+                        showNotification('Cannot book past time slots', 'error');
+                        return;
+                    }
+                }
+                
                 // Show booking modal
                 document.getElementById('bookingModal').style.display = 'block';
                 pauseAutoRefresh();
@@ -2967,6 +3229,8 @@
                 updateAdminButtonText();
                 closeModal();
                 showNotification('Admin access granted! You can now cancel any booking.', 'success');
+                // Update time visualization to enable past slot booking for admin
+                updateTimeVisualization();
                 console.log('Admin session activated');
                 // Refresh display to show booker names
                 refreshDisplay();
@@ -2983,6 +3247,8 @@
             updateAdminButtonText();
             showNotification('Admin session ended', 'info');
             console.log('Admin session ended');
+            // Update time visualization to disable past slot booking for normal users
+            updateTimeVisualization();
             // Refresh display to hide booker names
             refreshDisplay();
         }
@@ -3488,6 +3754,13 @@
                 }
             });
         }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            stopAutoRefresh();
+            stopDayChangeDetection();
+            stopTimeVisualization();
+        });
     </script>
 </body>
 </html>

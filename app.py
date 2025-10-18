@@ -38,6 +38,67 @@ def save_bookings():
     except Exception as e:
         logger.error(f"Error saving bookings: {e}")
 
+def cleanup_past_bookings():
+    """Extract and backup past day bookings, then remove them from current bookings"""
+    global bookings
+    try:
+        today = datetime.now().date()
+        past_bookings = {}
+        current_bookings = {}
+        
+        # Separate past and current bookings
+        for slot_key, booking in bookings.items():
+            # Extract date from slot_key (format: "YYYY-MM-DD_HH:MM")
+            try:
+                booking_date_str = slot_key.split('_')[0]
+                booking_date = datetime.strptime(booking_date_str, '%Y-%m-%d').date()
+                
+                if booking_date < today:
+                    past_bookings[slot_key] = booking
+                else:
+                    current_bookings[slot_key] = booking
+            except (ValueError, IndexError) as e:
+                logger.warning(f"Invalid slot_key format: {slot_key}, skipping")
+                continue
+        
+        # If there are past bookings, save them to backup file
+        if past_bookings:
+            backup_filename = f"bookings_backup_{today.strftime('%Y%m%d')}.json"
+            with open(backup_filename, 'w', encoding='utf-8') as f:
+                json.dump(past_bookings, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Backed up {len(past_bookings)} past bookings to {backup_filename}")
+            
+            # Update current bookings to only include today and future
+            bookings = current_bookings
+            
+            # Save the cleaned bookings
+            save_bookings()
+            
+            logger.info(f"Cleaned up past bookings. Current bookings: {len(bookings)}")
+            
+            return {
+                'success': True,
+                'backed_up': len(past_bookings),
+                'remaining': len(current_bookings),
+                'backup_file': backup_filename
+            }
+        else:
+            logger.info("No past bookings to clean up")
+            return {
+                'success': True,
+                'backed_up': 0,
+                'remaining': len(bookings),
+                'backup_file': None
+            }
+            
+    except Exception as e:
+        logger.error(f"Error cleaning up past bookings: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
 # Load existing bookings on startup
 load_bookings()
 
@@ -207,6 +268,33 @@ def get_bookings():
 def get_names():
     """API endpoint to get all display names for type-ahead functionality"""
     return jsonify({'success': True, 'names': display_names})
+
+@app.route('/get_current_dates', methods=['GET'])
+def get_current_dates():
+    """API endpoint to get current available dates (for day change detection)"""
+    dates = get_available_dates()
+    return jsonify({'success': True, 'dates': dates})
+
+@app.route('/cleanup_past_bookings', methods=['POST'])
+def cleanup_past_bookings_endpoint():
+    """API endpoint to cleanup past bookings and create backup"""
+    result = cleanup_past_bookings()
+    return jsonify(result)
+
+@app.route('/get_current_time', methods=['GET'])
+def get_current_time():
+    """API endpoint to get current server time for time visualization"""
+    now = datetime.now()
+    return jsonify({
+        'success': True,
+        'time': {
+            'hours': now.hour,
+            'minutes': now.minute,
+            'seconds': now.second,
+            'total_minutes': now.hour * 60 + now.minute,
+            'iso_string': now.isoformat()
+        }
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
