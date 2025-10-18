@@ -10,8 +10,36 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# In-memory storage for bookings (in production, use a database)
+# Persistent storage for bookings using JSON file
+BOOKINGS_FILE = 'bookings.json'
 bookings = {}
+
+def load_bookings():
+    """Load bookings from JSON file"""
+    global bookings
+    try:
+        if os.path.exists(BOOKINGS_FILE):
+            with open(BOOKINGS_FILE, 'r', encoding='utf-8') as f:
+                bookings = json.load(f)
+            logger.info(f"Loaded {len(bookings)} bookings from {BOOKINGS_FILE}")
+        else:
+            bookings = {}
+            logger.info("No existing bookings file found, starting with empty bookings")
+    except Exception as e:
+        logger.error(f"Error loading bookings: {e}")
+        bookings = {}
+
+def save_bookings():
+    """Save bookings to JSON file"""
+    try:
+        with open(BOOKINGS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(bookings, f, indent=2, ensure_ascii=False)
+        logger.info(f"Saved {len(bookings)} bookings to {BOOKINGS_FILE}")
+    except Exception as e:
+        logger.error(f"Error saving bookings: {e}")
+
+# Load existing bookings on startup
+load_bookings()
 
 # Load display names from file (cached in memory for performance)
 display_names = []
@@ -127,6 +155,9 @@ def book_slot():
         'booked_at': datetime.now().isoformat()
     }
     
+    # Save to file
+    save_bookings()
+    
     return jsonify({'success': True, 'message': 'Booking confirmed'})
 
 @app.route('/cancel', methods=['POST'])
@@ -150,6 +181,10 @@ def cancel_booking():
         return jsonify({'success': False, 'message': 'You can only cancel your own bookings'})
     
     del bookings[slot_key]
+    
+    # Save to file
+    save_bookings()
+    
     return jsonify({'success': True, 'message': 'Booking cancelled'})
 
 @app.route('/get_bookings', methods=['GET', 'POST'])
