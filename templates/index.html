@@ -1357,12 +1357,12 @@
                         bookingGrid.style.flexDirection = 'column';
                     }
                     
-                    // Set scrollable content height to usable space and disable scrolling for landscape
+                    // Set scrollable content height to usable space and enable scrolling for landscape
                     const scrollableContent = document.querySelector('.scrollable-content');
                     if (scrollableContent) {
                         scrollableContent.style.height = usableHeight + 'px';
                         scrollableContent.style.maxHeight = usableHeight + 'px';
-                        scrollableContent.style.overflow = 'hidden'; // Disable scrolling for landscape
+                        scrollableContent.style.overflow = 'auto'; // Enable scrolling for landscape
                         console.log('Scrollable content height set to:', usableHeight + 'px');
                     }
                     
@@ -1427,7 +1427,7 @@
                 if (scrollableContent) {
                     scrollableContent.style.height = usableHeight + 'px';
                     scrollableContent.style.maxHeight = usableHeight + 'px';
-                    scrollableContent.style.overflow = 'hidden'; // No scrolling in portrait
+                    scrollableContent.style.overflow = 'auto'; // Enable scrolling in portrait
                     console.log('Portrait scrollable content height set to:', usableHeight + 'px');
                 }
                 
@@ -2578,6 +2578,12 @@
         }
         
         function shouldHideBookerName(slot, username) {
+            // Hide booker name if not in admin mode
+            if (!isAdminSession) {
+                console.log(`Hiding booker name for slot ${slot.dataset.time}: not in admin mode`);
+                return true;
+            }
+            
             // Get the slot dimensions
             const slotRect = slot.getBoundingClientRect();
             const slotHeight = slotRect.height;
@@ -2962,6 +2968,8 @@
                 closeModal();
                 showNotification('Admin access granted! You can now cancel any booking.', 'success');
                 console.log('Admin session activated');
+                // Refresh display to show booker names
+                refreshDisplay();
             } else {
                 showNotification('Invalid admin password', 'error');
                 document.getElementById('adminPasswordInput').value = '';
@@ -2975,6 +2983,8 @@
             updateAdminButtonText();
             showNotification('Admin session ended', 'info');
             console.log('Admin session ended');
+            // Refresh display to hide booker names
+            refreshDisplay();
         }
 
         function updateAdminButtonText() {
@@ -2985,7 +2995,7 @@
                 if (isPortrait) {
                     adminBtn.innerHTML = '<i class="fas fa-user-shield"></i>';
                 } else {
-                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin Active';
+                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin';
                 }
             } else {
                 if (isPortrait) {
