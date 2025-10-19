@@ -328,6 +328,11 @@ def admin_page():
     """Admin page with password protection"""
     return render_template('admin.html')
 
+@app.route('/readme')
+def readme():
+    """Readme page showing usage and features"""
+    return render_template('readme.html')
+
 @app.route('/admin/verify', methods=['POST'])
 def verify_admin_password():
     """Verify admin password"""
