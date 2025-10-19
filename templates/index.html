@@ -4133,6 +4133,9 @@
             if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
                 console.log('Received refresh message from admin panel');
                 loadNames();
+            } else if (event.data && event.data.type === 'REFRESH_BAD_WORDS') {
+                console.log('Received bad words refresh message from admin panel');
+                refreshBadWords();
             }
         });
 
@@ -4143,12 +4146,22 @@
                 if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
                     console.log('Received refresh message via BroadcastChannel');
                     loadNames();
+                } else if (event.data && event.data.type === 'REFRESH_BAD_WORDS') {
+                    console.log('Received bad words refresh message via BroadcastChannel');
+                    refreshBadWords();
                 }
             });
         } catch (e) {
             console.log('BroadcastChannel not supported');
         }
 
+
+        function refreshBadWords() {
+            // This function will be called when bad words are updated
+            // For now, we'll just reload the page to get the updated bad words list
+            console.log('Refreshing bad words - reloading page');
+            window.location.reload();
+        }
 
         // Initialize type-ahead and kiosk mode when page loads
         document.addEventListener('DOMContentLoaded', function() {

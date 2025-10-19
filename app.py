@@ -138,7 +138,7 @@ def get_available_dates():
     while days_added < 3:
         # Skip Saturday (5) and Sunday (6)
         if current_date.weekday() not in [5, 6]:
-        dates.append({
+            dates.append({
                 'date': current_date.strftime("%Y-%m-%d"),
                 'display': f"{current_date.strftime('%d (%a)')}<br>{current_date.strftime('%b %y')}",
                 'short': current_date.strftime("%a %b")
@@ -390,6 +390,24 @@ def download_specific_csv(filename):
         logger.error(f"Error downloading CSV file {filename}: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/admin/download_bad_words')
+def download_bad_words():
+    """Download the bad_words.txt file"""
+    logger.info("Bad words download route accessed")
+    try:
+        file_path = os.path.join('.', 'bad_words.txt')
+        logger.info(f"Looking for file at: {file_path}")
+        
+        if not os.path.exists(file_path):
+            logger.error("Bad words file not found")
+            return jsonify({'success': False, 'error': 'Bad words file not found'})
+        
+        logger.info("File found, sending file")
+        return send_file(file_path, as_attachment=True, download_name='bad_words.txt')
+    except Exception as e:
+        logger.error(f"Error downloading bad_words.txt: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/admin/upload_display_names', methods=['POST'])
 def upload_display_names():
     """Upload new display_name.txt file"""
@@ -418,6 +436,40 @@ def upload_display_names():
         })
     except Exception as e:
         logger.error(f"Error uploading display names: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/upload_bad_words', methods=['POST'])
+def upload_bad_words():
+    """Upload new bad_words.txt file"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'})
+        
+        if file.filename != 'bad_words.txt':
+            return jsonify({'success': False, 'error': 'File must be named bad_words.txt'})
+        
+        # Save the uploaded file
+        file.save('bad_words.txt')
+        
+        # Count the number of bad words loaded
+        try:
+            with open('bad_words.txt', 'r', encoding='utf-8') as f:
+                bad_words_count = len([line.strip() for line in f if line.strip() and not line.strip().startswith('#')])
+        except:
+            bad_words_count = 0
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Bad words filter updated successfully. Loaded {bad_words_count} words.',
+            'count': bad_words_count,
+            'refresh_required': True  # Signal that client should refresh bad words
+        })
+    except Exception as e:
+        logger.error(f"Error uploading bad words: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/admin/delete_csv/<filename>', methods=['DELETE'])
