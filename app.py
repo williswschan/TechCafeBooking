@@ -152,24 +152,13 @@ def get_available_dates():
 
 @app.route('/')
 def index():
-    logger.info("=== INDEX ROUTE CALLED ===")
-    logger.info(f"Request headers: {dict(request.headers)}")
-    logger.info(f"User agent: {request.headers.get('User-Agent', 'Unknown')}")
-    logger.info(f"Request method: {request.method}")
-    logger.info(f"Request URL: {request.url}")
-    
     # Check if it's a mobile device
     user_agent = request.headers.get('User-Agent', '').lower()
     is_mobile = any(device in user_agent for device in ['iphone', 'ipad', 'android', 'mobile'])
-    logger.info(f"Mobile device detected: {is_mobile}")
     
     time_slots = get_time_slots()
     morning_slots = [slot for slot in time_slots if 9 <= int(slot.split(':')[0]) < 12]
     afternoon_slots = [slot for slot in time_slots if 14 <= int(slot.split(':')[0]) < 18]
-    
-    logger.info(f"Generated {len(time_slots)} time slots")
-    logger.info(f"Morning slots: {len(morning_slots)}")
-    logger.info(f"Afternoon slots: {len(afternoon_slots)}")
     
     return render_template('index.html', 
                          time_slots=time_slots,
@@ -398,16 +387,12 @@ def download_specific_csv(filename):
 @app.route('/admin/download_bad_words')
 def download_bad_words():
     """Download the bad_words.txt file"""
-    logger.info("Bad words download route accessed")
     try:
         file_path = os.path.join('.', 'bad_words.txt')
-        logger.info(f"Looking for file at: {file_path}")
         
         if not os.path.exists(file_path):
-            logger.error("Bad words file not found")
             return jsonify({'success': False, 'error': 'Bad words file not found'})
         
-        logger.info("File found, sending file")
         return send_file(file_path, as_attachment=True, download_name='bad_words.txt')
     except Exception as e:
         logger.error(f"Error downloading bad_words.txt: {e}")
