@@ -2801,7 +2801,8 @@
                         }
                         
                         const bookedText = slot.querySelector('.booked-text');
-                        const username = bookings[time].username || 'Booked';
+                        const rawUsername = bookings[time].username || 'Booked';
+                        const username = sanitizeUsernameForDisplay(rawUsername);
                         
                         // Check if text would overflow and hide name if needed
                         if (shouldHideBookerName(slot, username)) {
@@ -2857,7 +2858,8 @@
                     }
                     
                     const bookedText = slot.querySelector('.booked-text');
-                    const username = bookings[time].username || 'Booked';
+                    const rawUsername = bookings[time].username || 'Booked';
+                    const username = sanitizeUsernameForDisplay(rawUsername);
                     
                     // Check if text would overflow and hide name if needed
                     if (shouldHideBookerName(slot, username)) {
@@ -3011,7 +3013,8 @@
                         }
                         
                         const bookedText = slot.querySelector('.booked-text');
-                        const username = bookings[time].username || 'Booked';
+                        const rawUsername = bookings[time].username || 'Booked';
+                        const username = sanitizeUsernameForDisplay(rawUsername);
                         
                         // Check if text would overflow and hide name if needed
                         if (shouldHideBookerName(slot, username)) {
@@ -3073,7 +3076,8 @@
                     }
                     
                     const bookedText = slot.querySelector('.booked-text');
-                    const username = bookings[time].username || 'Booked';
+                    const rawUsername = bookings[time].username || 'Booked';
+                    const username = sanitizeUsernameForDisplay(rawUsername);
                     bookedText.textContent = username;
                     bookedText.style.display = 'block';
                     bookedText.classList.add('cancel-hint');
@@ -3122,7 +3126,10 @@
                         const username = bookings[time] ? bookings[time].username || 'Unknown User' : 'Unknown User';
                         const dateTime = `${currentDate} ${time}`;
                         
-                        bookingUser.textContent = username;
+                        // Sanitize username for display (replace inappropriate content)
+                        const sanitizedUsername = sanitizeUsernameForDisplay(username);
+                        
+                        bookingUser.textContent = sanitizedUsername;
                         bookingDateTime.textContent = dateTime;
                         
                         adminModal.style.display = 'block';
@@ -3586,6 +3593,44 @@
 
         // Enhanced Toast Notification System
         let notificationStack = [];
+
+        // Bad words filter for display sanitization
+        const badWords = [
+            'fuck', 'shit', 'damn', 'hell', 'bitch', 'ass', 'bastard', 'whore', 'slut', 'cunt',
+            'piss', 'crap', 'fucking', 'shitty', 'damned', 'bloody', 'bollocks', 'bugger', 'wanker',
+            'twat', 'prick', 'dick', 'cock', 'pussy', 'tits', 'boobs', 'fag', 'faggot', 'nigger',
+            'nigga', 'chink', 'gook', 'kike', 'spic', 'wetback', 'retard', 'retarded', 'moron',
+            'idiot', 'stupid', 'dumb', 'fool', 'loser', 'freak', 'weirdo', 'creep', 'pervert',
+            'pedophile', 'rapist', 'murderer', 'killer', 'suicide', 'kill', 'die', 'death', 'hate',
+            'hater', 'racist', 'sexist', 'homophobe', 'nazi', 'hitler', 'stalin', 'terrorist',
+            'bomb', 'explosive', 'weapon', 'gun', 'knife', 'sword', 'poison', 'drug', 'cocaine',
+            'heroin', 'marijuana', 'weed', 'alcohol', 'drunk', 'stoned', 'high', 'overdose',
+            'addict', 'junkie', 'dealer', 'pimp', 'prostitute', 'hooker', 'escort', 'stripper',
+            'porn', 'pornography', 'xxx', 'adult', 'sex', 'sexual', 'nude', 'naked', 'breast',
+            'penis', 'vagina', 'orgasm', 'masturbate'
+        ];
+
+        function sanitizeUsernameForDisplay(username) {
+            if (!username) return 'Unknown User';
+            
+            let sanitized = username;
+            const usernameLower = username.toLowerCase();
+            
+            // Check for bad words and replace with asterisks
+            for (const badWord of badWords) {
+                if (usernameLower.includes(badWord)) {
+                    const regex = new RegExp(badWord, 'gi');
+                    sanitized = sanitized.replace(regex, '*'.repeat(badWord.length));
+                }
+            }
+            
+            // If the entire name was inappropriate, show a generic message
+            if (sanitized.replace(/\*/g, '').trim().length === 0) {
+                return 'Inappropriate Name';
+            }
+            
+            return sanitized;
+        }
 
         function showNotification(message, type) {
             // Create notification element

@@ -69,7 +69,9 @@
 - **Perfect alignment**: Full width of container
 - **Fixed positioning**: Always at bottom of container
 - Content:
-  * Copyright text: "© 2024 MYMSNGROUP. All rights reserved."
+  * Scrolling text: "Connecting Market East & West. | Need Help? Contact IT Support"
+  * Continuous right-to-left animation (45s desktop, 35s mobile)
+  * Pauses on hover
   * White text on red background
 
 ## Responsive Design
@@ -108,9 +110,74 @@ The portal uses a simplified 2-configuration responsive design based on orientat
 - **Privacy-friendly**: Optional name field with clear privacy notice
 - **Admin functionality**: Easy access to booking management
 
+### Time-Based Visual Indicators
+- **Past slots**: Light grey background (unavailable for booking)
+- **Current slot**: Half-grey, half-normal gradient (available for booking)
+- **Future slots**: Normal appearance (available for booking)
+- **Real-time updates**: Visual states update every 30 seconds
+
+### Booking System
+- **Real-time booking**: Instant slot booking with persistence
+- **Device tracking**: Unique device ID for each booking
+- **Name suggestions**: Type-ahead functionality with 119+ names
+- **Booking restrictions**: Users cannot book past slots (except current slot)
+- **Admin override**: Admins can book/cancel any slot
+
+### Notification System
+- **Toast notifications**: 22 different notification types
+- **Auto-dismissal**: 4-5 second automatic dismissal
+- **Manual dismissal**: Click to dismiss notifications
+- **Stacking**: Multiple notifications with proper spacing
+- **Types**: Success (green), Error (red), Info (blue)
+
+### Data Management
+- **Persistent storage**: JSON file storage for bookings
+- **CSV extraction**: Daily booking records for audit trail
+- **Admin panel**: Full management interface at `/admin`
+- **File management**: Upload/download/delete CSV files
+- **Name management**: Upload new display names list
+
 ## Element Relationships
 - All elements are contained within the main white container
 - **Header and footer**: Fixed positioning, always visible
 - **Scrollable content**: Date selector, time slots, and lunch break in middle section
 - **Perfect alignment**: Lunch break width matches time slot grid exactly
 - **Responsive behavior**: Adapts layout based on device orientation
+
+## Technical Implementation
+
+### Backend (Flask)
+- **Server**: Python Flask application
+- **Port**: 5000 (configurable)
+- **Data Storage**: JSON files for persistence
+- **API Endpoints**: RESTful API for all operations
+- **Security**: Environment variable-based admin password
+
+### Frontend (HTML/CSS/JavaScript)
+- **Template Engine**: Jinja2 for server-side rendering
+- **Responsive Design**: CSS Grid and Flexbox
+- **Animations**: CSS keyframes for footer scrolling
+- **Interactions**: Vanilla JavaScript (no frameworks)
+- **Real-time Updates**: AJAX calls for dynamic content
+
+### Data Flow
+1. **User Interaction**: Click time slot → JavaScript handler
+2. **API Call**: POST request to Flask backend
+3. **Data Processing**: Server validates and stores data
+4. **Response**: JSON response with success/error status
+5. **UI Update**: JavaScript updates interface based on response
+6. **Persistence**: Data saved to JSON file and CSV (if applicable)
+
+### Security Features
+- **Admin Protection**: Password-based admin access
+- **Brute Force Protection**: Rate limiting for failed attempts
+- **Device Tracking**: Unique device IDs for booking attribution
+- **Input Validation**: Server-side validation of all inputs
+- **CSRF Protection**: Built-in Flask CSRF protection
+
+### Performance Optimizations
+- **Caching**: 2-second client-side cache for booking data
+- **Parallel Loading**: Simultaneous data and layout calculations
+- **Mobile Optimization**: Hardware acceleration and batched updates
+- **Efficient Rendering**: Minimal DOM manipulation
+- **Lazy Loading**: On-demand data fetching

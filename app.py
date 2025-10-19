@@ -104,6 +104,7 @@ def load_display_names():
 # Load names at startup
 load_display_names()
 
+
 def get_time_slots():
     """Generate time slots from 09:00 to 18:00 with 15-minute intervals, excluding lunch hours (12:00-14:00)"""
     slots = []
@@ -137,7 +138,7 @@ def get_available_dates():
     while days_added < 3:
         # Skip Saturday (5) and Sunday (6)
         if current_date.weekday() not in [5, 6]:
-            dates.append({
+        dates.append({
                 'date': current_date.strftime("%Y-%m-%d"),
                 'display': f"{current_date.strftime('%d (%a)')}<br>{current_date.strftime('%b %y')}",
                 'short': current_date.strftime("%a %b")
@@ -186,6 +187,7 @@ def book_slot():
     
     if not all([date, time, device_id]) or username is None:
         return jsonify({'success': False, 'message': 'Missing required fields'})
+    
     
     slot_key = f"{date}_{time}"
     
