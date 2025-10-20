@@ -1200,12 +1200,34 @@
                 <button class="btn btn-primary" onclick="verifyAdminPassword()">Access Admin</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-code-branch"></i> Version 2.2
+            </div>
         </div>
     </div>
 
     <script>
-        // Script loaded successfully
-        console.log('Script tag loaded');
+        // Version management system
+        // IMPORTANT: Update APP_VERSION when making changes (increment by 0.1)
+        const APP_VERSION = "2.2";
+        
+        function getCurrentVersion() {
+            return APP_VERSION;
+        }
+        
+        function incrementVersion() {
+            const versionParts = APP_VERSION.split('.');
+            const major = parseInt(versionParts[0]);
+            const minor = parseFloat(versionParts[1]) + 0.1;
+            return `${major}.${minor.toFixed(1)}`;
+        }
+        
+        function updateVersionDisplay() {
+            const versionElement = document.querySelector('#adminModal .modal-content div[style*="text-align: center"]');
+            if (versionElement) {
+                versionElement.innerHTML = `<i class="fas fa-code-branch"></i> Version ${getCurrentVersion()}`;
+            }
+        }
         
         let currentDate = '{{ dates[0].date }}';
         let currentSlot = null;
@@ -3518,6 +3540,7 @@
                 return;
             }
             document.getElementById('adminModal').style.display = 'block';
+            updateVersionDisplay(); // Update version display when modal is shown
             pauseAutoRefresh();
             const passwordInput = document.getElementById('adminPasswordInput');
             passwordInput.focus();
