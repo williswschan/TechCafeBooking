@@ -57,7 +57,7 @@ def extract_booking_to_csv(slot_key, booking, reason="completed"):
             
             # Write header only if file doesn't exist
             if not file_exists:
-                writer.writerow(['Date', 'Time', 'Username', 'Device ID', 'Booked At', 'Extracted At', 'Reason'])
+                writer.writerow(['Date', 'Time', 'Booked By', 'Device ID', 'Booked At', 'Updated At', 'Reason'])
             
             # Write data
             writer.writerow([
