@@ -3375,6 +3375,14 @@
             document.getElementById('adminModal').style.display = 'none';
             document.getElementById('usernameInput').value = '';
             document.getElementById('adminPasswordInput').value = '';
+            
+            // Clean up admin password event listener
+            if (adminPasswordKeypressHandler) {
+                const passwordInput = document.getElementById('adminPasswordInput');
+                passwordInput.removeEventListener('keypress', adminPasswordKeypressHandler);
+                adminPasswordKeypressHandler = null;
+            }
+            
             resumeAutoRefresh(); // Resume auto-refresh when modal closes
         }
 
@@ -3393,6 +3401,9 @@
         }
 
         // Admin functionality
+        // Store the keypress event listener function for cleanup
+        let adminPasswordKeypressHandler = null;
+
         function showAdminModal() {
             if (isAdminSession) {
                 // If already admin, allow to exit
@@ -3404,21 +3415,35 @@
             const passwordInput = document.getElementById('adminPasswordInput');
             passwordInput.focus();
             
+            // Remove any existing event listener first
+            if (adminPasswordKeypressHandler) {
+                passwordInput.removeEventListener('keypress', adminPasswordKeypressHandler);
+            }
+            
             // Add Enter key event listener
-            passwordInput.addEventListener('keypress', function(e) {
+            adminPasswordKeypressHandler = function(e) {
                 if (e.key === 'Enter') {
                     verifyAdminPassword();
                 }
-            });
+            };
+            passwordInput.addEventListener('keypress', adminPasswordKeypressHandler);
         }
 
         // Brute force protection variables
         let lastFailedAttempt = 0;
         let failedAttempts = 0;
+        let isVerifyingAdmin = false; // Prevent multiple simultaneous verification requests
+        let adminVerificationSuccess = false; // Track if admin verification was successful
 
         function verifyAdminPassword() {
             const password = document.getElementById('adminPasswordInput').value.trim();
             const now = Date.now();
+            
+            // Prevent multiple simultaneous verification requests
+            if (isVerifyingAdmin) {
+                console.log('Admin verification already in progress, ignoring duplicate request');
+                return;
+            }
             
             // Check if we need to wait due to recent failed attempts
             if (now - lastFailedAttempt < 1000) {
@@ -3426,6 +3451,13 @@
                 showNotification(`Please wait ${remainingTime} second(s) before trying again`, 'error');
                 return;
             }
+            
+            // Clear any existing notifications to prevent conflicts
+            clearAllNotifications();
+            
+            // Reset success flag and set verification flag
+            adminVerificationSuccess = false;
+            isVerifyingAdmin = true;
             
             // Always verify password on server side for security
             fetch('/admin/verify', {
@@ -3435,9 +3467,34 @@
                 },
                 body: JSON.stringify({ password: password })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Admin verification response status:', response.status);
+                console.log('Admin verification response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response is not JSON');
+                }
+                
+                return response.json();
+            })
             .then(data => {
-                if (data.success) {
+                console.log('Admin verification response data:', data);
+                
+                // Validate response structure
+                if (typeof data !== 'object' || data === null) {
+                    throw new Error('Invalid response format');
+                }
+                
+                if (data.success === true) {
+                    // Mark verification as successful
+                    adminVerificationSuccess = true;
+                    
                     // Reset failed attempts on successful login
                     failedAttempts = 0;
                     lastFailedAttempt = 0;
@@ -3452,7 +3509,7 @@
                     console.log('Admin session activated');
                     // Refresh display to show booker names
                     refreshDisplay();
-                } else {
+                } else if (data.success === false) {
                     // Record failed attempt
                     failedAttempts++;
                     lastFailedAttempt = now;
@@ -3460,11 +3517,39 @@
                     showNotification('Invalid admin password', 'error');
                     document.getElementById('adminPasswordInput').value = '';
                     document.getElementById('adminPasswordInput').focus();
+                } else {
+                    throw new Error('Invalid response: missing success field');
                 }
+                
+                // Reset verification flag
+                isVerifyingAdmin = false;
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error verifying password', 'error');
+                console.error('Admin verification error details:', {
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
+                
+                // Reset verification flag first
+                isVerifyingAdmin = false;
+                
+                // Don't show error notification if verification was already successful
+                if (adminVerificationSuccess) {
+                    console.log('Admin verification was successful, not showing error notification');
+                    return;
+                }
+                
+                // Only show error if it's a real network/server error
+                if (error.message && error.message.includes('HTTP error')) {
+                    showNotification('Server error - please try again', 'error');
+                } else if (error.message && error.message.includes('Response is not JSON')) {
+                    showNotification('Server response error - please try again', 'error');
+                } else if (error.message && error.message.includes('Invalid response')) {
+                    showNotification('Server response format error - please try again', 'error');
+                } else {
+                    showNotification('Network error - please check your connection', 'error');
+                }
             });
         }
 
