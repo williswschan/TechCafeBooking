@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechCafe Booking - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -52,6 +53,35 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            overflow: hidden; /* Hide scrollbar outside rounded corners */
+        }
+        
+        .admin-content-inner {
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 10px; /* Space for scrollbar */
+            margin-right: -10px; /* Pull content back to maintain width */
+        }
+        
+        /* Custom scrollbar styling */
+        .admin-content-inner::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
 
         .admin-header {
@@ -118,13 +148,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
         }
 
         .btn-secondary {
@@ -190,6 +220,21 @@
             gap: 10px;
             align-items: center;
         }
+
+        .csv-actions .btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .csv-actions .btn i {
+            font-size: 16px;
+        }
+
 
         .csv-info {
             flex: 1;
@@ -260,6 +305,7 @@
             text-align: center;
             white-space: nowrap;
             opacity: 0;
+            cursor: pointer;
         }
 
         .notification.show {
@@ -275,27 +321,6 @@
             background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
         }
 
-        .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            z-index: 1000;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
 
         .loading {
             display: none;
@@ -321,6 +346,11 @@
         @media (max-width: 768px) {
             .password-wrapper {
                 padding: 10px;
+                min-height: 100vh;
+                min-height: 100dvh; /* Use dynamic viewport height for mobile */
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .admin-container {
@@ -332,6 +362,23 @@
                 padding: 20px;
                 width: calc(100% - 20px);
                 margin: 0 auto;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                min-height: auto;
+                max-height: calc(100vh - 60px);
+                max-height: calc(100dvh - 60px); /* Use dynamic viewport height for mobile with more margin */
+                overflow: hidden; /* Hide scrollbar outside rounded corners */
+                box-sizing: border-box;
+            }
+            
+            .admin-content-inner {
+                max-height: calc(100vh - 100px);
+                max-height: calc(100dvh - 100px);
+                overflow-y: auto;
+                padding-right: 8px;
+                margin-right: -8px;
             }
 
             .notification {
@@ -356,18 +403,10 @@
                 margin: 5px 0;
             }
 
-            .back-link {
-                top: 10px;
-                left: 10px;
-                padding: 10px 16px;
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
 <body>
-    <a href="/" class="back-link">← Back to Booking</a>
-    
     <!-- Password Section -->
     <div class="password-wrapper" id="passwordWrapper">
         <div class="admin-container">
@@ -380,13 +419,14 @@
                 <h3 style="margin-bottom: 20px; color: #2d3748;">Enter Admin Password</h3>
                 <input type="password" id="adminPassword" class="password-input" placeholder="Enter admin password" maxlength="50">
                 <br>
-                <button class="btn btn-primary" onclick="verifyPassword()">Access Admin Panel</button>
+                       <button class="btn btn-primary" onclick="verifyPassword()">Access Admin Panel</button>
             </div>
         </div>
     </div>
 
     <!-- Admin Content -->
     <div class="admin-content" id="adminContent">
+        <div class="admin-content-inner">
             <!-- CSV Download Section -->
             <div class="feature-section">
                 <h3 class="feature-title">📥 Download Booking Records</h3>
@@ -445,10 +485,27 @@
             // Show the notification
             notification.classList.add('show');
             
+            // Add click-to-dismiss functionality
+            notification.onclick = function() {
+                dismissNotification();
+            };
+            
             notification.timeoutId = setTimeout(() => {
-                notification.classList.remove('show');
-                notification.timeoutId = null;
+                dismissNotification();
             }, duration);
+        }
+        
+        function dismissNotification() {
+            const notification = document.getElementById('notification');
+            
+            // Clear timeout if it exists
+            if (notification.timeoutId) {
+                clearTimeout(notification.timeoutId);
+                notification.timeoutId = null;
+            }
+            
+            // Animate out
+            notification.classList.remove('show');
         }
 
         // Brute force protection variables
@@ -510,46 +567,72 @@
             
             loading.style.display = 'block';
             csvList.innerHTML = '';
-
-            fetch('/admin/download_csv')
+            
+            // Get current server date for comparison
+            fetch('/get_server_date')
                 .then(response => response.json())
-                .then(data => {
-                    loading.style.display = 'none';
+                .then(serverData => {
+                    const serverTodayStr = serverData.date;
                     
-                    if (data.success) {
-                        if (data.files.length === 0) {
-                            csvList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No CSV files found</p>';
-                        } else {
-                            data.files.forEach(file => {
-                                const fileItem = document.createElement('div');
-                                fileItem.className = 'csv-item';
-                                fileItem.innerHTML = `
-                                    <div class="csv-info">
-                                        <div class="csv-filename">${file.filename}</div>
-                                        <div class="csv-details">
-                                            Size: ${formatFileSize(file.size)} | 
-                                            Modified: ${file.date}
-                                        </div>
-                                    </div>
-                                    <div class="csv-actions">
-                                        <a href="/admin/download_csv/${file.filename}" class="btn btn-success" download>
-                                            <i class="fas fa-download"></i> Download
-                                        </a>
-                                        <button class="btn btn-danger" onclick="deleteCSV('${file.filename}')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </div>
-                                `;
-                                csvList.appendChild(fileItem);
-                            });
-                        }
-                    } else {
-                        csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files: ' + data.error + '</p>';
-                    }
+                    fetch('/admin/download_csv')
+                        .then(response => response.json())
+                        .then(data => {
+                            loading.style.display = 'none';
+                            
+                            if (data.success) {
+                                if (data.files.length === 0) {
+                                    csvList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No CSV files found</p>';
+                                } else {
+                                    data.files.forEach(file => {
+                                        // Check if file is from yesterday or earlier (based on filename)
+                                        const dateMatch = file.filename.match(/bookings_(\d{4}-\d{2}-\d{2})\.csv$/);
+                                        let canDelete = false;
+                                        if (dateMatch) {
+                                            const fileDateStr = dateMatch[1]; // YYYY-MM-DD format
+                                            
+                                            // Compare file date with server date
+                                            canDelete = fileDateStr < serverTodayStr;
+                                        }
+                                        
+                                        const fileItem = document.createElement('div');
+                                        fileItem.className = 'csv-item';
+                                        fileItem.innerHTML = `
+                                            <div class="csv-info">
+                                                <div class="csv-filename">${file.filename}</div>
+                                                <div class="csv-details">
+                                                    Size: ${formatFileSize(file.size)} | 
+                                                    Modified: ${file.date}
+                                                </div>
+                                            </div>
+                                            <div class="csv-actions">
+                                                ${canDelete ? `
+                                                    <button class="btn btn-danger" 
+                                                            onclick="deleteCSV('${file.filename}')" 
+                                                            title="Delete File">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                ` : ''}
+                                                <a href="/admin/download_csv/${file.filename}" class="btn btn-success" download title="Download File">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </a>
+                                            </div>
+                                        `;
+                                        csvList.appendChild(fileItem);
+                                    });
+                                }
+                            } else {
+                                csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files: ' + data.error + '</p>';
+                            }
+                        })
+                        .catch(error => {
+                            loading.style.display = 'none';
+                            csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files</p>';
+                            console.error('Error:', error);
+                        });
                 })
                 .catch(error => {
                     loading.style.display = 'none';
-                    csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files</p>';
+                    csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading server date</p>';
                     console.error('Error:', error);
                 });
         }
@@ -660,37 +743,136 @@
         // Function to adjust admin content container based on viewport height
         function adjustAdminContainer() {
             const adminContent = document.getElementById('adminContent');
-            if (adminContent && adminContent.classList.contains('show')) {
+            const adminContentInner = adminContent ? adminContent.querySelector('.admin-content-inner') : null;
+            
+            if (adminContent && adminContent.classList.contains('show') && adminContentInner) {
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isMobile) {
+                    // Mobile-specific centering with very conservative height calculation
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Use very conservative margins to prevent overflow
+                    const margin = 60; // 30px top + 30px bottom for safety
+                    const availableHeight = Math.max(viewportHeight - margin, 300); // Minimum 300px height
+                    
+                    // Force absolute positioning and centering
+                    adminContent.style.position = 'absolute';
+                    adminContent.style.top = '50%';
+                    adminContent.style.left = '50%';
+                    adminContent.style.transform = 'translate(-50%, -50%)';
+                    adminContent.style.width = 'calc(100% - 20px)';
+                    adminContent.style.maxHeight = availableHeight + 'px';
+                    adminContent.style.height = 'auto';
+                    adminContent.style.overflow = 'hidden';
+                    adminContent.style.margin = '0';
+                    adminContent.style.boxSizing = 'border-box';
+                    
+                    // Set inner container height
+                    adminContentInner.style.maxHeight = (availableHeight - 40) + 'px'; // Account for padding
+                    
+                    // Force multiple reflows to ensure positioning is applied
+                    adminContent.offsetHeight;
+                    adminContent.offsetWidth;
+                } else {
+                    // Desktop centering (existing logic)
+                    const viewportHeight = window.innerHeight;
+                    const margin = 40;
+                    const availableHeight = viewportHeight - margin;
+                    
+                    adminContent.style.maxHeight = availableHeight + 'px';
+                    adminContent.style.overflow = 'hidden';
+                    adminContent.style.top = '50%';
+                    adminContent.style.left = '50%';
+                    adminContent.style.transform = 'translate(-50%, -50%)';
+                    
+                    // Set inner container height
+                    adminContentInner.style.maxHeight = (availableHeight - 80) + 'px'; // Account for padding
+                }
+            }
+        }
+
+        // Function to adjust password wrapper for mobile centering
+        function adjustPasswordWrapper() {
+            const passwordWrapper = document.getElementById('passwordWrapper');
+            if (passwordWrapper && passwordWrapper.style.display !== 'none') {
                 const viewportHeight = window.innerHeight;
                 const isMobile = window.innerWidth <= 768;
-                const margin = isMobile ? 20 : 40; // 10px top + 10px bottom on mobile, 20px top + 20px bottom on desktop
-                const availableHeight = viewportHeight - margin;
                 
-                // Set the container height to fit within viewport with equal margins
-                adminContent.style.maxHeight = availableHeight + 'px';
-                adminContent.style.overflowY = 'auto';
-                
-                // Ensure the container is properly centered
-                adminContent.style.top = '50%';
-                adminContent.style.left = '50%';
-                adminContent.style.transform = 'translate(-50%, -50%)';
-                
-                console.log('Viewport height:', viewportHeight);
-                console.log('Is mobile:', isMobile);
-                console.log('Available height for container:', availableHeight);
+                if (isMobile) {
+                    // Force proper centering on mobile
+                    passwordWrapper.style.minHeight = viewportHeight + 'px';
+                    passwordWrapper.style.display = 'flex';
+                    passwordWrapper.style.alignItems = 'center';
+                    passwordWrapper.style.justifyContent = 'center';
+                }
             }
         }
 
         // Adjust container on window resize
-        window.addEventListener('resize', adjustAdminContainer);
+        window.addEventListener('resize', function() {
+            adjustAdminContainer();
+            adjustPasswordWrapper();
+        });
+
+        // Adjust password wrapper on page load and orientation change
+        window.addEventListener('load', function() {
+            adjustPasswordWrapper();
+            // Also adjust admin content on load in case it's already shown
+            setTimeout(adjustAdminContainer, 100);
+        });
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                adjustPasswordWrapper();
+                adjustAdminContainer();
+            }, 100);
+        });
 
         // Adjust container when admin content is shown
         function showAdminContent() {
-            document.getElementById('passwordWrapper').style.display = 'none';
-            document.getElementById('adminContent').classList.add('show');
+            const passwordWrapper = document.getElementById('passwordWrapper');
+            const adminContent = document.getElementById('adminContent');
             
-            // Adjust container after a brief delay to ensure DOM is updated
-            setTimeout(adjustAdminContainer, 100);
+            if (passwordWrapper) {
+                passwordWrapper.style.display = 'none';
+            } else {
+                console.error('Password wrapper element not found!');
+            }
+            
+            if (adminContent) {
+                adminContent.classList.add('show');
+            } else {
+                console.error('Admin content element not found!');
+            }
+            
+            // Force immediate centering for mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Immediate mobile centering with very conservative height
+                adminContent.style.position = 'absolute';
+                adminContent.style.top = '50%';
+                adminContent.style.left = '50%';
+                adminContent.style.transform = 'translate(-50%, -50%)';
+                adminContent.style.width = 'calc(100% - 20px)';
+                adminContent.style.maxHeight = 'calc(100vh - 60px)'; // More conservative margin
+                adminContent.style.overflow = 'hidden';
+                adminContent.style.margin = '0';
+                adminContent.style.boxSizing = 'border-box';
+                
+                // Set inner container height
+                const adminContentInner = adminContent.querySelector('.admin-content-inner');
+                if (adminContentInner) {
+                    adminContentInner.style.maxHeight = 'calc(100vh - 100px)';
+                }
+            }
+            
+            // Multiple adjustment attempts to handle mobile viewport timing issues
+            adjustAdminContainer(); // Immediate adjustment
+            setTimeout(adjustAdminContainer, 50); // Quick follow-up
+            setTimeout(adjustAdminContainer, 200); // Delayed adjustment for mobile
+            setTimeout(adjustAdminContainer, 500); // Final adjustment for stubborn mobile browsers
+            setTimeout(adjustAdminContainer, 1000); // Extra adjustment for very slow mobile browsers
         }
     </script>
 </body>

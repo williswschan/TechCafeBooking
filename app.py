@@ -308,6 +308,12 @@ def extract_booking():
     
     return jsonify(csv_result)
 
+@app.route('/get_server_date')
+def get_server_date():
+    """Get current server date in YYYY-MM-DD format"""
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    return jsonify({'date': current_date})
+
 @app.route('/admin')
 def admin_page():
     """Admin page with password protection"""
