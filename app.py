@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import json
 import os
 import logging
+import csv
 
 app = Flask(__name__)
 
@@ -38,66 +39,44 @@ def save_bookings():
     except Exception as e:
         logger.error(f"Error saving bookings: {e}")
 
-def cleanup_past_bookings():
-    """Extract and backup past day bookings, then remove them from current bookings"""
-    global bookings
+def extract_booking_to_csv(slot_key, booking, reason="completed"):
+    """Extract a single booking to CSV file (append to date-specific file)"""
     try:
-        today = datetime.now().date()
-        past_bookings = {}
-        current_bookings = {}
+        # Parse slot_key to get date and time
+        date_str, time_str = slot_key.split('_')
         
-        # Separate past and current bookings
-        for slot_key, booking in bookings.items():
-            # Extract date from slot_key (format: "YYYY-MM-DD_HH:MM")
-            try:
-                booking_date_str = slot_key.split('_')[0]
-                booking_date = datetime.strptime(booking_date_str, '%Y-%m-%d').date()
-                
-                if booking_date < today:
-                    past_bookings[slot_key] = booking
-                else:
-                    current_bookings[slot_key] = booking
-            except (ValueError, IndexError) as e:
-                logger.warning(f"Invalid slot_key format: {slot_key}, skipping")
-                continue
+        # Create filename with just date
+        filename = f"bookings_{date_str}.csv"
         
-        # If there are past bookings, save them to backup file
-        if past_bookings:
-            backup_filename = f"bookings_backup_{today.strftime('%Y%m%d')}.json"
-            with open(backup_filename, 'w', encoding='utf-8') as f:
-                json.dump(past_bookings, f, indent=2, ensure_ascii=False)
+        # Check if file exists to determine if we need to write header
+        file_exists = os.path.exists(filename)
+        
+        # Append to CSV file
+        with open(filename, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
             
-            logger.info(f"Backed up {len(past_bookings)} past bookings to {backup_filename}")
+            # Write header only if file doesn't exist
+            if not file_exists:
+                writer.writerow(['Date', 'Time', 'Username', 'Device ID', 'Booked At', 'Extracted At', 'Reason'])
             
-            # Update current bookings to only include today and future
-            bookings = current_bookings
-            
-            # Save the cleaned bookings
-            save_bookings()
-            
-            logger.info(f"Cleaned up past bookings. Current bookings: {len(bookings)}")
-            
-            return {
-                'success': True,
-                'backed_up': len(past_bookings),
-                'remaining': len(current_bookings),
-                'backup_file': backup_filename
-            }
-        else:
-            logger.info("No past bookings to clean up")
-            return {
-                'success': True,
-                'backed_up': 0,
-                'remaining': len(bookings),
-                'backup_file': None
-            }
-            
+            # Write data
+            writer.writerow([
+                date_str,
+                time_str,
+                booking.get('username', ''),
+                booking.get('device_id', ''),
+                booking.get('booked_at', ''),
+                datetime.now().isoformat(),
+                reason
+            ])
+        
+        logger.info(f"Extracted booking {slot_key} to {filename}")
+        return {'success': True, 'filename': filename}
+        
     except Exception as e:
-        logger.error(f"Error cleaning up past bookings: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
+        logger.error(f"Error extracting booking to CSV: {e}")
+        return {'success': False, 'error': str(e)}
+
 
 # Load existing bookings on startup
 load_bookings()
@@ -228,6 +207,7 @@ def cancel_booking():
     time = data.get('time')
     device_id = data.get('device_id')
     is_admin = data.get('is_admin', False)
+    reason = data.get('reason', 'cancelled')  # Default to 'cancelled', can be 'completed' for admin
     
     if not all([date, time, device_id]):
         return jsonify({'success': False, 'message': 'Missing required fields'})
@@ -241,12 +221,26 @@ def cancel_booking():
     if bookings[slot_key]['device_id'] != device_id and not is_admin:
         return jsonify({'success': False, 'message': 'You can only cancel your own bookings'})
     
+    # Extract booking to CSV before deleting
+    booking = bookings[slot_key]
+    csv_result = extract_booking_to_csv(slot_key, booking, reason)
+    
+    # Delete the booking
     del bookings[slot_key]
     
     # Save to file
     save_bookings()
     
-    return jsonify({'success': True, 'message': 'Booking cancelled'})
+    # Return success with CSV extraction info
+    response = {'success': True, 'message': 'Booking cancelled'}
+    if csv_result['success']:
+        response['csv_extracted'] = True
+        response['csv_filename'] = csv_result['filename']
+    else:
+        response['csv_extracted'] = False
+        response['csv_error'] = csv_result['error']
+    
+    return jsonify(response)
 
 @app.route('/get_bookings', methods=['GET', 'POST'])
 def get_bookings():
@@ -275,12 +269,6 @@ def get_current_dates():
     dates = get_available_dates()
     return jsonify({'success': True, 'dates': dates})
 
-@app.route('/cleanup_past_bookings', methods=['POST'])
-def cleanup_past_bookings_endpoint():
-    """API endpoint to cleanup past bookings and create backup"""
-    result = cleanup_past_bookings()
-    return jsonify(result)
-
 @app.route('/get_current_time', methods=['GET'])
 def get_current_time():
     """API endpoint to get current server time for time visualization"""
@@ -295,6 +283,30 @@ def get_current_time():
             'iso_string': now.isoformat()
         }
     })
+
+@app.route('/extract_booking', methods=['POST'])
+def extract_booking():
+    """API endpoint to extract a single booking to CSV"""
+    data = request.get_json()
+    slot_key = data.get('slot_key')
+    reason = data.get('reason', 'extracted')
+    
+    if not slot_key:
+        return jsonify({'success': False, 'error': 'Missing slot_key'})
+    
+    if slot_key not in bookings:
+        return jsonify({'success': False, 'error': 'Booking not found'})
+    
+    # Extract booking to CSV
+    booking = bookings[slot_key]
+    csv_result = extract_booking_to_csv(slot_key, booking, reason)
+    
+    # Remove booking from memory after successful extraction
+    if csv_result['success']:
+        del bookings[slot_key]
+        save_bookings()
+    
+    return jsonify(csv_result)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
