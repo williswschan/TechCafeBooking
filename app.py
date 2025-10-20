@@ -1,4 +1,4 @@
-from flask import Flask, render_template, render_template_string, request, jsonify
+from flask import Flask, render_template, render_template_string, request, jsonify, send_file
 from datetime import datetime, timedelta
 import json
 import os
@@ -307,6 +307,123 @@ def extract_booking():
         save_bookings()
     
     return jsonify(csv_result)
+
+@app.route('/admin')
+def admin_page():
+    """Admin page with password protection"""
+    return render_template('admin.html')
+
+@app.route('/admin/verify', methods=['POST'])
+def verify_admin_password():
+    """Verify admin password"""
+    data = request.get_json()
+    password = data.get('password', '').strip()
+    
+    if password == 'Nomura':
+        return jsonify({'success': True, 'message': 'Admin access granted'})
+    else:
+        return jsonify({'success': False, 'message': 'Invalid admin password'})
+
+@app.route('/admin/download_csv')
+def download_csv():
+    """Download CSV files - list available CSV files"""
+    try:
+        csv_files = []
+        for filename in os.listdir('.'):
+            if filename.startswith('bookings_') and filename.endswith('.csv'):
+                file_path = os.path.join('.', filename)
+                file_size = os.path.getsize(file_path)
+                file_date = os.path.getmtime(file_path)
+                
+                # Extract date from filename (bookings_YYYY-MM-DD.csv)
+                try:
+                    date_part = filename.replace('bookings_', '').replace('.csv', '')
+                    file_date_from_name = datetime.strptime(date_part, '%Y-%m-%d').date()
+                except ValueError:
+                    # If date parsing fails, use a very old date as fallback
+                    file_date_from_name = datetime(1900, 1, 1).date()
+                
+                csv_files.append({
+                    'filename': filename,
+                    'size': file_size,
+                    'date': datetime.fromtimestamp(file_date).strftime('%Y-%m-%d %H:%M:%S'),
+                    'sort_date': file_date_from_name
+                })
+        
+        # Sort by date in filename (newest first)
+        csv_files.sort(key=lambda x: x['sort_date'], reverse=True)
+        
+        return jsonify({'success': True, 'files': csv_files})
+    except Exception as e:
+        logger.error(f"Error listing CSV files: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/download_csv/<filename>')
+def download_specific_csv(filename):
+    """Download a specific CSV file"""
+    try:
+        # Security check - only allow CSV files that start with 'bookings_'
+        if not filename.startswith('bookings_') or not filename.endswith('.csv'):
+            return jsonify({'success': False, 'error': 'Invalid file type'})
+        
+        file_path = os.path.join('.', filename)
+        if not os.path.exists(file_path):
+            return jsonify({'success': False, 'error': 'File not found'})
+        
+        return send_file(file_path, as_attachment=True, download_name=filename)
+    except Exception as e:
+        logger.error(f"Error downloading CSV file {filename}: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/upload_display_names', methods=['POST'])
+def upload_display_names():
+    """Upload new display_name.txt file"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'})
+        
+        if file.filename != 'display_name.txt':
+            return jsonify({'success': False, 'error': 'File must be named display_name.txt'})
+        
+        # Save the uploaded file
+        file.save('display_name.txt')
+        
+        # Reload display names
+        load_display_names()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Display names updated successfully. Loaded {len(display_names)} names.',
+            'count': len(display_names)
+        })
+    except Exception as e:
+        logger.error(f"Error uploading display names: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/delete_csv/<filename>', methods=['DELETE'])
+def delete_csv(filename):
+    """Delete a specific CSV file"""
+    try:
+        # Security check - only allow CSV files that start with 'bookings_'
+        if not filename.startswith('bookings_') or not filename.endswith('.csv'):
+            return jsonify({'success': False, 'error': 'Invalid file type'})
+        
+        file_path = os.path.join('.', filename)
+        if not os.path.exists(file_path):
+            return jsonify({'success': False, 'error': 'File not found'})
+        
+        # Delete the file
+        os.remove(file_path)
+        logger.info(f"Deleted CSV file: {filename}")
+        
+        return jsonify({'success': True, 'message': f'File "{filename}" deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting CSV file {filename}: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

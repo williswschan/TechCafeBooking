@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCafe Booking - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .password-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .admin-content {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 1200px;
+            width: calc(100% - 40px);
+            margin: 0 auto;
+            text-align: center;
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .admin-header {
+            margin-bottom: 40px;
+        }
+
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            font-size: 1.1rem;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .password-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .password-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.show {
+            display: block;
+        }
+
+        .feature-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .csv-list {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .csv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .csv-info {
+            flex: 1;
+        }
+
+        .csv-filename {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .csv-details {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+            white-space: nowrap;
+            opacity: 0;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .password-wrapper {
+                padding: 10px;
+            }
+
+            .admin-container {
+                padding: 20px;
+                width: calc(100% - 20px);
+            }
+
+            .admin-content {
+                padding: 20px;
+                width: calc(100% - 20px);
+                margin: 0 auto;
+            }
+
+            .notification {
+                top: 10px;
+                padding: 12px 20px;
+                font-size: 14px;
+                max-width: 95%;
+            }
+
+            .admin-title {
+                font-size: 2rem;
+            }
+
+            .csv-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .back-link {
+                top: 10px;
+                left: 10px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Booking</a>
+    
+    <!-- Password Section -->
+    <div class="password-wrapper" id="passwordWrapper">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="admin-title">🔐 Admin Panel</h1>
+                <p class="admin-subtitle">TechCafe Booking System Administration</p>
+            </div>
+
+            <div class="password-section" id="passwordSection">
+                <h3 style="margin-bottom: 20px; color: #2d3748;">Enter Admin Password</h3>
+                <input type="password" id="adminPassword" class="password-input" placeholder="Enter admin password" maxlength="50">
+                <br>
+                <button class="btn btn-primary" onclick="verifyPassword()">Access Admin Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div class="admin-content" id="adminContent">
+            <!-- CSV Download Section -->
+            <div class="feature-section">
+                <h3 class="feature-title">📥 Download Booking Records</h3>
+                <p style="margin-bottom: 20px; color: #718096;">Download extracted booking records in CSV format</p>
+                
+                <div class="loading" id="csvLoading">
+                    <div class="spinner"></div>
+                    <p>Loading CSV files...</p>
+                </div>
+                
+                <div id="csvList" class="csv-list"></div>
+                <button class="btn btn-secondary" onclick="refreshCSVList()">Refresh List</button>
+            </div>
+
+            <!-- Display Names Upload Section -->
+            <div class="feature-section">
+                <h3 class="feature-title">📤 Update Display Names</h3>
+                <p style="margin-bottom: 20px; color: #718096;">Upload new display_name.txt file to update the type-ahead feature</p>
+                
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to select display_name.txt file</div>
+                    <div class="upload-hint">or drag and drop the file here</div>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-input" accept=".txt" onchange="handleFileSelect(event)">
+                
+                <div class="loading" id="uploadLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Uploading and processing file...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        function showNotification(message, type = 'success', duration = 3000) {
+            const notification = document.getElementById('notification');
+            
+            // Clear any existing timeout to prevent conflicts
+            if (notification.timeoutId) {
+                clearTimeout(notification.timeoutId);
+            }
+            
+            // Reset notification state
+            notification.classList.remove('show');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Force a reflow to ensure the reset is applied
+            notification.offsetHeight;
+            
+            // Show the notification
+            notification.classList.add('show');
+            
+            notification.timeoutId = setTimeout(() => {
+                notification.classList.remove('show');
+                notification.timeoutId = null;
+            }, duration);
+        }
+
+        // Brute force protection variables
+        let lastFailedAttempt = 0;
+        let failedAttempts = 0;
+
+        function verifyPassword() {
+            const password = document.getElementById('adminPassword').value.trim();
+            const now = Date.now();
+            
+            if (!password) {
+                showNotification('Please enter a password', 'error');
+                return;
+            }
+            
+            // Check if we need to wait due to recent failed attempts
+            if (now - lastFailedAttempt < 1000) {
+                const remainingTime = Math.ceil((1000 - (now - lastFailedAttempt)) / 1000);
+                showNotification(`Please wait ${remainingTime} second(s) before trying again`, 'error');
+                return;
+            }
+
+            fetch('/admin/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reset failed attempts on successful login
+                    failedAttempts = 0;
+                    lastFailedAttempt = 0;
+                    
+                    showAdminContent();
+                    showNotification('Admin access granted!', 'success', 2000); // Auto-dismiss after 2 seconds
+                    loadCSVFiles();
+                } else {
+                    // Record failed attempt
+                    failedAttempts++;
+                    lastFailedAttempt = now;
+                    
+                    showNotification(data.message, 'error');
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error verifying password', 'error');
+            });
+        }
+
+        function loadCSVFiles() {
+            const loading = document.getElementById('csvLoading');
+            const csvList = document.getElementById('csvList');
+            
+            loading.style.display = 'block';
+            csvList.innerHTML = '';
+
+            fetch('/admin/download_csv')
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.success) {
+                        if (data.files.length === 0) {
+                            csvList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No CSV files found</p>';
+                        } else {
+                            data.files.forEach(file => {
+                                const fileItem = document.createElement('div');
+                                fileItem.className = 'csv-item';
+                                fileItem.innerHTML = `
+                                    <div class="csv-info">
+                                        <div class="csv-filename">${file.filename}</div>
+                                        <div class="csv-details">
+                                            Size: ${formatFileSize(file.size)} | 
+                                            Modified: ${file.date}
+                                        </div>
+                                    </div>
+                                    <div class="csv-actions">
+                                        <a href="/admin/download_csv/${file.filename}" class="btn btn-success" download>
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                        <button class="btn btn-danger" onclick="deleteCSV('${file.filename}')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                `;
+                                csvList.appendChild(fileItem);
+                            });
+                        }
+                    } else {
+                        csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files: ' + data.error + '</p>';
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files</p>';
+                    console.error('Error:', error);
+                });
+        }
+
+        function refreshCSVList() {
+            loadCSVFiles();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function deleteCSV(filename) {
+            if (confirm(`Are you sure you want to delete "${filename}"? This action cannot be undone.`)) {
+                fetch(`/admin/delete_csv/${filename}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(`File "${filename}" deleted successfully`, 'success');
+                        loadCSVFiles(); // Refresh the list
+                    } else {
+                        showNotification(`Error deleting file: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting CSV file:', error);
+                    showNotification('An error occurred while deleting the file', 'error');
+                });
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            if (file.name !== 'display_name.txt') {
+                showNotification('File must be named display_name.txt', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loading = document.getElementById('uploadLoading');
+            loading.style.display = 'block';
+
+            fetch('/admin/upload_display_names', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    document.getElementById('fileInput').value = '';
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                showNotification('Error uploading file', 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        });
+
+        // Enter key support for password
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+
+        // Function to adjust admin content container based on viewport height
+        function adjustAdminContainer() {
+            const adminContent = document.getElementById('adminContent');
+            if (adminContent && adminContent.classList.contains('show')) {
+                const viewportHeight = window.innerHeight;
+                const isMobile = window.innerWidth <= 768;
+                const margin = isMobile ? 20 : 40; // 10px top + 10px bottom on mobile, 20px top + 20px bottom on desktop
+                const availableHeight = viewportHeight - margin;
+                
+                // Set the container height to fit within viewport with equal margins
+                adminContent.style.maxHeight = availableHeight + 'px';
+                adminContent.style.overflowY = 'auto';
+                
+                // Ensure the container is properly centered
+                adminContent.style.top = '50%';
+                adminContent.style.left = '50%';
+                adminContent.style.transform = 'translate(-50%, -50%)';
+                
+                console.log('Viewport height:', viewportHeight);
+                console.log('Is mobile:', isMobile);
+                console.log('Available height for container:', availableHeight);
+            }
+        }
+
+        // Adjust container on window resize
+        window.addEventListener('resize', adjustAdminContainer);
+
+        // Adjust container when admin content is shown
+        function showAdminContent() {
+            document.getElementById('passwordWrapper').style.display = 'none';
+            document.getElementById('adminContent').classList.add('show');
+            
+            // Adjust container after a brief delay to ensure DOM is updated
+            setTimeout(adjustAdminContainer, 100);
+        }
+    </script>
+</body>
+</html>

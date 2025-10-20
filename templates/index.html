@@ -3367,10 +3367,26 @@
             });
         }
 
+        // Brute force protection variables
+        let lastFailedAttempt = 0;
+        let failedAttempts = 0;
+
         function verifyAdminPassword() {
             const password = document.getElementById('adminPasswordInput').value.trim();
+            const now = Date.now();
+            
+            // Check if we need to wait due to recent failed attempts
+            if (now - lastFailedAttempt < 1000) {
+                const remainingTime = Math.ceil((1000 - (now - lastFailedAttempt)) / 1000);
+                showNotification(`Please wait ${remainingTime} second(s) before trying again`, 'error');
+                return;
+            }
             
             if (password === 'Nomura') {
+                // Reset failed attempts on successful login
+                failedAttempts = 0;
+                lastFailedAttempt = 0;
+                
                 isAdminSession = true;
                 document.getElementById('adminBtn').classList.add('admin-active');
                 updateAdminButtonText();
@@ -3382,6 +3398,10 @@
                 // Refresh display to show booker names
                 refreshDisplay();
             } else {
+                // Record failed attempt
+                failedAttempts++;
+                lastFailedAttempt = now;
+                
                 showNotification('Invalid admin password', 'error');
                 document.getElementById('adminPasswordInput').value = '';
                 document.getElementById('adminPasswordInput').focus();
