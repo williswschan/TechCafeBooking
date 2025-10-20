@@ -3352,11 +3352,7 @@
                             loadBookings(currentDate);
                         }
                         
-                        let message = '✅ Case marked as completed. Slot is now available for booking.';
-                        if (data.csv_extracted) {
-                            message += `\n📄 Booking record extracted to: ${data.csv_filename}`;
-                        }
-                        showNotification(message, 'success');
+                        showNotification('✅ Case marked as completed. Slot is now available for booking.', 'success');
                     } else {
                         alert(data.message);
                     }
