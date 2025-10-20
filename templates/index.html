@@ -1139,10 +1139,10 @@
             <h3><i class="fas fa-tools"></i> IT Support - Booking Management</h3>
             <p id="adminBookingInfo">Booking: <span id="adminBookingUser"></span> - <span id="adminBookingDateTime"></span><br><br>What action would you like to take?<br><br></p>
             <div class="modal-buttons admin-buttons">
-                <button class="btn btn-success" onclick="markCaseCompleted()" title="IT support successfully resolved the user's issue">
+                <button class="btn btn-success" onclick="showAdminCaseCompletedConfirmation()" title="IT support successfully resolved the user's issue">
                     <i class="fas fa-check-circle"></i> Case Completed - Free Slot
                 </button>
-                <button class="btn btn-danger" onclick="confirmCancellation()" title="Remove this booking (user no-show, etc.)">
+                <button class="btn btn-danger" onclick="showAdminCancelConfirmation()" title="Remove this booking (user no-show, etc.)">
                     <i class="fas fa-times-circle"></i> Cancel Booking
                 </button>
                 <button class="btn btn-secondary" onclick="closeModal()" title="Close without making changes">
@@ -1159,6 +1159,30 @@
             <p>Are you sure you want to cancel this booking?<br><br></p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" onclick="confirmCancellation()">Yes, Cancel</button>
+                <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Cancel Confirmation Modal -->
+    <div id="adminCancelModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-tools"></i> IT Support - Confirm Cancellation</h3>
+            <p>Are you sure you want to cancel this booking?<br><br>This action cannot be undone.<br><br></p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="confirmCancellation()">Yes, Cancel Booking</button>
+                <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Case Completed Confirmation Modal -->
+    <div id="adminCaseCompletedModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-tools"></i> IT Support - Confirm Case Completion</h3>
+            <p>Are you sure you want to mark this case as completed?<br><br>The slot will be freed up for new bookings.<br><br></p>
+            <div class="modal-buttons">
+                <button class="btn btn-success" onclick="markCaseCompleted()">Yes, Mark as Completed</button>
                 <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
             </div>
         </div>
@@ -3360,10 +3384,8 @@
         }
 
         function markCaseCompleted() {
-            // Show confirmation dialog
-            if (confirm('Mark this case as completed and free up the slot?')) {
-                // Use the same cancellation logic but with different success message
-                fetch('/cancel', {
+            // Use the same cancellation logic but with different success message
+            fetch('/cancel', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3433,13 +3455,30 @@
                     console.error('Error marking case as completed:', error);
                     alert('An error occurred while marking case as completed. Please try again.');
                 });
-            }
+        }
+
+        function showAdminCancelConfirmation() {
+            // Close the admin management modal
+            document.getElementById('adminManagementModal').style.display = 'none';
+            
+            // Show the admin cancel confirmation modal
+            document.getElementById('adminCancelModal').style.display = 'block';
+        }
+
+        function showAdminCaseCompletedConfirmation() {
+            // Close the admin management modal
+            document.getElementById('adminManagementModal').style.display = 'none';
+            
+            // Show the admin case completed confirmation modal
+            document.getElementById('adminCaseCompletedModal').style.display = 'block';
         }
 
         function closeModal() {
             document.getElementById('bookingModal').style.display = 'none';
             document.getElementById('cancelModal').style.display = 'none';
             document.getElementById('adminManagementModal').style.display = 'none';
+            document.getElementById('adminCancelModal').style.display = 'none';
+            document.getElementById('adminCaseCompletedModal').style.display = 'none';
             document.getElementById('adminModal').style.display = 'none';
             document.getElementById('usernameInput').value = '';
             document.getElementById('adminPasswordInput').value = '';
