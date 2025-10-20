@@ -1,3 +1,3 @@
-Date,Time,Booked By,Device ID,Booked At,Updated At,Reason
-2025-10-19,09:00,Test User 1,device_001,2025-10-19 08:30:00,2025-10-19 10:00:00,Completed
-2025-10-19,10:00,Test User 2,device_002,2025-10-19 09:30:00,2025-10-19 11:00:00,Completed
+Date,Time,Booked By,Device ID,Booked At,Updated At,Reason,Kiosk
+2025-10-19,09:00,Test User 1,device_001,2025-10-19 08:30:00,2025-10-19 10:00:00,Completed,no
+2025-10-19,10:00,Test User 2,device_002,2025-10-19 09:30:00,2025-10-19 11:00:00,Completed,no

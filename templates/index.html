@@ -3109,6 +3109,13 @@
             }
             
             if (slot.classList.contains('booked')) {
+                // If booking was made in kiosk mode, block non-admin cancellation attempts
+                const timeStr = slot.dataset.time;
+                const booking = bookings[timeStr];
+                if (booking && booking.kiosk && !isAdminSession) {
+                    showNotification('Booking made on Kiosk cannot be cancelled', 'error');
+                    return;
+                }
                 // Check if normal user is trying to cancel a past slot booking
                 if (!isAdminSession && slot.classList.contains('time-past')) {
                     showNotification('Cannot cancel past time slot bookings', 'error');
@@ -3202,7 +3209,8 @@
                     date: currentDate,
                     time: currentSlot,
                     username: username || '', // Leave blank if empty
-                    device_id: deviceId // Include device ID for tracking
+                    device_id: deviceId, // Include device ID for tracking
+                    kiosk: !!isKioskMode
                 })
             })
             .then(response => response.json())

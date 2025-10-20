@@ -60,7 +60,7 @@ def extract_booking_to_csv(slot_key, booking, reason="completed"):
             
             # Write header only if file doesn't exist
             if not file_exists:
-                writer.writerow(['Date', 'Time', 'Booked By', 'Device ID', 'Booked At', 'Updated At', 'Reason'])
+                writer.writerow(['Date', 'Time', 'Booked By', 'Device ID', 'Booked At', 'Updated At', 'Reason', 'Kiosk'])
             
             # Write data
             writer.writerow([
@@ -70,7 +70,8 @@ def extract_booking_to_csv(slot_key, booking, reason="completed"):
                 booking.get('device_id', ''),
                 booking.get('booked_at', ''),
                 datetime.now().isoformat(),
-                reason
+                reason,
+                'yes' if booking.get('kiosk') else 'no'
             ])
         
         logger.info(f"Extracted booking {slot_key} to {filename}")
@@ -173,6 +174,7 @@ def book_slot():
     time = data.get('time')
     username = data.get('username')
     device_id = data.get('device_id')
+    kiosk = bool(data.get('kiosk', False))
     
     if not all([date, time, device_id]) or username is None:
         return jsonify({'success': False, 'message': 'Missing required fields'})
@@ -186,7 +188,8 @@ def book_slot():
     bookings[slot_key] = {
         'username': username,
         'device_id': device_id,
-        'booked_at': datetime.now().isoformat()
+        'booked_at': datetime.now().isoformat(),
+        'kiosk': kiosk
     }
     
     # Extract booking to CSV for logging
@@ -215,7 +218,11 @@ def cancel_booking():
     if slot_key not in bookings:
         return jsonify({'success': False, 'message': 'No booking found for this slot'})
     
-    # Check if the device making the cancellation is the same as the one that made the booking OR if it's an admin
+    # If the booking was made in kiosk mode, only admin can cancel
+    if bookings[slot_key].get('kiosk') and not is_admin:
+        return jsonify({'success': False, 'message': 'Kiosk bookings can only be cancelled by admin'})
+
+    # Otherwise, require same-device or admin
     if bookings[slot_key]['device_id'] != device_id and not is_admin:
         return jsonify({'success': False, 'message': 'You can only cancel your own bookings'})
     

@@ -108,5 +108,83 @@
     "username": "Henry Wang",
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-20T17:11:41.376076"
+  },
+  "2025-10-21_09:00": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:32.743600",
+    "kiosk": true
+  },
+  "2025-10-21_09:15": {
+    "username": "Ethan Brooks",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:36.084397",
+    "kiosk": true
+  },
+  "2025-10-21_09:30": {
+    "username": "Olivia Parker",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:41.309074",
+    "kiosk": true
+  },
+  "2025-10-21_09:45": {
+    "username": "Ava Carter",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:45.266937",
+    "kiosk": true
+  },
+  "2025-10-21_10:00": {
+    "username": "Ethan Brooks",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:49.690165",
+    "kiosk": true
+  },
+  "2025-10-21_10:15": {
+    "username": "Logan Reed",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:44:59.319812",
+    "kiosk": true
+  },
+  "2025-10-21_10:30": {
+    "username": "Charlotte Hughes",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:10.497643",
+    "kiosk": true
+  },
+  "2025-10-21_10:45": {
+    "username": "James Foster",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:15.370816",
+    "kiosk": true
+  },
+  "2025-10-21_14:00": {
+    "username": "Henry Long",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:23.168799",
+    "kiosk": true
+  },
+  "2025-10-21_14:15": {
+    "username": "Calvin Chen",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:29.466374",
+    "kiosk": true
+  },
+  "2025-10-21_14:30": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:33.021517",
+    "kiosk": true
+  },
+  "2025-10-21_14:45": {
+    "username": "Alvin Phothikunchanan",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:45:41.482287",
+    "kiosk": true
+  },
+  "2025-10-21_11:00": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:46:30.405533",
+    "kiosk": false
   }
 }
