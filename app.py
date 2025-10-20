@@ -198,6 +198,10 @@ def book_slot():
         'booked_at': datetime.now().isoformat()
     }
     
+    # Extract booking to CSV for logging
+    booking = bookings[slot_key]
+    csv_result = extract_booking_to_csv(slot_key, booking, "booked")
+    
     # Save to file
     save_bookings()
     
