@@ -3538,6 +3538,7 @@
             
             // Apply enhanced styling
             notification.className = 'toast-notification';
+            notification.setAttribute('data-notification-id', notificationId);
             notification.style.cssText = `
                 position: fixed;
                 top: ${topOffset}px;
@@ -3572,6 +3573,9 @@
             document.body.appendChild(notification);
             notificationStack.push({ id: notificationId, element: notification });
             
+            // Check notification limit before adding new one
+            checkNotificationLimit();
+            
             // Animate in
             setTimeout(() => {
                 notification.style.opacity = '1';
@@ -3583,11 +3587,17 @@
                 dismissNotification(notificationId);
             });
             
-            // Auto dismiss after duration
-            const duration = type === 'error' ? 4000 : 3000; // Errors stay longer
-            setTimeout(() => {
-                dismissNotification(notificationId);
+            // Auto dismiss after duration - ensure all notifications dismiss
+            const duration = type === 'error' ? 5000 : 4000; // Increased duration for better visibility
+            const timeoutId = setTimeout(() => {
+                // Double-check the notification still exists before dismissing
+                if (document.querySelector(`[data-notification-id="${notificationId}"]`)) {
+                    dismissNotification(notificationId);
+                }
             }, duration);
+            
+            // Store timeout ID for potential cleanup
+            notification.setAttribute('data-timeout-id', timeoutId);
         }
         
         function dismissNotification(notificationId) {
@@ -3596,14 +3606,20 @@
             
             const notification = notificationStack[notificationIndex].element;
             
+            // Clear any pending timeout
+            const timeoutId = notification.getAttribute('data-timeout-id');
+            if (timeoutId) {
+                clearTimeout(parseInt(timeoutId));
+            }
+            
             // Animate out
             notification.style.opacity = '0';
             notification.style.transform = 'translateX(-50%) translateY(-20px)';
             
             // Remove after animation
             setTimeout(() => {
-                if (notification.parentNode) {
-                notification.remove();
+                if (notification && notification.parentNode) {
+                    notification.remove();
                 }
                 
                 // Remove from stack
@@ -3621,6 +3637,33 @@
                 notification.style.top = `${topOffset}px`;
             });
         }
+        
+        // Clear all notifications (safety function)
+        function clearAllNotifications() {
+            const notifications = document.querySelectorAll('.toast-notification');
+            notifications.forEach(notification => {
+                const timeoutId = notification.getAttribute('data-timeout-id');
+                if (timeoutId) {
+                    clearTimeout(parseInt(timeoutId));
+                }
+                notification.remove();
+            });
+            notificationStack = [];
+        }
+        
+        // Safety mechanism: Clear old notifications if too many accumulate
+        function checkNotificationLimit() {
+            if (notificationStack.length > 5) {
+                // Remove oldest notifications, keep only the 3 most recent
+                const toRemove = notificationStack.slice(0, notificationStack.length - 3);
+                toRemove.forEach(notification => {
+                    dismissNotification(notification.id);
+                });
+            }
+        }
+        
+        // Global function for debugging - clear all notifications
+        window.clearAllNotifications = clearAllNotifications;
 
         // Close modals when clicking outside - REMOVED TO AVOID CONFLICTS
         // window.onclick = function(event) {
