@@ -297,6 +297,39 @@
             color: white;
             font-size: 0.9rem;
             font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .footer-scroll-text {
+            display: inline-block;
+            padding-right: 100%;
+            animation: scroll-continuous 45s linear infinite;
+        }
+
+        .footer-content:hover .footer-scroll-text {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-continuous {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Mobile optimizations for scrolling text */
+        @media (max-width: 768px) {
+            .footer-scroll-text {
+                animation-duration: 35s; /* Slower continuous scroll on mobile */
+            }
+            
+            .footer-content {
+                padding: 10px 15px; /* Slightly reduced padding on mobile */
+            }
         }
 
         .footer-content small {
@@ -1044,7 +1077,9 @@
             <!-- Red Footer Section -->
             <div class="footer-section">
                 <div class="footer-content">
-                    <small>Connecting Market East & West. | Need Help? Contact IT Support</small>
+                    <div class="footer-scroll-text">
+                        <small>Connecting Market East & West. | Need Help? Contact IT Support</small>
+                    </div>
                 </div>
             </div>
             
@@ -3945,12 +3980,14 @@
             console.log('BroadcastChannel not supported');
         }
 
+
         // Initialize type-ahead and kiosk mode when page loads
         document.addEventListener('DOMContentLoaded', function() {
             loadNames();
             initializeTypeahead();
             initializeKioskMode();
         });
+
 
         // Hide typeahead when clicking/touching outside
         document.addEventListener('click', function(e) {
