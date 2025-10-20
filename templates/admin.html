@@ -677,6 +677,34 @@
             }
         }
 
+        function refreshTypeAheadOnMainPortal() {
+            // Method 1: Send message to opener window (if admin panel opened in new tab)
+            if (window.opener && !window.opener.closed) {
+                try {
+                    window.opener.postMessage({ type: 'REFRESH_TYPEAHEAD' }, '*');
+                    console.log('Sent refresh message to opener window');
+                } catch (e) {
+                    console.log('Could not communicate with opener window');
+                }
+            }
+            
+            // Method 2: Use BroadcastChannel for same-origin communication
+            try {
+                const channel = new BroadcastChannel('techcafe-refresh');
+                channel.postMessage({ type: 'REFRESH_TYPEAHEAD' });
+                console.log('Sent refresh message via BroadcastChannel');
+                channel.close();
+            } catch (e) {
+                console.log('BroadcastChannel not supported');
+            }
+            
+            // Method 3: Try to refresh if this is the same window (for testing)
+            if (typeof loadNames === 'function') {
+                loadNames();
+                console.log('Refreshed type-ahead in current window');
+            }
+        }
+
         function uploadFile(file) {
             if (file.name !== 'display_name.txt') {
                 showNotification('File must be named display_name.txt', 'error');
@@ -700,6 +728,11 @@
                 if (data.success) {
                     showNotification(data.message, 'success');
                     document.getElementById('fileInput').value = '';
+                    
+                    // If refresh is required, trigger type-ahead refresh on main portal
+                    if (data.refresh_required) {
+                        refreshTypeAheadOnMainPortal();
+                    }
                 } else {
                     showNotification(data.error, 'error');
                 }

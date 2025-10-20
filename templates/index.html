@@ -380,7 +380,7 @@
         /* Time visualization styles */
         .time-slot.time-past {
             background: #d1d5db !important;
-            border-color: #9ca3af !important;
+            border-color: #e5e7eb !important;
             color: #6b7280 !important;
             cursor: not-allowed !important;
             opacity: 0.6 !important;
@@ -388,18 +388,18 @@
 
         .time-slot.time-past.booked {
             background: #d1d5db !important;
-            border-color: #9ca3af !important;
+            border-color: #e5e7eb !important;
             color: #6b7280 !important;
         }
 
         .time-slot.time-past:hover {
             transform: none !important;
             box-shadow: none !important;
-            border-color: #9ca3af !important;
+            border-color: #e5e7eb !important;
         }
 
         .time-slot.time-past.booked:hover {
-            border-color: #9ca3af !important;
+            border-color: #e5e7eb !important;
         }
 
         /* Admin can still book past slots - override the disabled styling */
@@ -3392,30 +3392,45 @@
                 return;
             }
             
-            if (password === 'Nomura') {
-                // Reset failed attempts on successful login
-                failedAttempts = 0;
-                lastFailedAttempt = 0;
-                
-                isAdminSession = true;
-                document.getElementById('adminBtn').classList.add('admin-active');
-                updateAdminButtonText();
-                closeModal();
-                showNotification('Admin access granted! You can now cancel any booking.', 'success');
-                // Update time visualization to enable past slot booking for admin
-                updateTimeVisualization();
-                console.log('Admin session activated');
-                // Refresh display to show booker names
-                refreshDisplay();
-            } else {
-                // Record failed attempt
-                failedAttempts++;
-                lastFailedAttempt = now;
-                
-                showNotification('Invalid admin password', 'error');
-                document.getElementById('adminPasswordInput').value = '';
-                document.getElementById('adminPasswordInput').focus();
-            }
+            // Always verify password on server side for security
+            fetch('/admin/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reset failed attempts on successful login
+                    failedAttempts = 0;
+                    lastFailedAttempt = 0;
+                    
+                    isAdminSession = true;
+                    document.getElementById('adminBtn').classList.add('admin-active');
+                    updateAdminButtonText();
+                    closeModal();
+                    showNotification('Admin access granted! You can now cancel any booking.', 'success');
+                    // Update time visualization to enable past slot booking for admin
+                    updateTimeVisualization();
+                    console.log('Admin session activated');
+                    // Refresh display to show booker names
+                    refreshDisplay();
+                } else {
+                    // Record failed attempt
+                    failedAttempts++;
+                    lastFailedAttempt = now;
+                    
+                    showNotification('Invalid admin password', 'error');
+                    document.getElementById('adminPasswordInput').value = '';
+                    document.getElementById('adminPasswordInput').focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error verifying password', 'error');
+            });
         }
 
         function exitAdminSession() {
@@ -3907,6 +3922,27 @@
                     }
                 });
             }
+        }
+
+        // Listen for refresh messages from admin panel
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
+                console.log('Received refresh message from admin panel');
+                loadNames();
+            }
+        });
+
+        // Listen for BroadcastChannel messages (for same-origin communication)
+        try {
+            const channel = new BroadcastChannel('techcafe-refresh');
+            channel.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
+                    console.log('Received refresh message via BroadcastChannel');
+                    loadNames();
+                }
+            });
+        } catch (e) {
+            console.log('BroadcastChannel not supported');
         }
 
         // Initialize type-ahead and kiosk mode when page loads

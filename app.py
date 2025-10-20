@@ -11,6 +11,9 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Admin password configuration
+ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
+
 # Persistent storage for bookings using JSON file
 BOOKINGS_FILE = 'bookings.json'
 bookings = {}
@@ -325,7 +328,7 @@ def verify_admin_password():
     data = request.get_json()
     password = data.get('password', '').strip()
     
-    if password == 'Nomura':
+    if password == ADMIN_PASSWORD:
         return jsonify({'success': True, 'message': 'Admin access granted'})
     else:
         return jsonify({'success': False, 'message': 'Invalid admin password'})
@@ -404,7 +407,8 @@ def upload_display_names():
         return jsonify({
             'success': True, 
             'message': f'Display names updated successfully. Loaded {len(display_names)} names.',
-            'count': len(display_names)
+            'count': len(display_names),
+            'refresh_required': True  # Signal that client should refresh type-ahead
         })
     except Exception as e:
         logger.error(f"Error uploading display names: {e}")
