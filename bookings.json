@@ -186,5 +186,71 @@
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-20T18:46:30.405533",
     "kiosk": false
+  },
+  "2025-10-21_11:15": {
+    "username": "Dylan Fisher",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:58:33.045254",
+    "kiosk": true
+  },
+  "2025-10-21_11:30": {
+    "username": "Mason Hill",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:59:04.994361",
+    "kiosk": true
+  },
+  "2025-10-21_11:45": {
+    "username": "Ava Carter",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:59:14.150119",
+    "kiosk": true
+  },
+  "2025-10-21_17:45": {
+    "username": "Elijah Gray",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:59:24.822575",
+    "kiosk": true
+  },
+  "2025-10-21_15:30": {
+    "username": "Logan Reed",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T18:59:53.504784",
+    "kiosk": true
+  },
+  "2025-10-21_15:45": {
+    "username": "Luke Griffin",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:00:11.234436",
+    "kiosk": true
+  },
+  "2025-10-21_15:00": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:00:18.861678",
+    "kiosk": false
+  },
+  "2025-10-21_15:15": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:01:49.769186",
+    "kiosk": false
+  },
+  "2025-10-21_16:00": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:02:04.362773",
+    "kiosk": false
+  },
+  "2025-10-21_16:15": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:03:55.449359",
+    "kiosk": false
+  },
+  "2025-10-21_16:45": {
+    "username": "Ethan Brooks",
+    "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
+    "booked_at": "2025-10-20T19:04:23.951391",
+    "kiosk": true
   }
 }

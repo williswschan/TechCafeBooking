@@ -377,6 +377,32 @@
             cursor: pointer;
         }
 
+        /* New booking highlight: fade from darker red to normal over 5s */
+        .time-slot.booked.just-booked {
+            animation: bookedFadeIn 5s ease-out forwards;
+        }
+
+        @keyframes bookedFadeIn {
+            0% {
+                background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            }
+            20% {
+                background: linear-gradient(135deg, #8b1e1e 0%, #b91c1c 100%);
+            }
+            40% {
+                background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+            }
+            60% {
+                background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            }
+            80% {
+                background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            }
+            100% {
+                background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            }
+        }
+
         .time-slot.booked:hover {
             border-color: #dc2626;
             background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
@@ -2721,6 +2747,7 @@
             if (data.success) {
                 console.log('updateBookingsFromData called with:', data.bookings);
                 const newBookings = data.bookings;
+                const now = Date.now();
                 
                 // Always update display for initial load or if bookings exist
                 const isInitialLoad = !bookings || Object.keys(bookings).length === 0;
@@ -2760,6 +2787,30 @@
                 
                 // Preload adjacent dates for faster switching
                 preloadAdjacentDates(data.date);
+
+                // Highlight newly booked slots for everyone:
+                // 1) Changed from available->booked in this update
+                // 2) Or booked_at within last 5s
+                const slots = document.querySelectorAll('.time-slot');
+                slots.forEach(slot => {
+                    const timeStr = slot.dataset.time;
+                    const prevHad = bookings && bookings[timeStr] && bookings[timeStr].device_id;
+                    const nowHas = newBookings && newBookings[timeStr] && newBookings[timeStr].device_id;
+                    let isNewlyBooked = !prevHad && !!nowHas;
+                    if (!isNewlyBooked && nowHas) {
+                        const bookedAt = newBookings[timeStr].booked_at;
+                        if (bookedAt) {
+                            const ts = Date.parse(bookedAt);
+                            if (!isNaN(ts) && (now - ts) <= 5000) {
+                                isNewlyBooked = true;
+                            }
+                        }
+                    }
+                    if (isNewlyBooked) {
+                        slot.classList.add('just-booked');
+                        setTimeout(() => slot.classList.remove('just-booked'), 5000);
+                    }
+                });
             }
         }
         
@@ -3221,6 +3272,12 @@
                         loadBookingsMobile(currentDate);
                     } else {
                     loadBookings(currentDate);
+                    }
+                    // Add transient highlight to the newly booked slot
+                    const bookedSlot = document.querySelector(`[data-time="${currentSlot}"]`);
+                    if (bookedSlot) {
+                        bookedSlot.classList.add('just-booked');
+                        setTimeout(() => bookedSlot.classList.remove('just-booked'), 5000);
                     }
                     const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
                     showNotification(message, 'success');
