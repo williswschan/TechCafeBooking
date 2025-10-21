@@ -28,8 +28,9 @@ A professional, responsive web portal for booking time slots at TechCafe. The po
 
 4. **Open your browser and navigate to:**
    ```
-   http://localhost:5000
+   http://localhost:[PORT]
    ```
+   *The port number is configured in app.py (default: 5000)*
 
 ## Usage
 

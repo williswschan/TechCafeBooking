@@ -2,7 +2,7 @@
 
 ## Branch Details
 - **Branch Name:** `development`
-- **Version:** 3.1
+- **Version:** 3.2
 - **Location:** `/script/cursor/TechCafeBooking-Copilot`
 - **Status:** Active development branch
 
@@ -25,9 +25,9 @@
    - `templates_backup/` for safety backups
    - `app_backup.py` for code safety
 
-4. **Version Management** - Updated to 3.1:
-   - `APP_VERSION = "3.1"` in templates/index.html
-   - Version display shows "Version 3.1" in admin page
+4. **Version Management** - Updated to 3.2:
+   - `APP_VERSION = "3.2"` in templates/index.html
+   - Version display shows "Version 3.2" in admin page
 
 ## Branch Strategy
 
@@ -37,15 +37,15 @@
 - **Location:** `/script/cursor/TechCafeBooking`
 - **Status:** Production use
 
-### Development Branch (v3.1)
+### Development Branch (v3.2)
 - **Purpose:** Major changes and improvements
-- **Version:** 3.1
+- **Version:** 3.2
 - **Location:** `/script/cursor/TechCafeBooking-Copilot`
 - **Status:** Active development
 
 ## Switching Between Branches
 
-### To work on Development (v3.1):
+### To work on Development (v3.2):
 ```bash
 cd /script/cursor/TechCafeBooking-Copilot
 git checkout development
@@ -67,4 +67,4 @@ git checkout main
 - Both branches are independent
 - Development branch has all the latest changes
 - Main branch remains stable for production use
-- Version 3.1 includes port change from 5001 to 5000 and version increment
+- Version 3.2 includes README update to remove hardcoded port references
