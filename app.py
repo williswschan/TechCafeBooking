@@ -136,8 +136,8 @@ def handle_join_date(data):
     """Join a specific date room for real-time updates"""
     date = data.get('date')
     if date:
-        join_room(f"date_{date}")
-        logger.info(f"Client {request.sid} joined date room: {date}")
+        room = f"date_{date}"
+        join_room(room)
         emit('joined_date', {'date': date})
 
 @socketio.on('leave_date')
@@ -157,7 +157,6 @@ def broadcast_booking_update(date, slot_key, booking_data, action='update'):
         'booking_data': booking_data,
         'action': action  # 'book', 'cancel', 'update'
     }, room=room)
-    logger.info(f"Broadcasted {action} for {slot_key} on {date} to room {room}")
 
 def broadcast_time_update():
     """Broadcast current time to all connected clients"""

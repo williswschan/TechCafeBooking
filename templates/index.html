@@ -236,11 +236,6 @@
         const DEBUG_MODE = {{ debug_mode|tojson }};
         
         // Production-safe logging function
-        function debugLog(message, ...args) {
-            if (DEBUG_MODE) {
-                console.log(message, ...args);
-            }
-        }
         
         // Error logging (always enabled for production debugging)
         function errorLog(message, ...args) {
@@ -248,42 +243,54 @@
         }
         
         // WebSocket connection for real-time updates
-        const socket = io();
+        const socket = io({
+            transports: ['websocket', 'polling'], // Try WebSocket first, fallback to polling
+            upgrade: true,
+            rememberUpgrade: true,
+            timeout: 20000,
+            forceNew: false
+        });
         let isWebSocketConnected = false;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
         
         // WebSocket event handlers
         socket.on('connect', function() {
-            debugLog('Connected to real-time updates');
             isWebSocketConnected = true;
+            reconnectAttempts = 0; // Reset reconnection attempts on successful connection
             joinDateRoom(currentDate);
         });
         
         socket.on('disconnect', function() {
-            debugLog('Disconnected from real-time updates');
             isWebSocketConnected = false;
+            
+            // Auto-reconnect for mobile devices
+            if (isMobile && reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                setTimeout(() => {
+                    socket.connect();
+                }, 2000 * reconnectAttempts); // Exponential backoff
+            }
         });
         
         socket.on('booking_update', function(data) {
-            debugLog('Received booking update:', data);
             handleRealTimeBookingUpdate(data);
         });
         
         socket.on('time_update', function(data) {
-            debugLog('Received time update:', data);
             handleRealTimeTimeUpdate(data);
         });
+        
         
         function joinDateRoom(date) {
             if (isWebSocketConnected) {
                 socket.emit('join_date', { date: date });
-                debugLog('Joined date room:', date);
             }
         }
         
         function leaveDateRoom(date) {
             if (isWebSocketConnected) {
                 socket.emit('leave_date', { date: date });
-                debugLog('Left date room:', date);
             }
         }
         
@@ -345,10 +352,9 @@
         
         // Mobile-specific initialization delay
         const initDelay = 100; // 100ms delay for mobile viewport stability
-        
+
         // Refresh display function for admin mode changes
         function refreshDisplay() {
-            debugLog('Refreshing display after admin mode change');
             updateTimeSlots();
         }
         
@@ -360,7 +366,6 @@
             setInterval(callback, delay) {
                 const id = setInterval(callback, delay);
                 this.intervals.add(id);
-                debugLog('Timer created (interval):', id);
                 return id;
             },
             
@@ -370,7 +375,7 @@
                     callback();
                 }, delay);
                 this.timeouts.add(id);
-                debugLog('Timer created (timeout):', id);
+
                 return id;
             },
             
@@ -378,7 +383,7 @@
                 if (this.intervals.has(id)) {
                     clearInterval(id);
                     this.intervals.delete(id);
-                    debugLog('Timer cleared (interval):', id);
+
                 }
             },
             
@@ -386,12 +391,12 @@
                 if (this.timeouts.has(id)) {
                     clearTimeout(id);
                     this.timeouts.delete(id);
-                    debugLog('Timer cleared (timeout):', id);
+
                 }
             },
             
             clearAll() {
-                debugLog('Clearing all timers - intervals:', this.intervals.size, 'timeouts:', this.timeouts.size);
+
                 this.intervals.forEach(id => clearInterval(id));
                 this.timeouts.forEach(id => clearTimeout(id));
                 this.intervals.clear();
@@ -456,7 +461,7 @@
             // Clear cache when DOM changes significantly
             clearCache() {
                 this.cache.clear();
-                debugLog('DOM cache cleared');
+
             }
         };
 
@@ -474,9 +479,9 @@
                 
                 // Store in localStorage (persistent across sessions)
                 localStorage.setItem('device_id', deviceId);
-                debugLog('Generated new device ID:', deviceId);
+
             } else {
-                debugLog('Using existing device ID:', deviceId);
+
             }
             
             return deviceId;
@@ -488,11 +493,11 @@
         
         // Dynamic screen size detection and optimization - APPLY TO ALL DEVICES
         function detectScreenSize() {
-            debugLog('detectScreenSize called, isInitializing:', isInitializing);
+
             
             // Skip if we're in the middle of initialization to prevent race conditions
             if (isInitializing) {
-                debugLog('Skipping detectScreenSize - initialization in progress');
+
                 return;
             }
             
@@ -500,7 +505,7 @@
             const width = window.innerWidth;
             const height = window.innerHeight;
             if (width <= height && !isInitializing) {
-                debugLog('Skipping detectScreenSize - portrait mode detected, preventing re-calculations');
+
                 return;
             }
             
@@ -510,7 +515,7 @@
                 
                 // Ensure we have valid dimensions
                 if (width <= 0 || height <= 0) {
-                    debugLog('Invalid dimensions, retrying in 100ms...');
+
                     TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
@@ -518,11 +523,11 @@
                 // Mobile-specific viewport stability check
                 // Simple viewport check - back to working approach
                 if (width <= 0 || height <= 0) {
-                    debugLog('Invalid dimensions, retrying in 100ms...');
+
                     TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
-                debugLog('Screen size:', width, 'x', height);
+
                 
                 // Apply strict container sizing to ALL devices
                     const container = document.querySelector('.container');
@@ -565,11 +570,11 @@
                 }
                 
                 // Simple container positioning - back to working approach
-                debugLog('Container dimensions set:', containerWidth + 'x' + containerHeight);
-                debugLog('Screen dimensions:', width + 'x' + height);
-                debugLog('Container should have 20px margins on all sides');
+
+
+
                 
-                debugLog('Container dimensions:', containerWidth + 'x' + containerHeight);
+
                 
                 // Apply dynamic height calculations only for landscape orientation (width > height)
                 if (width > height) {
@@ -583,7 +588,7 @@
                     adjustLandscapeLayout(width, height);
                 } else {
                     // For portrait orientation, just apply container sizing
-                    debugLog('Portrait orientation detected, applying container sizing only');
+
                     applyContainerSizing();
                 }
             } catch (error) {
@@ -611,7 +616,7 @@
                 
                 if (header && dateSelector && bookingGrid && morningSlots && afternoonSlots) {
                     // Use the calculated container height
-                    debugLog('Container height:', containerHeight + 'px');
+
                     
                     // Calculate heights of fixed elements
                     const headerHeight = header.offsetHeight;
@@ -619,9 +624,9 @@
                     
                     // Calculate usable space: container height minus header and footer
                     const usableHeight = containerHeight - headerHeight - footerHeight;
-                    debugLog('Header height:', headerHeight + 'px');
-                    debugLog('Footer height:', footerHeight + 'px');
-                    debugLog('Usable space (header to footer):', usableHeight + 'px');
+
+
+
                     
                     // Calculate heights of content elements within usable space
                     const dateSelectorHeight = dateSelector.offsetHeight;
@@ -632,11 +637,11 @@
                     const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 80; // 80px for padding/margins (very conservative)
                     const availableHeight = usableHeight - contentHeights;
                     
-                    debugLog('Date selector height:', dateSelectorHeight + 'px');
-                    debugLog('Lunch break height:', lunchBreakHeight + 'px');
-                    debugLog('Section headers height:', sectionHeadersHeight + 'px');
-                    debugLog('Content heights total:', contentHeights + 'px');
-                    debugLog('Available height for time slots:', availableHeight + 'px');
+
+
+
+
+
                     
                     // Calculate optimal dimensions for time slot buttons to fully utilize usable space
                     const morningSlotsCount = morningSlots.children.length; // 12 slots
@@ -661,23 +666,23 @@
                     const maxButtonHeight = Math.floor((availableHeight - 20) / totalRows); // 20px extra buffer
                     const finalButtonHeight = Math.min(buttonHeight, maxButtonHeight);
                     
-                    debugLog('Container width:', containerWidth + 'px');
-                    debugLog('Available width:', availableWidth + 'px');
-                    debugLog('Morning slots count:', morningSlotsCount, '(rows:', morningRows + ')');
-                    debugLog('Afternoon slots count:', afternoonSlotsCount, '(rows:', afternoonRows + ')');
-                    debugLog('Total rows:', totalRows);
-                    debugLog('Calculated button width:', buttonWidth + 'px');
-                    debugLog('Calculated button height:', finalButtonHeight + 'px');
+
+
+
+
+
+
+
                     
                     // Verify total height doesn't exceed available space
                     const totalSlotsHeight = finalButtonHeight * totalRows;
-                    debugLog('Total slots height:', totalSlotsHeight + 'px');
-                    debugLog('Height utilization:', Math.round((totalSlotsHeight / availableHeight) * 100) + '%');
+
+
                     
                     // Apply calculated dimensions to time slot buttons
                     const allTimeSlots = document.querySelectorAll('.time-slot');
-                    debugLog('Found time slots:', allTimeSlots.length);
-                    debugLog('Applying dimensions - Width:', buttonWidth + 'px', 'Height:', finalButtonHeight + 'px');
+
+
                     
                     allTimeSlots.forEach((slot, index) => {
                         slot.style.setProperty('width', buttonWidth + 'px', 'important');
@@ -687,7 +692,7 @@
                         slot.style.setProperty('flex-shrink', '0', 'important');
                         
                         if (index < 3) { // Log first 3 slots for debugging
-                            debugLog(`Slot ${index + 1} dimensions applied:`, slot.style.width, slot.style.height);
+
                         }
                     });
                     
@@ -706,14 +711,14 @@
                         const gridWidth = (buttonWidth * columns) + ((columns - 1) * 8); // 8px gap between slots
                         lunchBreak.style.width = gridWidth + 'px';
                         lunchBreak.style.margin = '10px auto';
-                        debugLog('Lunch break width set to:', gridWidth + 'px');
+
                     }
                     
                     // Verify content fits within container
                     const totalContentHeight = contentHeights + totalSlotsHeight;
-                    debugLog('Total content height:', totalContentHeight + 'px');
-                    debugLog('Container height:', containerHeight + 'px');
-                    debugLog('Content fits in container:', totalContentHeight <= containerHeight);
+
+
+
                     
                     // Final safety check: if still too close to container edge, reduce button height further
                     if (totalContentHeight > (containerHeight - 10)) {
@@ -721,7 +726,7 @@
                         const heightReduction = Math.ceil(excessHeight / totalRows) + 5;
                         const emergencyButtonHeight = Math.max(30, finalButtonHeight - heightReduction);
                         
-                        debugLog('Emergency height reduction applied:', emergencyButtonHeight + 'px');
+
                         
                         // Reapply with emergency height
                         allTimeSlots.forEach(slot => {
@@ -737,7 +742,7 @@
                         morningSlots.style.height = emergencyMorningHeight + 'px';
                         afternoonSlots.style.height = emergencyAfternoonHeight + 'px';
                         
-                        debugLog('Emergency dimensions applied to prevent cutoff');
+
                     }
                     
                     // Safety check: if content exceeds container, reduce button heights
@@ -746,10 +751,10 @@
                         const heightReduction = Math.ceil(excessHeight / totalRows) + 5; // Add 5px buffer
                         const adjustedButtonHeight = Math.max(30, buttonHeight - heightReduction);
                         
-                        debugLog('Content exceeds container, adjusting button heights...');
-                        debugLog('Excess height:', excessHeight + 'px');
-                        debugLog('Height reduction per row:', heightReduction + 'px');
-                        debugLog('Adjusted button height:', adjustedButtonHeight + 'px');
+
+
+
+
                         
                         // Reapply with adjusted height
                         allTimeSlots.forEach(slot => {
@@ -765,7 +770,7 @@
                         morningSlots.style.height = adjustedMorningHeight + 'px';
                         afternoonSlots.style.height = adjustedAfternoonHeight + 'px';
                         
-                        debugLog('Button dimensions adjusted for container fit');
+
                     }
                     
                     //                     
@@ -782,7 +787,7 @@
                         scrollableContent.style.height = usableHeight + 'px';
                         scrollableContent.style.maxHeight = usableHeight + 'px';
                         scrollableContent.style.overflow = 'auto'; // Enable scrolling for landscape
-                        debugLog('Scrollable content height set to:', usableHeight + 'px');
+
                     }
                     
                     // Position footer at bottom of container
@@ -794,12 +799,12 @@
                         footerSection.style.width = '100%';
                         footerSection.style.height = '40px';
                         footerSection.style.zIndex = '10';
-                        debugLog('Footer positioned at bottom of container');
+
                     }
                     
                 }
                 
-                debugLog('Landscape dynamic layout applied successfully');
+
                 
                 
                 // Final enforcement: Ensure container height is exactly what we calculated
@@ -807,7 +812,7 @@
                 container.style.setProperty('max-height', containerHeight + 'px', 'important');
                 container.style.setProperty('min-height', containerHeight + 'px', 'important');
                 container.style.setProperty('overflow', 'hidden', 'important');
-                debugLog('Final container height enforcement:', containerHeight + 'px');
+
                 
             } catch (error) {
                 console.error('Error in adjustLandscapeLayout:', error);
@@ -847,7 +852,7 @@
                     scrollableContent.style.height = usableHeight + 'px';
                     scrollableContent.style.maxHeight = usableHeight + 'px';
                     scrollableContent.style.overflow = 'auto'; // Enable scrolling in portrait
-                    debugLog('Portrait scrollable content height set to:', usableHeight + 'px');
+
                 }
                 
                 // Position footer at bottom of container for portrait
@@ -859,7 +864,7 @@
                     footerSection.style.width = '100%';
                     footerSection.style.height = '40px';
                     footerSection.style.zIndex = '10';
-                    debugLog('Footer positioned at bottom of container (portrait)');
+
                 }
                 
                 // Apply portrait-specific CSS via JavaScript
@@ -870,7 +875,7 @@
                     adjustPortraitLayout(containerWidth, containerHeight);
                 }, 100);
                 
-                debugLog('Container sizing applied for portrait orientation:', containerWidth + 'x' + containerHeight);
+
             } catch (error) {
                 console.error('Error in applyContainerSizing:', error);
             }
@@ -878,7 +883,7 @@
         
         function applyPortraitCSS() {
             try {
-                debugLog('Applying portrait-specific CSS via JavaScript...');
+
                 
                 // Force Admin button to be circular in portrait mode
                 const adminBtn = document.querySelector('.admin-btn');
@@ -904,7 +909,7 @@
                         adminIcon.style.setProperty('margin', '0', 'important');
                     }
                     
-                    debugLog('Admin button styled for portrait mode');
+
                 }
                 
                 // Apply portrait-specific time slot styling
@@ -914,7 +919,7 @@
                     slot.style.setProperty('padding', '10px', 'important');
                 });
                 
-                debugLog('Portrait CSS applied successfully');
+
             } catch (error) {
                 console.error('Error applying portrait CSS:', error);
             }
@@ -923,15 +928,15 @@
         function adjustPortraitLayout(containerWidth, containerHeight) {
             // Prevent multiple simultaneous adjustments
             if (isAdjustingPortrait) {
-                debugLog('Portrait adjustment already in progress, skipping...');
+
                 return;
             }
             
             isAdjustingPortrait = true;
             
             try {
-                debugLog('=== ADJUSTING PORTRAIT LAYOUT ===');
-                debugLog('Container dimensions:', containerWidth + 'x' + containerHeight);
+
+
                 
                 // Get heights of fixed elements
                 const header = document.querySelector('.header');
@@ -952,16 +957,16 @@
                 const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 5; // Ultra reduced to 5px for padding/margins
                 const availableHeight = usableHeight - contentHeights;
                 
-                debugLog('Portrait layout calculations:');
-                debugLog('Container height:', containerHeight + 'px');
-                debugLog('Header height:', headerHeight + 'px');
-                debugLog('Footer height:', footerHeight + 'px');
-                debugLog('Usable height:', usableHeight + 'px');
-                debugLog('Date selector height:', dateSelectorHeight + 'px');
-                debugLog('Lunch break height:', lunchBreakHeight + 'px');
-                debugLog('Section headers height:', sectionHeadersHeight + 'px');
-                debugLog('Content heights total:', contentHeights + 'px');
-                debugLog('Available height for time slots:', availableHeight + 'px');
+
+
+
+
+
+
+
+
+
+
                 
                 // Get all time slots
                 const allTimeSlots = document.querySelectorAll('.time-slot');
@@ -972,7 +977,7 @@
                 const afternoonSlotsCount = afternoonSlots.length;
                 const totalSlots = allTimeSlots.length;
                 
-                debugLog('Time slots count - Morning:', morningSlotsCount, 'Afternoon:', afternoonSlotsCount, 'Total:', totalSlots);
+
                 
                 if (totalSlots > 0 && availableHeight > 0) {
                     // Portrait mode: 4 columns for time slots
@@ -989,8 +994,8 @@
                     const minButtonHeight = 15; // Ultra minimal minimum height
                     let buttonHeight = Math.floor(availableHeight * 1.05 / totalRows); // Start with 105% of available height
                     
-                    debugLog('Initial button height calculation:', buttonHeight + 'px');
-                    debugLog('Available height per row:', Math.floor(availableHeight / totalRows) + 'px');
+
+
                     
                     // Ensure minimum height but be very aggressive
                     buttonHeight = Math.max(minButtonHeight, buttonHeight);
@@ -999,9 +1004,9 @@
                     let totalContentHeight = (buttonHeight * totalRows) + contentHeights;
                     let remainingSpace = usableHeight - totalContentHeight;
                     
-                    debugLog('After initial calculation:');
-                    debugLog('Total content height:', totalContentHeight + 'px');
-                    debugLog('Remaining space:', remainingSpace + 'px');
+
+
+
                     
                     // If we have ANY remaining space, use it all
                     if (remainingSpace > 1) {
@@ -1010,8 +1015,8 @@
                             buttonHeight += extraHeight;
                             totalContentHeight = (buttonHeight * totalRows) + contentHeights;
                             remainingSpace = usableHeight - totalContentHeight;
-                            debugLog('Added extra height:', extraHeight + 'px');
-                            debugLog('New remaining space:', remainingSpace + 'px');
+
+
                         }
                     }
                     
@@ -1020,13 +1025,13 @@
                         const finalExtra = Math.floor(remainingSpace / totalRows);
                         if (finalExtra > 0) {
                             buttonHeight += finalExtra;
-                            debugLog('Final extra height added:', finalExtra + 'px');
+
                         }
                         
                         // Even more aggressive: add 1px to each row if there's still space
                         if (remainingSpace > totalRows) {
                             buttonHeight += 1;
-                            debugLog('Added 1px more to each row for maximum space utilization');
+
                         }
                     }
                     
@@ -1034,20 +1039,20 @@
                     const finalTotalHeight = (buttonHeight * totalRows) + contentHeights;
                     if (finalTotalHeight > usableHeight + 5) { // Allow 5px tolerance
                         buttonHeight = Math.floor((usableHeight - contentHeights) / totalRows);
-                        debugLog('EMERGENCY: Reduced button height to fit:', buttonHeight + 'px');
+
                     }
                     
-                    debugLog('FINAL button height:', buttonHeight + 'px');
-                    debugLog('FINAL total height:', (buttonHeight * totalRows) + contentHeights + 'px');
-                    debugLog('FINAL remaining space:', usableHeight - ((buttonHeight * totalRows) + contentHeights) + 'px');
+
+
+
                     
-                    debugLog('Portrait button calculations:');
-                    debugLog('Columns:', columns);
-                    debugLog('Morning rows:', morningRows);
-                    debugLog('Afternoon rows:', afternoonRows);
-                    debugLog('Total rows:', totalRows);
-                    debugLog('Button width:', buttonWidth + 'px');
-                    debugLog('Button height:', buttonHeight + 'px');
+
+
+
+
+
+
+
                     
                     // Apply dimensions to all time slots
                     allTimeSlots.forEach(slot => {
@@ -1068,10 +1073,10 @@
                         const gridWidth = (buttonWidth * columns) + ((columns - 1) * 8); // 8px gap between slots
                         lunchBreak.style.width = gridWidth + 'px';
                         lunchBreak.style.margin = '10px auto';
-                        debugLog('Lunch break width set to:', gridWidth + 'px');
+
                     }
                     
-                    debugLog('Portrait layout adjustment completed');
+
                     
                     // Final height enforcement - ensure all slots use the calculated height
                     TimerManager.setTimeout(() => {
@@ -1081,14 +1086,14 @@
                             slot.style.minHeight = buttonHeight + 'px';
                             slot.style.maxHeight = buttonHeight + 'px';
                         });
-                        debugLog('Final height enforcement applied:', buttonHeight + 'px');
+
                     }, 50);
                     
                     // Force a final check and adjustment
                     TimerManager.setTimeout(() => {
                         const finalSlots = document.querySelectorAll('.time-slot');
                         if (finalSlots.length > 0) {
-                            debugLog('=== FINAL PORTRAIT HEIGHT CHECK ===');
+
                             const container = document.querySelector('.container');
                             if (container) {
                                 const currentContainerHeight = container.offsetHeight;
@@ -1098,8 +1103,8 @@
                                 const footerHeight = footer ? footer.offsetHeight : 40;
                                 const currentUsableHeight = currentContainerHeight - headerHeight - footerHeight;
                                 
-                                debugLog('Final check - Container height:', currentContainerHeight);
-                                debugLog('Final check - Usable height:', currentUsableHeight);
+
+
                                 
                                 // If we still have significant unused space, force larger buttons
                                 const currentButtonHeight = finalSlots[0].offsetHeight;
@@ -1107,13 +1112,13 @@
                                 const currentTotalHeight = (currentButtonHeight * totalRows) + contentHeights;
                                 const unusedSpace = currentUsableHeight - currentTotalHeight;
                                 
-                                debugLog('Final check - Current button height:', currentButtonHeight);
-                                debugLog('Final check - Unused space:', unusedSpace);
+
+
                                 
                                 if (unusedSpace > 20) {
                                     const extraHeight = Math.floor(unusedSpace / totalRows);
                                     if (extraHeight > 0) {
-                                        debugLog('FORCING extra height:', extraHeight + 'px');
+
                                         finalSlots.forEach(slot => {
                                             const newHeight = currentButtonHeight + extraHeight;
                                             slot.style.height = newHeight + 'px';
@@ -1126,7 +1131,7 @@
                         }
                     }, 200);
                 } else {
-                    debugLog('No time slots found or no available height for portrait layout');
+
                 }
                 
             } catch (error) {
@@ -1141,7 +1146,7 @@
         function resetAdminButtonForLandscape() {
             const adminBtn = document.querySelector('.admin-btn');
             if (adminBtn) {
-                debugLog('Resetting Admin button for landscape mode');
+
                 adminBtn.style.width = '';
                 adminBtn.style.height = '';
                 adminBtn.style.borderRadius = '';
@@ -1164,31 +1169,31 @@
 
         // Force portrait mode fixes immediately
         function forcePortraitFixes() {
-            debugLog('=== FORCING portrait mode fixes ===');
-            debugLog('Current window dimensions:', window.innerWidth + 'x' + window.innerHeight);
-            debugLog('Orientation:', window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+
+
+
             
             // Only apply portrait fixes if we're actually in portrait mode
             const isPortrait = window.innerWidth <= window.innerHeight;
             if (!isPortrait) {
-                debugLog('Not in portrait mode, skipping portrait fixes');
+
                 return;
             }
             
             // Add a visual indicator that the function is running
-            debugLog('🔧 FORCE PORTRAIT FIXES FUNCTION IS RUNNING 🔧');
+
             
             // Force Admin button to be circular
             const adminBtn = document.querySelector('.admin-btn');
-            debugLog('Admin button found:', !!adminBtn);
+
             if (adminBtn) {
-                debugLog('Admin button current styles:');
-                debugLog('- width:', adminBtn.style.width || 'not set');
-                debugLog('- height:', adminBtn.style.height || 'not set');
-                debugLog('- borderRadius:', adminBtn.style.borderRadius || 'not set');
-                debugLog('- display:', adminBtn.style.display || 'not set');
+
+
+
+
+
                 
-                debugLog('Applying circular styling...');
+
                 adminBtn.style.width = '50px';
                 adminBtn.style.height = '50px';
                 adminBtn.style.borderRadius = '50%';
@@ -1206,38 +1211,38 @@
                 
                 // Reset icon margins
                 const adminIcon = adminBtn.querySelector('i');
-                debugLog('Admin icon found:', !!adminIcon);
+
                 if (adminIcon) {
                     adminIcon.style.margin = '0';
-                    debugLog('Admin icon margin reset');
+
                 }
                 
-                debugLog('Admin button styling completed');
-                debugLog('Final admin button styles:');
-                debugLog('- width:', adminBtn.style.width);
-                debugLog('- height:', adminBtn.style.height);
-                debugLog('- borderRadius:', adminBtn.style.borderRadius);
-                debugLog('- display:', adminBtn.style.display);
+
+
+
+
+
+
             } else {
-                debugLog('ERROR: Admin button not found!');
+
             }
             
             // Force time slot height calculation
             TimerManager.setTimeout(() => {
-                debugLog('=== Starting time slot height calculation ===');
+
                 const container = document.querySelector('.container');
-                debugLog('Container found:', !!container);
+
                 if (container) {
                     const containerWidth = container.offsetWidth;
                     const containerHeight = container.offsetHeight;
-                    debugLog('Container dimensions:', containerWidth + 'x' + containerHeight);
+
                     
                     // Get all time slots
                     const allTimeSlots = document.querySelectorAll('.time-slot');
-                    debugLog('Found time slots:', allTimeSlots.length);
+
                     
                     if (allTimeSlots.length === 0) {
-                        debugLog('ERROR: No time slots found! This might be the issue.');
+
                         return;
                     }
                     
@@ -1259,13 +1264,13 @@
                         const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 20; // Minimal padding
                         const availableHeight = usableHeight - contentHeights;
                         
-                        debugLog('Height calculations:');
-                        debugLog('- Container height:', containerHeight);
-                        debugLog('- Header height:', headerHeight);
-                        debugLog('- Footer height:', footerHeight);
-                        debugLog('- Usable height:', usableHeight);
-                        debugLog('- Content heights:', contentHeights);
-                        debugLog('- Available height:', availableHeight);
+
+
+
+
+
+
+
                         
                         // Calculate button dimensions for portrait mode
                         const columns = 4; // Portrait mode should have 4 columns
@@ -1281,10 +1286,10 @@
                         // Make it more aggressive
                         buttonHeight = Math.max(60, Math.floor(availableHeight * 0.9 / totalRows));
                         
-                        debugLog('Button calculations:');
-                        debugLog('- Total rows:', totalRows);
-                        debugLog('- Button width:', buttonWidth);
-                        debugLog('- Button height:', buttonHeight);
+
+
+
+
                         
                         // Apply to all time slots
                         allTimeSlots.forEach((slot, index) => {
@@ -1295,11 +1300,11 @@
                             slot.style.flexShrink = '0';
                             
                             if (index < 5) { // Log first few slots
-                                debugLog(`Slot ${index}: ${slot.dataset.time} - ${buttonWidth}x${buttonHeight}`);
+
                             }
                         });
                         
-                        debugLog('Time slots forced to new dimensions');
+
                     }
                 }
             }, 100);
@@ -1307,11 +1312,11 @@
         
         // Add event listeners using event delegation (more reliable)
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('=== PAGE LOADED - DOMContentLoaded event fired ===');
-            debugLog('Page loaded, initializing...'); // Debug log
+
+ // Debug log
             
             // Simple initialization - no complex mobile detection
-            debugLog('DOMContentLoaded - starting simple initialization');
+
             
             // Immediate container positioning fix for both orientations
             const container = document.querySelector('.container');
@@ -1319,10 +1324,10 @@
                 const width = window.innerWidth;
                 const height = window.innerHeight;
                 
-                debugLog('Immediate positioning - Screen:', width + 'x' + height);
+
                 
                 if (width > height) { // Landscape mode
-                    debugLog('Landscape mode detected - applying immediate positioning');
+
                     container.style.width = (width - 40) + 'px';
                     container.style.height = (height - 40) + 'px';
                     container.style.minHeight = (height - 40) + 'px';
@@ -1333,13 +1338,13 @@
                     container.style.transform = 'none';
                     container.style.overflow = 'hidden';
                     container.style.maxHeight = (height - 40) + 'px';
-                    debugLog('Landscape immediate positioning applied');
+
                     
                     // Apply immediate time slot sizing to prevent scale-up effect
-                    debugLog('DOMContentLoaded - applying immediate landscape layout');
+
                     adjustLandscapeLayout(width, height);
                 } else { // Portrait mode
-                    debugLog('Portrait mode detected - applying immediate positioning');
+
                     container.style.width = (width - 40) + 'px';
                     container.style.height = (height - 40) + 'px';
                     container.style.minHeight = (height - 40) + 'px';
@@ -1350,7 +1355,7 @@
                     container.style.transform = 'none';
                     container.style.overflow = 'hidden';
                     container.style.maxHeight = (height - 40) + 'px';
-                    debugLog('Portrait immediate positioning applied');
+
                 }
             }
             
@@ -1417,10 +1422,10 @@
                             const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for gaps
                             const buttonHeight = Math.floor(availableHeight * 0.9 / totalRows); // Use 90% of available height (after accounting for other content)
                             
-                            debugLog('Portrait mode - applying dimensions to', allTimeSlots.length, 'time slots');
-                            debugLog('Container width:', containerWidth, 'Available width:', availableWidth);
-                            debugLog('Columns:', columns, 'Button width:', buttonWidth);
-                            debugLog('Button dimensions:', buttonWidth + 'x' + Math.max(60, buttonHeight));
+
+
+
+
                             
                             // Ensure the grid containers are set to 4 columns
                             const morningSlotsContainer = document.querySelector('#morningSlots');
@@ -1455,10 +1460,10 @@
                                     
                                     // Debug: Log first few slots
                                     if (index < 5) {
-                                        debugLog(`Slot ${index}: ${slot.dataset.time} - Text: "${timeText.textContent}" - Visible: ${timeText.style.display}`);
+
                                     }
                                 } else {
-                                    debugLog(`ERROR: No time-text found in slot ${index} (${slot.dataset.time})`);
+
                                 }
                             });
                         }
@@ -1472,7 +1477,7 @@
             getOrCreateDeviceId();
             // Single click handler to avoid conflicts
             document.addEventListener('click', function(e) {
-                debugLog('Click detected on:', e.target.tagName, e.target.className);
+
                 
                 // Check if clicked element or its parent is a time slot
                 let timeSlot = e.target.closest('.time-slot');
@@ -1484,10 +1489,10 @@
                     e.preventDefault();
                     e.stopPropagation();
                     const time = timeSlot.getAttribute('data-time');
-                    debugLog('Time slot clicked:', time);
+
                     handleSlotClick(time);
                 } else {
-                    debugLog('Clicked outside time slot');
+
                 }
             });
             
@@ -1519,7 +1524,7 @@
                     TimerManager.setTimeout(() => {
                         if (touchStartElement && !hasMoved) {
                     const time = touchStartElement.dataset.time;
-                            debugLog('Slot tapped (not scrolled):', time);
+
                     handleSlotClick(time);
                         }
                     }, 50); // 50ms delay to distinguish tap from scroll
@@ -1572,7 +1577,7 @@
                         // Mobile-specific additional layout check
                         // Removed multiple detectScreenSize calls to prevent re-adjustments
                         // if (isMobile) {
-                        //     debugLog('Mobile: Running additional layout check...');
+
                         //     TimerManager.setTimeout(() => {
                         //         detectScreenSize();
                         //     }, 200);
@@ -1582,7 +1587,7 @@
                         // }
                     }, 500);
                     
-                    debugLog('Initialization completed');
+
                 } catch (error) {
                     console.error('Initialization error:', error);
                     isInitializing = false; // Clear flag on error
@@ -1611,13 +1616,13 @@
             if (autoRefreshInterval) {
                 TimerManager.clearInterval(autoRefreshInterval);
                 autoRefreshInterval = null;
-                debugLog('Auto-refresh stopped');
+
             }
         }
 
         // Global cleanup function
         function cleanup() {
-            debugLog('Cleaning up all timers and resources...');
+
             stopAutoRefresh();
             stopTimeVisualization();
             TimerManager.clearAll();
@@ -1625,7 +1630,7 @@
             // Disconnect WebSocket
             if (typeof socket !== 'undefined' && socket) {
                 socket.disconnect();
-                debugLog('WebSocket disconnected');
+
             }
         }
         
@@ -1636,13 +1641,18 @@
         // Cleanup on page visibility change (mobile optimization)
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
-                debugLog('Page hidden - pausing timers');
+
                 stopAutoRefresh();
                 stopTimeVisualization();
             } else {
-                debugLog('Page visible - resuming timers');
+
                 startAutoRefresh();
                 startTimeVisualization();
+                
+                // Rejoin room on mobile when page becomes visible (in case WebSocket was disconnected)
+                if (isMobile && isWebSocketConnected) {
+                    joinDateRoom(currentDate);
+                }
             }
         });
         
@@ -1650,18 +1660,27 @@
         TimerManager.setTimeout(function() {
             startAutoRefresh();
             startTimeVisualization();
-            debugLog('Auto-refresh started (every 30 seconds - WebSocket provides real-time updates)');
+
+            
+            // Mobile-specific: Periodic room membership check
+            if (isMobile) {
+                TimerManager.setInterval(function() {
+                    if (isWebSocketConnected) {
+                        joinDateRoom(currentDate);
+                    }
+                }, 30000); // Check every 30 seconds
+            }
         }, 2000); // Start after 2 seconds to let initial load complete
 
         // Pause auto-refresh when user is interacting with modals
         function pauseAutoRefresh() {
             stopAutoRefresh();
-            debugLog('Auto-refresh paused (modal open)');
+
         }
 
         function resumeAutoRefresh() {
             startAutoRefresh();
-            debugLog('Auto-refresh resumed');
+
         }
 
 
@@ -1707,7 +1726,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    debugLog(`Extracted passed booking ${slotKey} to ${data.filename}`);
+
                     // Remove the booking from local memory after successful extraction
                     delete bookings[slotKey];
                 } else {
@@ -1728,21 +1747,21 @@
             timeUpdateInterval = TimerManager.setInterval(updateTimeVisualization, 60000);
             // Also update immediately
             updateTimeVisualization();
-            debugLog('Time visualization started (updating every minute)');
+
         }
 
         function stopTimeVisualization() {
             if (timeUpdateInterval) {
                 TimerManager.clearInterval(timeUpdateInterval);
                 timeUpdateInterval = null;
-                debugLog('Time visualization stopped');
+
             }
         }
 
         function updateTimeVisualization() {
             // Get server time instead of client time with cache-busting
             const timestamp = new Date().getTime();
-            debugLog('updateTimeVisualization called, currentDate:', currentDate);
+
             fetch(`/get_current_time?_t=${timestamp}`)
                 .then(response => response.json())
                 .then(data => {
@@ -1750,17 +1769,17 @@
                         const currentTime = data.time.total_minutes; // Server time in minutes since midnight
                         const serverDate = data.time.iso_string.split('T')[0]; // Server date
                         
-                        debugLog('Time data received - currentTime:', currentTime, 'serverDate:', serverDate, 'currentDate:', currentDate);
+
                         
                         // Only show time visualization for today's date (server date)
                         if (currentDate !== serverDate) {
                             // Clear all time indicators if not viewing today
-                            debugLog('Not viewing today - clearing time visualization');
+
                             clearTimeVisualization();
                             return;
                         }
                         
-                        debugLog('Applying time visualization for today');
+
 
                         // Check for passed slots and extract them to CSV
                         checkAndExtractPassedSlots(currentTime, serverDate);
@@ -1777,8 +1796,11 @@
 
                             // Remove existing time classes
                             slot.classList.remove('time-past', 'time-current', 'time-future');
-                            slot.style.background = '';
-                            slot.style.backgroundImage = '';
+                            // Only clear background if not booked (to preserve CSS .booked class styling)
+                            if (!slot.classList.contains('booked')) {
+                                slot.style.background = '';
+                                slot.style.backgroundImage = '';
+                            }
 
                             if (currentTime >= slotEndTime) {
                                 // Past slot - completely grey
@@ -1803,7 +1825,7 @@
                             }
                         });
                         
-                        debugLog(`Time visualization updated - Server time: ${data.time.hours}:${data.time.minutes.toString().padStart(2, '0')}`);
+
                     }
                 })
                 .catch(error => {
@@ -1811,7 +1833,7 @@
                     // Fallback to client time if server fails
                     const now = new Date();
                     const currentTime = now.getHours() * 60 + now.getMinutes();
-                    debugLog('Falling back to client time:', currentTime);
+
                 });
         }
 
@@ -1823,9 +1845,12 @@
             
             if (isBooked) {
                 // Booked slot: grey to light red gradient (matching booked slot style)
-                slot.style.background = `linear-gradient(to right, 
-                    #d1d5db ${progress * 100}%, 
-                    #fef2f2 ${progress * 100}%)`;
+                // Only apply if not already booked (to preserve CSS .booked class styling)
+                if (!slot.classList.contains('booked')) {
+                    slot.style.background = `linear-gradient(to right, 
+                        #d1d5db ${progress * 100}%, 
+                        #fef2f2 ${progress * 100}%)`;
+                }
             } else if (isAvailable) {
                 // Available slot: grey to light blue gradient (matching available slot style)
                 slot.style.background = `linear-gradient(to right, 
@@ -1843,8 +1868,11 @@
             const slots = document.querySelectorAll('.time-slot');
             slots.forEach(slot => {
                 slot.classList.remove('time-past', 'time-current', 'time-future', 'admin-enabled');
-                slot.style.background = '';
-                slot.style.backgroundImage = '';
+                // Only clear background if not booked (to preserve CSS .booked class styling)
+                if (!slot.classList.contains('booked')) {
+                    slot.style.background = '';
+                    slot.style.backgroundImage = '';
+                }
             });
         }
 
@@ -1869,7 +1897,7 @@
                     () => updateBrowserConfig()
                 ]);
             } else {
-                debugLog('Resize detected in portrait mode - skipping recalculation to prevent layout changes');
+
             }
         }, 150); // Increased debounce time for better performance
         
@@ -1880,7 +1908,7 @@
         // window.addEventListener('scroll', function() {
         //     clearTimeout(scrollTimeout);
         //     scrollTimeout = TimerManager.setTimeout(() => {
-        //         debugLog('Scroll detected - recalculating layout');
+
         //         detectScreenSize();
         //     }, 150);
         // });
@@ -1895,11 +1923,11 @@
                 DOMOptimizer.batchUpdates([
                     () => {
                         detectScreenSize();
-                        debugLog('Orientation changed to landscape - recalculating');
+
                     }
                 ]);
             } else {
-                debugLog('Orientation change in portrait mode - skipping recalculation to prevent layout changes');
+
                 // Still apply CSS fixes but don't recalculate layout
                 DOMOptimizer.batchUpdates([
                     () => applyPortraitCSS()
@@ -1927,7 +1955,7 @@
             if (width > height) {
                 refreshTimeSlotDimensions();
             } else {
-                debugLog('Load event in portrait mode - skipping time slot refresh to prevent layout changes');
+
             }
         });
         // Removed duplicate DOMContentLoaded listener - consolidated into main one
@@ -2001,7 +2029,7 @@
                     const now = Date.now();
                     
                     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-                        debugLog('Using cached booking data for', date);
+
                         // Immediately update display without waiting
                         updateBookingsFromData(cached.data);
                         resolve(cached.data);
@@ -2018,12 +2046,12 @@
                     // Add timestamp to prevent duplicate requests
                     const requestId = `${date}_${now}`;
                     const fetchStart = Date.now();
-                    debugLog('Fetching fresh booking data for', date, 'Request ID:', requestId);
+
                     
                     fetch(`/get_bookings?date=${date}&_t=${now}`)
                         .then(response => {
                             const fetchEnd = Date.now();
-                            debugLog('Fetch response received in', fetchEnd - fetchStart, 'ms');
+
                             if (!response.ok) {
                                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                             }
@@ -2031,7 +2059,7 @@
                         })
                         .then(data => {
                             const dataProcessEnd = Date.now();
-                            debugLog('Data processing completed in', dataProcessEnd - fetchStart, 'ms');
+
                             
                             if (data.success) {
                                 // Cache the data
@@ -2044,7 +2072,7 @@
                                 const displayStart = Date.now();
                                 updateBookingsFromData(data);
                                 const displayEnd = Date.now();
-                                debugLog('Display update completed in', displayEnd - displayStart, 'ms');
+
                             } else {
                                 console.error('Failed to load bookings:', data.message);
                             }
@@ -2073,7 +2101,7 @@
         
         function updateBookingsFromData(data) {
             if (data.success) {
-                debugLog('updateBookingsFromData called with:', data.bookings);
+
                 const newBookings = data.bookings;
                 const now = Date.now();
                 
@@ -2083,7 +2111,7 @@
                 const hasChanges = compareBookings(bookings, newBookings);
                 
                 if (isInitialLoad || hasChanges || hasBookings) {
-                    debugLog('Updating display - Initial:', isInitialLoad, 'Changes:', hasChanges, 'HasBookings:', hasBookings);
+
                     bookings = newBookings;
                     
                     // Force immediate update without waiting for animations
@@ -2092,7 +2120,7 @@
                     // Mobile-specific additional update to ensure display
                     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     if (isMobile) {
-                        debugLog('Mobile: Additional booking display update');
+
                         TimerManager.setTimeout(() => {
                             updateTimeSlotsImmediate();
                             // Update time visualization after slot classes are updated
@@ -2110,7 +2138,7 @@
                         updateTimeSlotsSmooth();
                     }, 10);
                 } else {
-                    debugLog('No booking changes detected');
+
                 }
                 
                 // Preload adjacent dates for faster switching
@@ -2143,9 +2171,9 @@
         }
         
         function updateTimeSlotsImmediate() {
-            debugLog('updateTimeSlotsImmediate called');
+
             const slots = document.querySelectorAll('.time-slot');
-            debugLog('Found slots for immediate update:', slots.length);
+
             
             // Use DOM batching for better performance
             DOMOptimizer.batchUpdates([
@@ -2154,10 +2182,10 @@
                     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     
                     if (isMobile) {
-                        debugLog('Mobile device detected - using mobile-optimized update');
+
                         updateSlotsMobile(slots);
                     } else {
-                        debugLog('Desktop device detected - using desktop update');
+
                         updateSlotsDesktop(slots);
                     }
                 }
@@ -2165,7 +2193,7 @@
         }
         
         function updateSlotsMobile(slots) {
-            debugLog('Mobile-optimized slot update - immediate processing');
+
             // Process all slots immediately for faster mobile loading
             slots.forEach(slot => {
                     const time = slot.dataset.time;
@@ -2218,18 +2246,18 @@
                     }
             });
             
-            debugLog('Mobile update completed - immediate processing');
+
         }
         
         function updateSlotsDesktop(slots) {
-            debugLog('Desktop slot update - processing', slots.length, 'slots');
+
             slots.forEach(slot => {
                 const time = slot.dataset.time;
-                debugLog(`Processing slot ${time}, booking exists:`, !!bookings[time]);
+
                 
                 if (bookings[time]) {
                     // Immediate update to booked state
-                    debugLog(`Setting slot ${time} to booked state`);
+
                     slot.classList.remove('available');
                     slot.classList.add('booked');
                     
@@ -2264,7 +2292,7 @@
                     }
                 } else {
                     // Immediate update to available state
-                    debugLog(`Setting slot ${time} to available state`);
+
                     slot.classList.remove('booked', 'my-device');
                     slot.classList.add('available');
                     
@@ -2276,13 +2304,13 @@
                     }
                 }
             });
-            debugLog('Desktop update completed');
+
         }
         
         function shouldHideBookerName(slot, username) {
             // Hide booker name if not in admin mode
             if (!isAdminSession) {
-                debugLog(`Hiding booker name for slot ${slot.dataset.time}: not in admin mode`);
+
                 return true;
             }
             
@@ -2305,14 +2333,14 @@
             
             // Hide name if there's not enough space
             if (availableHeight < minNameHeight) {
-                debugLog(`Hiding booker name for slot ${slot.dataset.time}: height=${slotHeight}px, available=${availableHeight}px`);
+
                 return true;
             }
             
             // Also hide if slot is very narrow (width < 100px)
             const slotWidth = slotRect.width;
             if (slotWidth < 100) {
-                debugLog(`Hiding booker name for slot ${slot.dataset.time}: width=${slotWidth}px too narrow`);
+
                 return true;
             }
             
@@ -2329,9 +2357,9 @@
                 if (currentIndex < dates.length - 1) {
                     const nextDate = dates[currentIndex + 1];
                     if (!bookingCache.has(nextDate)) {
-                        debugLog('Preloading next date:', nextDate);
+
                         loadBookings(nextDate).catch(error => {
-                            debugLog('Preload failed for', nextDate, error);
+
                         });
                     }
                 }
@@ -2340,9 +2368,9 @@
                 if (currentIndex > 0) {
                     const prevDate = dates[currentIndex - 1];
                     if (!bookingCache.has(prevDate)) {
-                        debugLog('Preloading previous date:', prevDate);
+
                         loadBookings(prevDate).catch(error => {
-                            debugLog('Preload failed for', prevDate, error);
+
                         });
                     }
                 }
@@ -2489,7 +2517,7 @@
         }
 
         function handleSlotClick(time) {
-            debugLog('handleSlotClick called with:', time);
+
             currentSlot = time;
             const slot = document.querySelector(`[data-time="${time}"]`);
             
@@ -2583,7 +2611,7 @@
         function confirmBooking() {
             const username = document.getElementById('usernameInput').value.trim();
             
-            debugLog('confirmBooking called with username:', username || '(empty)');
+
 
             // Save username to localStorage for future use (only if not in kiosk mode)
             if (!isKioskMode) {
@@ -2685,7 +2713,7 @@
                     // Directly update the specific slot that was cancelled
                     const specificSlot = document.querySelector(`[data-time="${currentSlot}"]`);
                     if (specificSlot) {
-                        debugLog('Directly updating cancelled slot:', currentSlot);
+
                         specificSlot.classList.remove('booked', 'my-device');
                         specificSlot.classList.add('available');
                         
@@ -2753,18 +2781,18 @@
                         
                         // Remove the specific booking from local memory immediately
                         const slotKey = `${currentDate}_${currentSlot}`;
-                        debugLog('Removing booking from local memory:', slotKey);
+
                         delete bookings[slotKey];
-                        debugLog('Current bookings after deletion:', bookings);
+
                         
                         // Force immediate visual update for the specific slot
-                        debugLog('Calling updateTimeSlotsImmediate...');
+
                         updateTimeSlotsImmediate();
                         
                         // Directly update the specific slot that was completed
                         const specificSlot = document.querySelector(`[data-time="${currentSlot}"]`);
                         if (specificSlot) {
-                            debugLog('Directly updating specific slot:', currentSlot);
+
                             specificSlot.classList.remove('booked', 'my-device');
                             specificSlot.classList.add('available');
                             
@@ -2776,9 +2804,9 @@
                                 bookedText.style.display = 'none';
                                 bookedText.classList.remove('cancel-hint', 'empty-username');
                             }
-                            debugLog('Direct slot update completed');
+
                         } else {
-                            debugLog('Specific slot not found:', currentSlot);
+
                         }
                         
                         // Also call updateTimeVisualization to ensure time-based styling is correct
@@ -2894,7 +2922,7 @@
             
             // Prevent multiple simultaneous verification requests
             if (isVerifyingAdmin) {
-                debugLog('Admin verification already in progress, ignoring duplicate request');
+
                 return;
             }
             
@@ -2921,8 +2949,8 @@
                 body: JSON.stringify({ password: password })
             })
             .then(response => {
-                debugLog('Admin verification response status:', response.status);
-                debugLog('Admin verification response headers:', response.headers);
+
+
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -2937,7 +2965,7 @@
                 return response.json();
             })
             .then(data => {
-                debugLog('Admin verification response data:', data);
+
                 
                 // Validate response structure
                 if (typeof data !== 'object' || data === null) {
@@ -2959,7 +2987,7 @@
                     showNotification('Admin access granted! You can now cancel any booking.', 'success');
                     // Update time visualization to enable past slot booking for admin
                     updateTimeVisualization();
-                    debugLog('Admin session activated');
+
                     // Refresh display to show booker names
                     refreshDisplay();
                 } else if (data.success === false) {
@@ -2989,7 +3017,7 @@
                 
                 // Don't show error notification if verification was already successful
                 if (adminVerificationSuccess) {
-                    debugLog('Admin verification was successful, not showing error notification');
+
                     return;
                 }
                 
@@ -3011,7 +3039,7 @@
             document.getElementById('adminBtn').classList.remove('admin-active');
             updateAdminButtonText();
             showNotification('Admin session ended', 'info');
-            debugLog('Admin session ended');
+
             // Update time visualization to disable past slot booking for normal users
             updateTimeVisualization();
             // Refresh display to hide booker names
@@ -3319,7 +3347,7 @@
                 const data = await response.json();
                 if (data.success) {
                     allNames = data.names;
-                    debugLog(`Loaded ${allNames.length} names for type-ahead`);
+
                 }
             } catch (error) {
                 console.error('Error loading names:', error);
@@ -3576,10 +3604,10 @@
         // Listen for refresh messages from admin panel
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
-                debugLog('Received refresh message from admin panel');
+
                 loadNames();
             } else if (event.data && event.data.type === 'REFRESH_BAD_WORDS') {
-                debugLog('Received bad words refresh message from admin panel');
+
                 refreshBadWords();
             }
         });
@@ -3589,22 +3617,22 @@
             const channel = new BroadcastChannel('techcafe-refresh');
             channel.addEventListener('message', function(event) {
                 if (event.data && event.data.type === 'REFRESH_TYPEAHEAD') {
-                    debugLog('Received refresh message via BroadcastChannel');
+
                     loadNames();
                 } else if (event.data && event.data.type === 'REFRESH_BAD_WORDS') {
-                    debugLog('Received bad words refresh message via BroadcastChannel');
+
                     refreshBadWords();
                 }
             });
         } catch (e) {
-            debugLog('BroadcastChannel not supported');
+
         }
 
 
         function refreshBadWords() {
             // This function will be called when bad words are updated
             // For now, we'll just reload the page to get the updated bad words list
-            debugLog('Refreshing bad words - reloading page');
+
             window.location.reload();
         }
 
