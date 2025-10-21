@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCafe Booking - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .password-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .admin-content {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 1200px;
+            width: calc(100% - 40px);
+            margin: 0 auto;
+            text-align: center;
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden; /* Hide scrollbar outside rounded corners */
+        }
+        
+        .admin-content-inner {
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 10px; /* Space for scrollbar */
+            margin-right: -10px; /* Pull content back to maintain width */
+        }
+        
+        /* Custom scrollbar styling */
+        .admin-content-inner::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+        
+        .admin-content-inner::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .admin-header {
+            margin-bottom: 40px;
+        }
+
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            font-size: 1.1rem;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .password-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .password-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.show {
+            display: block;
+        }
+
+        .feature-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .csv-list {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .csv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .csv-actions .btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .csv-actions .btn i {
+            font-size: 16px;
+        }
+
+
+        .csv-info {
+            flex: 1;
+        }
+
+        .csv-filename {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .csv-details {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+            white-space: nowrap;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .password-wrapper {
+                padding: 10px;
+                min-height: 100vh;
+                min-height: 100dvh; /* Use dynamic viewport height for mobile */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .admin-container {
+                padding: 20px;
+                width: calc(100% - 20px);
+            }
+
+            .admin-content {
+                padding: 20px;
+                width: calc(100% - 20px);
+                margin: 0 auto;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                min-height: auto;
+                max-height: calc(100vh - 60px);
+                max-height: calc(100dvh - 60px); /* Use dynamic viewport height for mobile with more margin */
+                overflow: hidden; /* Hide scrollbar outside rounded corners */
+                box-sizing: border-box;
+            }
+            
+            .admin-content-inner {
+                max-height: calc(100vh - 100px);
+                max-height: calc(100dvh - 100px);
+                overflow-y: auto;
+                padding-right: 8px;
+                margin-right: -8px;
+            }
+
+            .notification {
+                top: 10px;
+                padding: 12px 20px;
+                font-size: 14px;
+                max-width: 95%;
+            }
+
+            .admin-title {
+                font-size: 2rem;
+            }
+
+            .csv-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Section -->
+    <div class="password-wrapper" id="passwordWrapper">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="admin-title">🔐 Admin Panel</h1>
+                <p class="admin-subtitle">TechCafe Booking System Administration</p>
+            </div>
+
+            <div class="password-section" id="passwordSection">
+                <h3 style="margin-bottom: 20px; color: #2d3748;">Enter Admin Password</h3>
+                <input type="password" id="adminPassword" class="password-input" placeholder="Enter admin password" maxlength="50">
+                <br>
+                <button class="btn btn-primary" onclick="verifyPassword()">Access Admin Panel</button>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #718096;">Version 2.2</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div class="admin-content" id="adminContent">
+        <div class="admin-content-inner">
+            <!-- CSV Download Section -->
+            <div class="feature-section">
+                <h3 class="feature-title">📥 Download Booking Records</h3>
+                <p style="margin-bottom: 20px; color: #718096;">Download extracted booking records in CSV format</p>
+                
+                <div class="loading" id="csvLoading">
+                    <div class="spinner"></div>
+                    <p>Loading CSV files...</p>
+                </div>
+                
+                <div id="csvList" class="csv-list"></div>
+                <button class="btn btn-secondary" onclick="refreshCSVList()">Refresh List</button>
+            </div>
+
+            <!-- Display Names Upload Section -->
+            <div class="feature-section">
+                <h3 class="feature-title">📤 Update Display Names</h3>
+                <p style="margin-bottom: 20px; color: #718096;">Upload new display_name.txt file to update the type-ahead feature</p>
+                
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to select display_name.txt file</div>
+                    <div class="upload-hint">or drag and drop the file here</div>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-input" accept=".txt" onchange="handleFileSelect(event)">
+                
+                <div class="loading" id="uploadLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Uploading and processing file...</p>
+                </div>
+            </div>
+
+            <!-- Bad Words Upload Section -->
+            <div class="feature-section">
+                <h3 class="feature-title">🚫 Update Bad Words Filter</h3>
+                <p style="margin-bottom: 20px; color: #718096;">Upload new bad_words.txt file to update the inappropriate content filter</p>
+                
+                <div class="upload-area" id="badWordsUploadArea" onclick="document.getElementById('badWordsFileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to select bad_words.txt file</div>
+                    <div class="upload-hint">or drag and drop the file here</div>
+                </div>
+                
+                <input type="file" id="badWordsFileInput" class="file-input" accept=".txt" onchange="handleBadWordsFileSelect(event)">
+                
+                <div class="loading" id="badWordsUploadLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Uploading and processing bad words file...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        function showNotification(message, type = 'success', duration = 3000) {
+            const notification = document.getElementById('notification');
+            
+            // Clear any existing timeout to prevent conflicts
+            if (notification.timeoutId) {
+                clearTimeout(notification.timeoutId);
+            }
+            
+            // Reset notification state
+            notification.classList.remove('show');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Force a reflow to ensure the reset is applied
+            notification.offsetHeight;
+            
+            // Show the notification
+            notification.classList.add('show');
+            
+            // Add click-to-dismiss functionality
+            notification.onclick = function() {
+                dismissNotification();
+            };
+            
+            notification.timeoutId = setTimeout(() => {
+                dismissNotification();
+            }, duration);
+        }
+        
+        function dismissNotification() {
+            const notification = document.getElementById('notification');
+            
+            // Clear timeout if it exists
+            if (notification.timeoutId) {
+                clearTimeout(notification.timeoutId);
+                notification.timeoutId = null;
+            }
+            
+            // Animate out
+            notification.classList.remove('show');
+        }
+
+        // Brute force protection variables
+        let lastFailedAttempt = 0;
+        let failedAttempts = 0;
+
+        function verifyPassword() {
+            const password = document.getElementById('adminPassword').value.trim();
+            const now = Date.now();
+            
+            if (!password) {
+                showNotification('Please enter a password', 'error');
+                return;
+            }
+            
+            // Check if we need to wait due to recent failed attempts
+            if (now - lastFailedAttempt < 1000) {
+                const remainingTime = Math.ceil((1000 - (now - lastFailedAttempt)) / 1000);
+                showNotification(`Please wait ${remainingTime} second(s) before trying again`, 'error');
+                return;
+            }
+
+            fetch('/admin/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reset failed attempts on successful login
+                    failedAttempts = 0;
+                    lastFailedAttempt = 0;
+                    
+                    showAdminContent();
+                    showNotification('Admin access granted!', 'success', 2000); // Auto-dismiss after 2 seconds
+                    loadCSVFiles();
+                } else {
+                    // Record failed attempt
+                    failedAttempts++;
+                    lastFailedAttempt = now;
+                    
+                    showNotification(data.message, 'error');
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error verifying password', 'error');
+            });
+        }
+
+        function loadCSVFiles() {
+            const loading = document.getElementById('csvLoading');
+            const csvList = document.getElementById('csvList');
+            
+            loading.style.display = 'block';
+            csvList.innerHTML = '';
+            
+            // Get current server date for comparison
+            fetch('/get_server_date')
+                .then(response => response.json())
+                .then(serverData => {
+                    const serverTodayStr = serverData.date;
+                    
+                    fetch('/admin/download_csv')
+                        .then(response => response.json())
+                        .then(data => {
+                            loading.style.display = 'none';
+                            
+                            if (data.success) {
+                                if (data.files.length === 0) {
+                                    csvList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No CSV files found</p>';
+                                } else {
+                                    // Add bad_words.txt file first (non-deletable)
+                                    const badWordsItem = document.createElement('div');
+                                    badWordsItem.className = 'csv-item';
+                                    badWordsItem.innerHTML = `
+                                        <div class="csv-info">
+                                            <div class="csv-filename">bad_words.txt</div>
+                                            <div class="csv-details">
+                                                Bad Words Filter | Non-deletable
+                                            </div>
+                                        </div>
+                                        <div class="csv-actions">
+                                            <a href="/admin/download_bad_words" class="btn btn-success" download title="Download Bad Words File">
+                                                <i class="fas fa-arrow-down"></i>
+                                            </a>
+                                        </div>
+                                    `;
+                                    csvList.appendChild(badWordsItem);
+                                    
+                                    // Add CSV files
+                                    data.files.forEach(file => {
+                                        // Check if file is from yesterday or earlier (based on filename)
+                                        const dateMatch = file.filename.match(/bookings_(\d{4}-\d{2}-\d{2})\.csv$/);
+                                        let canDelete = false;
+                                        if (dateMatch) {
+                                            const fileDateStr = dateMatch[1]; // YYYY-MM-DD format
+                                            
+                                            // Compare file date with server date
+                                            canDelete = fileDateStr < serverTodayStr;
+                                        }
+                                        
+                                        const fileItem = document.createElement('div');
+                                        fileItem.className = 'csv-item';
+                                        fileItem.innerHTML = `
+                                            <div class="csv-info">
+                                                <div class="csv-filename">${file.filename}</div>
+                                                <div class="csv-details">
+                                                    Size: ${formatFileSize(file.size)} | 
+                                                    Modified: ${file.date}
+                                                </div>
+                                            </div>
+                                            <div class="csv-actions">
+                                                ${canDelete ? `
+                                                    <button class="btn btn-danger" 
+                                                            onclick="deleteCSV('${file.filename}')" 
+                                                            title="Delete File">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                ` : ''}
+                                                <a href="/admin/download_csv/${file.filename}" class="btn btn-success" download title="Download File">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </a>
+                                            </div>
+                                        `;
+                                        csvList.appendChild(fileItem);
+                                    });
+                                }
+                            } else {
+                                csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files: ' + data.error + '</p>';
+                            }
+                        })
+                        .catch(error => {
+                            loading.style.display = 'none';
+                            csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading CSV files</p>';
+                            console.error('Error:', error);
+                        });
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    csvList.innerHTML = '<p style="text-align: center; color: #f56565; padding: 20px;">Error loading server date</p>';
+                    console.error('Error:', error);
+                });
+        }
+
+        function refreshCSVList() {
+            loadCSVFiles();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function deleteCSV(filename) {
+            if (confirm(`Are you sure you want to delete "${filename}"? This action cannot be undone.`)) {
+                fetch(`/admin/delete_csv/${filename}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(`File "${filename}" deleted successfully`, 'success');
+                        loadCSVFiles(); // Refresh the list
+                    } else {
+                        showNotification(`Error deleting file: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting CSV file:', error);
+                    showNotification('An error occurred while deleting the file', 'error');
+                });
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        }
+
+        function handleBadWordsFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadBadWordsFile(file);
+            }
+        }
+
+        function refreshTypeAheadOnMainPortal() {
+            // Method 1: Send message to opener window (if admin panel opened in new tab)
+            if (window.opener && !window.opener.closed) {
+                try {
+                    window.opener.postMessage({ type: 'REFRESH_TYPEAHEAD' }, '*');
+                    console.log('Sent refresh message to opener window');
+                } catch (e) {
+                    console.log('Could not communicate with opener window');
+                }
+            }
+            
+            // Method 2: Use BroadcastChannel for same-origin communication
+            try {
+                const channel = new BroadcastChannel('techcafe-refresh');
+                channel.postMessage({ type: 'REFRESH_TYPEAHEAD' });
+                console.log('Sent refresh message via BroadcastChannel');
+                channel.close();
+            } catch (e) {
+                console.log('BroadcastChannel not supported');
+            }
+            
+            // Method 3: Try to refresh if this is the same window (for testing)
+            if (typeof loadNames === 'function') {
+                loadNames();
+                console.log('Refreshed type-ahead in current window');
+            }
+        }
+
+        function uploadFile(file) {
+            if (file.name !== 'display_name.txt') {
+                showNotification('File must be named display_name.txt', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loading = document.getElementById('uploadLoading');
+            loading.style.display = 'block';
+
+            fetch('/admin/upload_display_names', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    document.getElementById('fileInput').value = '';
+                    
+                    // If refresh is required, trigger type-ahead refresh on main portal
+                    if (data.refresh_required) {
+                        refreshTypeAheadOnMainPortal();
+                    }
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                showNotification('Error uploading file', 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function uploadBadWordsFile(file) {
+            if (file.name !== 'bad_words.txt') {
+                showNotification('File must be named bad_words.txt', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loading = document.getElementById('badWordsUploadLoading');
+            loading.style.display = 'block';
+
+            fetch('/admin/upload_bad_words', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    document.getElementById('badWordsFileInput').value = '';
+                    
+                    // If refresh is required, trigger bad words refresh on main portal
+                    if (data.refresh_required) {
+                        refreshBadWordsOnMainPortal();
+                    }
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                showNotification('Error uploading bad words file', 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function refreshBadWordsOnMainPortal() {
+            // Method 1: Send message to opener window (if admin panel opened in new tab)
+            if (window.opener && !window.opener.closed) {
+                try {
+                    window.opener.postMessage({ type: 'REFRESH_BAD_WORDS' }, '*');
+                    console.log('Sent bad words refresh message to opener window');
+                } catch (e) {
+                    console.log('Could not communicate with opener window');
+                }
+            }
+            
+            // Method 2: Use BroadcastChannel for same-origin communication
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('techcafe_booking');
+                channel.postMessage({ type: 'REFRESH_BAD_WORDS' });
+                console.log('Sent bad words refresh message via BroadcastChannel');
+            }
+            
+            // Method 3: Refresh in current window if it's the main portal
+            if (typeof refreshBadWords === 'function') {
+                refreshBadWords();
+                console.log('Refreshed bad words in current window');
+            }
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        });
+
+        // Drag and drop functionality for bad words
+        const badWordsUploadArea = document.getElementById('badWordsUploadArea');
+
+        badWordsUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            badWordsUploadArea.classList.add('dragover');
+        });
+
+        badWordsUploadArea.addEventListener('dragleave', () => {
+            badWordsUploadArea.classList.remove('dragover');
+        });
+
+        badWordsUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            badWordsUploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadBadWordsFile(files[0]);
+            }
+        });
+
+        // Enter key support for password
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+
+        // Function to adjust admin content container based on viewport height
+        function adjustAdminContainer() {
+            const adminContent = document.getElementById('adminContent');
+            const adminContentInner = adminContent ? adminContent.querySelector('.admin-content-inner') : null;
+            
+            if (adminContent && adminContent.classList.contains('show') && adminContentInner) {
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isMobile) {
+                    // Mobile-specific centering with very conservative height calculation
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Use very conservative margins to prevent overflow
+                    const margin = 60; // 30px top + 30px bottom for safety
+                    const availableHeight = Math.max(viewportHeight - margin, 300); // Minimum 300px height
+                    
+                    // Force absolute positioning and centering
+                    adminContent.style.position = 'absolute';
+                    adminContent.style.top = '50%';
+                    adminContent.style.left = '50%';
+                    adminContent.style.transform = 'translate(-50%, -50%)';
+                    adminContent.style.width = 'calc(100% - 20px)';
+                    adminContent.style.maxHeight = availableHeight + 'px';
+                    adminContent.style.height = 'auto';
+                    adminContent.style.overflow = 'hidden';
+                    adminContent.style.margin = '0';
+                    adminContent.style.boxSizing = 'border-box';
+                    
+                    // Set inner container height
+                    adminContentInner.style.maxHeight = (availableHeight - 40) + 'px'; // Account for padding
+                    
+                    // Force multiple reflows to ensure positioning is applied
+                    adminContent.offsetHeight;
+                    adminContent.offsetWidth;
+                } else {
+                    // Desktop centering (existing logic)
+                    const viewportHeight = window.innerHeight;
+                    const margin = 40;
+                    const availableHeight = viewportHeight - margin;
+                    
+                    adminContent.style.maxHeight = availableHeight + 'px';
+                    adminContent.style.overflow = 'hidden';
+                    adminContent.style.top = '50%';
+                    adminContent.style.left = '50%';
+                    adminContent.style.transform = 'translate(-50%, -50%)';
+                    
+                    // Set inner container height
+                    adminContentInner.style.maxHeight = (availableHeight - 80) + 'px'; // Account for padding
+                }
+            }
+        }
+
+        // Function to adjust password wrapper for mobile centering
+        function adjustPasswordWrapper() {
+            const passwordWrapper = document.getElementById('passwordWrapper');
+            if (passwordWrapper && passwordWrapper.style.display !== 'none') {
+                const viewportHeight = window.innerHeight;
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isMobile) {
+                    // Force proper centering on mobile
+                    passwordWrapper.style.minHeight = viewportHeight + 'px';
+                    passwordWrapper.style.display = 'flex';
+                    passwordWrapper.style.alignItems = 'center';
+                    passwordWrapper.style.justifyContent = 'center';
+                }
+            }
+        }
+
+        // Adjust container on window resize
+        window.addEventListener('resize', function() {
+            adjustAdminContainer();
+            adjustPasswordWrapper();
+        });
+
+        // Adjust password wrapper on page load and orientation change
+        window.addEventListener('load', function() {
+            adjustPasswordWrapper();
+            // Also adjust admin content on load in case it's already shown
+            setTimeout(adjustAdminContainer, 100);
+        });
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                adjustPasswordWrapper();
+                adjustAdminContainer();
+            }, 100);
+        });
+
+        // Adjust container when admin content is shown
+        function showAdminContent() {
+            const passwordWrapper = document.getElementById('passwordWrapper');
+            const adminContent = document.getElementById('adminContent');
+            
+            if (passwordWrapper) {
+                passwordWrapper.style.display = 'none';
+            } else {
+                console.error('Password wrapper element not found!');
+            }
+            
+            if (adminContent) {
+                adminContent.classList.add('show');
+            } else {
+                console.error('Admin content element not found!');
+            }
+            
+            // Force immediate centering for mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Immediate mobile centering with very conservative height
+                adminContent.style.position = 'absolute';
+                adminContent.style.top = '50%';
+                adminContent.style.left = '50%';
+                adminContent.style.transform = 'translate(-50%, -50%)';
+                adminContent.style.width = 'calc(100% - 20px)';
+                adminContent.style.maxHeight = 'calc(100vh - 60px)'; // More conservative margin
+                adminContent.style.overflow = 'hidden';
+                adminContent.style.margin = '0';
+                adminContent.style.boxSizing = 'border-box';
+                
+                // Set inner container height
+                const adminContentInner = adminContent.querySelector('.admin-content-inner');
+                if (adminContentInner) {
+                    adminContentInner.style.maxHeight = 'calc(100vh - 100px)';
+                }
+            }
+            
+            // Multiple adjustment attempts to handle mobile viewport timing issues
+            adjustAdminContainer(); // Immediate adjustment
+            setTimeout(adjustAdminContainer, 50); // Quick follow-up
+            setTimeout(adjustAdminContainer, 200); // Delayed adjustment for mobile
+            setTimeout(adjustAdminContainer, 500); // Final adjustment for stubborn mobile browsers
+            setTimeout(adjustAdminContainer, 1000); // Extra adjustment for very slow mobile browsers
+        }
+    </script>
+</body>
+</html>

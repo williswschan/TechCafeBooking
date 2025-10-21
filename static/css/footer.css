@@ -1,0 +1,58 @@
+/* TechCafe Booking Portal - Footer Styles */
+
+.footer-section {
+    width: 100%;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-radius: 0 0 20px 20px;
+    margin: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    height: 40px;
+    min-height: 40px;
+}
+
+.footer-content {
+    padding: 12px 20px;
+    text-align: center;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.footer-scroll-text {
+    display: inline-block;
+    padding-right: 100%;
+    animation: scroll-continuous 45s linear infinite;
+}
+
+.footer-content:hover .footer-scroll-text {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-continuous {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.footer-content small {
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* Mobile optimizations for scrolling text */
+@media (max-width: 768px) {
+    .footer-scroll-text {
+        animation-duration: 35s; /* Slower continuous scroll on mobile */
+    }
+    
+    .footer-content {
+        padding: 10px 15px; /* Slightly reduced padding on mobile */
+    }
+}

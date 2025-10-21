@@ -1,0 +1,242 @@
+/* TechCafe Booking Portal - Time Slots Styles */
+
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.time-section {
+    margin-bottom: 20px;
+}
+
+.time-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.section-title {
+    background: white;
+    padding: 0 20px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #dc2626;
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+}
+
+.section-divider {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+    z-index: 1;
+}
+
+.lunch-break {
+    text-align: center;
+    margin: 10px 0;
+    padding: 8px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 8px;
+    border: 2px dashed #cbd5e1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lunch-break i {
+    font-size: 1.2rem;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.lunch-break-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.time-slot {
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+    min-height: 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.time-slot:hover {
+    border-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
+}
+
+.time-slot.available {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-color: #0ea5e9;
+}
+
+.time-slot.booked {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border-color: #dc2626;
+    cursor: pointer;
+}
+
+/* New booking highlight: fade from darker red to normal over 5s */
+.time-slot.booked.just-booked {
+    animation: bookedFadeIn 5s ease-out forwards;
+}
+
+@keyframes bookedFadeIn {
+    0% {
+        background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+    }
+    20% {
+        background: linear-gradient(135deg, #8b1e1e 0%, #b91c1c 100%);
+    }
+    40% {
+        background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+    }
+    60% {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    }
+    80% {
+        background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    }
+    100% {
+        background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    }
+}
+
+.time-slot.booked:hover {
+    border-color: #dc2626;
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+
+.time-slot.booked.my-device {
+    border: 3px solid #00ff00 !important;
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    position: relative;
+}
+
+.time-slot.booked.my-device::before {
+    content: '★';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #00ff00;
+    color: black;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.time-slot.booked.my-device:hover {
+    border-color: #00ff00 !important;
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
+}
+
+/* Time visualization styles */
+.time-slot.time-past {
+    background: #d1d5db !important;
+    border-color: #e5e7eb !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+.time-slot.time-past.booked {
+    background: #d1d5db !important;
+    border-color: #e5e7eb !important;
+    color: #6b7280 !important;
+}
+
+.time-slot.time-past:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: #e5e7eb !important;
+}
+
+.time-slot.time-past.booked:hover {
+    border-color: #e5e7eb !important;
+}
+
+/* Admin can still book past slots - override the disabled styling */
+.time-slot.time-past.admin-enabled {
+    cursor: pointer !important;
+    opacity: 1 !important;
+}
+
+.time-slot.time-past.admin-enabled:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.time-slot.time-current {
+    position: relative;
+    overflow: hidden;
+}
+
+.time-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 5px;
+}
+
+.booked-text {
+    font-size: 0.9rem;
+    color: #991b1b;
+    font-weight: 500;
+}
+
+.booked-text.cancel-hint {
+    color: #dc2626;
+}
+
+.booked-text.empty-username {
+    font-style: italic;
+}
+
+/* Mobile Performance Optimization */
+@media (max-width: 768px) {
+    .time-slot {
+        will-change: transform, background-color;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    
+    .time-slot.booked {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}

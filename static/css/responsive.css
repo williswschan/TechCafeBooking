@@ -1,0 +1,258 @@
+/* Responsive Design and Mobile Optimizations */
+
+/* Mobile responsive for buttons */
+@media (max-width: 768px) {
+    .kiosk-btn, .admin-btn {
+        padding: 0 !important;
+        font-size: 0.8rem;
+        border-radius: 50% !important;
+        gap: 0 !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        max-width: 40px !important;
+        max-height: 40px !important;
+        justify-content: center;
+        align-items: center;
+        display: flex !important;
+        box-sizing: border-box !important;
+    }
+    
+    .kiosk-btn span, .admin-btn span {
+        display: none !important;
+    }
+    
+    .kiosk-btn i, .admin-btn i {
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    /* Mobile-specific typeahead optimizations */
+    .typeahead-dropdown {
+        max-height: 300px; /* Show 4 names on mobile */
+        border-radius: 8px; /* Less rounded on mobile */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        /* Enhanced mobile scrolling */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scroll-behavior: smooth;
+        touch-action: pan-y;
+        /* Ensure dropdown is above mobile keyboards */
+        position: fixed;
+        top: auto;
+        bottom: auto;
+        left: 10px;
+        right: 10px;
+        max-width: calc(100vw - 20px);
+        /* Better mobile positioning */
+        transform: translateY(0);
+        /* Match input width exactly */
+        width: auto;
+        min-width: 0;
+        /* Improved scrolling with better indicators */
+        background: white;
+        /* Add subtle scroll indicators */
+        border: 2px solid #e5e7eb;
+        border-top: none;
+    }
+    
+    .typeahead-item {
+        padding: 16px; /* Even larger touch targets on mobile */
+        font-size: 1.1rem;
+        min-height: 48px;
+        /* Prevent text selection on mobile */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        /* Better touch feedback */
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        /* Improved touch scrolling */
+        touch-action: manipulation;
+        /* Enhanced mobile touch handling */
+        -webkit-touch-callout: none;
+        -webkit-user-drag: none;
+        /* Better scroll behavior */
+        pointer-events: auto;
+    }
+    
+    /* Better mobile scrolling for the dropdown */
+    .typeahead-dropdown {
+        /* Enhanced mobile scrolling */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scroll-behavior: smooth;
+        touch-action: pan-y;
+        /* Better scrollbar for mobile */
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e0 transparent;
+    }
+}
+
+/* Mobile Performance Optimization */
+@media (max-width: 768px) {
+    .time-slot {
+        will-change: transform, background-color;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    
+    .time-slot.booked {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}
+
+/* Landscape Configuration */
+@media (orientation: landscape) {
+    .container {
+        margin: 20px auto !important;
+        max-height: calc(100vh - 40px) !important;
+        overflow: hidden !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: calc(100vw - 40px) !important;
+        height: calc(100vh - 40px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+    }
+    
+    .header h1 {
+        font-size: 2.3rem;
+    }
+    
+    .booking-grid {
+        padding: 15px;
+        padding-bottom: 15px;
+        max-height: none !important;
+        overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+    }
+    
+    /* Dynamic grid layout for landscape - utilizes full available height */
+    .time-slots {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 8px !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+        height: auto !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* Time slots with dynamic height - will be set by JavaScript */
+    .time-slot {
+        /* width and height will be set by JavaScript */
+        padding: 5px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+        border: 2px solid #e5e7eb !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Ensure morning and afternoon sections use same grid with dynamic height */
+    .morning-slots .time-slots,
+    .afternoon-slots .time-slots {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 8px !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+    }
+    
+    /* Time sections should flex to fill available space */
+    .time-section {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+    }
+    
+    .time-text {
+        font-size: 1rem;
+    }
+    
+    .time-section {
+        margin-bottom: 8px;
+    }
+    
+    .section-header {
+        margin-bottom: 8px;
+    }
+    
+    .lunch-break {
+        margin: 5px 0;
+        padding: 8px;
+    }
+}
+
+/* Portrait Configuration */
+@media (orientation: portrait) {
+    .container {
+        margin: 20px auto !important;
+        position: relative !important;
+        /* width: 95%; - Removed to allow JavaScript sizing */
+    }
+    
+    .time-slots {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    
+    .time-slot {
+        /* min-height removed to allow JavaScript height calculation */
+        padding: 10px;
+    }
+    
+    .time-text {
+        font-size: 0.9rem;
+    }
+    
+    .date-tabs {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: nowrap;
+    }
+    
+    .date-tab {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* Admin button - circular with icon only in portrait */
+    .header .admin-btn {
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.2rem !important;
+        position: absolute !important;
+        top: 20px !important;
+        right: 20px !important;
+    }
+    
+    .header .admin-btn span {
+        display: none !important;
+    }
+    
+    .header .admin-btn i {
+        margin: 0 !important;
+    }
+}

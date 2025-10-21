@@ -6,13 +6,1017 @@
     <title>TechCafe Booking Portal</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- External CSS Files -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/time-slots.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modals.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+            max-height: 100vh;
+            /* JavaScript will override these dimensions for strict sizing */
+            width: auto;
+            height: auto;
+        }
+        
+
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Kiosk Mode Button Styles */
+        .kiosk-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kiosk-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .kiosk-btn.kiosk-active {
+            background: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .kiosk-btn.kiosk-active:hover {
+            background: #059669;
+            border-color: #059669;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Mobile responsive for both buttons */
+        @media (max-width: 768px) {
+            .kiosk-btn, .admin-btn {
+                padding: 0 !important;
+                font-size: 0.8rem;
+                border-radius: 50% !important;
+                gap: 0 !important;
+                width: 40px !important;
+                height: 40px !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
+                max-width: 40px !important;
+                max-height: 40px !important;
+                justify-content: center;
+                align-items: center;
+                display: flex !important;
+                box-sizing: border-box !important;
+            }
+            
+            .kiosk-btn span, .admin-btn span {
+                display: none !important;
+            }
+            
+            .kiosk-btn i, .admin-btn i {
+                font-size: 16px;
+                line-height: 1;
+            }
+        }
+
+        .admin-btn.admin-active {
+            background: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+
+        .date-selector {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .date-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .date-tab {
+            padding: 12px 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+            min-width: 0;
+            text-align: center;
+        }
+
+        .date-tab:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .date-tab.active {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .booking-grid {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scrollable-content {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .time-section {
+            margin-bottom: 20px;
+        }
+
+        .time-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .section-title {
+            background: white;
+            padding: 0 20px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #dc2626;
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-divider {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+            z-index: 1;
+        }
+
+        .lunch-break {
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            border: 2px dashed #cbd5e1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .lunch-break i {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .lunch-break-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+
+        .browser-config {
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            display: inline-block;
+            font-family: monospace;
+        }
+
+        .footer-section {
+            width: 100%;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border-radius: 0 0 20px 20px;
+            margin: 0;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            height: 40px;
+            min-height: 40px;
+        }
+
+        .footer-content {
+            padding: 12px 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .footer-scroll-text {
+            display: inline-block;
+            padding-right: 100%;
+            animation: scroll-continuous 45s linear infinite;
+        }
+
+        .footer-content:hover .footer-scroll-text {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-continuous {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Mobile optimizations for scrolling text */
+        @media (max-width: 768px) {
+            .footer-scroll-text {
+                animation-duration: 35s; /* Slower continuous scroll on mobile */
+            }
+            
+            .footer-content {
+                padding: 10px 15px; /* Slightly reduced padding on mobile */
+            }
+        }
+
+        .footer-content small {
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .time-slot {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            min-height: 65px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .time-slot:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
+        }
+
+        .time-slot.available {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-color: #0ea5e9;
+        }
+
+        .time-slot.booked {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-color: #dc2626;
+            cursor: pointer;
+        }
+
+        /* New booking highlight: fade from darker red to normal over 5s */
+        .time-slot.booked.just-booked {
+            animation: bookedFadeIn 5s ease-out forwards;
+        }
+
+        @keyframes bookedFadeIn {
+            0% {
+                background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            }
+            20% {
+                background: linear-gradient(135deg, #8b1e1e 0%, #b91c1c 100%);
+            }
+            40% {
+                background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+            }
+            60% {
+                background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            }
+            80% {
+                background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            }
+            100% {
+                background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            }
+        }
+
+        .time-slot.booked:hover {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+        }
+
+        .time-slot.booked.my-device {
+            border: 3px solid #00ff00 !important;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+            position: relative;
+        }
+
+        .time-slot.booked.my-device::before {
+            content: '★';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #00ff00;
+            color: black;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .time-slot.booked.my-device:hover {
+            border-color: #00ff00 !important;
+            box-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
+        }
+
+        /* Time visualization styles */
+        .time-slot.time-past {
+            background: #d1d5db !important;
+            border-color: #e5e7eb !important;
+            color: #6b7280 !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        .time-slot.time-past.booked {
+            background: #d1d5db !important;
+            border-color: #e5e7eb !important;
+            color: #6b7280 !important;
+        }
+
+        .time-slot.time-past:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: #e5e7eb !important;
+        }
+
+        .time-slot.time-past.booked:hover {
+            border-color: #e5e7eb !important;
+        }
+
+        /* Admin can still book past slots - override the disabled styling */
+        .time-slot.time-past.admin-enabled {
+            cursor: pointer !important;
+            opacity: 1 !important;
+        }
+
+        .time-slot.time-past.admin-enabled:hover {
+            transform: scale(1.02) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .time-slot.time-current {
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        .time-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .booked-text {
+            font-size: 0.9rem;
+            color: #991b1b;
+            font-weight: 500;
+        }
+
+        .booked-text.cancel-hint {
+            color: #dc2626;
+        }
+
+        .booked-text.empty-username {
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #374151;
+            font-size: 1.5rem;
+        }
+
+        .privacy-notice {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 0 0 15px 0;
+            color: #92400e;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        /* Type-ahead dropdown styles */
+        .typeahead-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .typeahead-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 9999; /* Higher z-index for mobile */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Enhanced mobile scrolling */
+            overscroll-behavior: contain;
+            scroll-behavior: smooth;
+            touch-action: pan-y;
+            /* Better scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+        
+        /* Webkit scrollbar styling for better mobile experience */
+        .typeahead-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 3px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+        
+        .typeahead-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        .typeahead-item {
+            padding: 15px; /* Larger touch targets for mobile */
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+            font-size: 1rem; /* Slightly larger text for mobile */
+            min-height: 44px; /* Minimum touch target size */
+            display: flex;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+            -webkit-touch-callout: none; /* Disable callout on iOS */
+            -webkit-user-select: none; /* Disable text selection */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            /* Better touch scrolling support */
+            touch-action: manipulation;
+            /* Prevent accidental selections during scroll */
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+
+        .typeahead-item:hover,
+        .typeahead-item:active {
+            background-color: #f8fafc;
+        }
+
+        .typeahead-item:last-child {
+            border-bottom: none;
+        }
+
+        .typeahead-item.highlighted {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .typeahead-item .highlight {
+            background-color: #fef3c7;
+            font-weight: 600;
+        }
+
+        .typeahead-item.highlighted .highlight {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .typeahead-dropdown {
+                max-height: 300px; /* Show 4 names on mobile */
+                border-radius: 8px; /* Less rounded on mobile */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                /* Enhanced mobile scrolling */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                scroll-behavior: smooth;
+                touch-action: pan-y;
+                /* Ensure dropdown is above mobile keyboards */
+                position: fixed;
+                top: auto;
+                bottom: auto;
+                left: 10px;
+                right: 10px;
+                max-width: calc(100vw - 20px);
+                /* Better mobile positioning */
+                transform: translateY(0);
+                /* Match input width exactly */
+                width: auto;
+                min-width: 0;
+                /* Improved scrolling with better indicators */
+                background: white;
+                /* Add subtle scroll indicators */
+                border: 2px solid #e5e7eb;
+                border-top: none;
+            }
+            
+            .typeahead-item {
+                padding: 16px; /* Even larger touch targets on mobile */
+                font-size: 1.1rem;
+                min-height: 48px;
+                /* Prevent text selection on mobile */
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                /* Better touch feedback */
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+                /* Improved touch scrolling */
+                touch-action: manipulation;
+                /* Enhanced mobile touch handling */
+                -webkit-touch-callout: none;
+                -webkit-user-drag: none;
+                /* Better scroll behavior */
+                pointer-events: auto;
+            }
+            
+            /* Better mobile scrolling for the dropdown */
+            .typeahead-dropdown {
+                /* Enhanced mobile scrolling */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                scroll-behavior: smooth;
+                touch-action: pan-y;
+                /* Better scrollbar for mobile */
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e0 transparent;
+            }
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .admin-buttons {
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .admin-buttons .btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 14px 20px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-clear {
+            background: #ef4444;
+            color: white;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .clear-saved-info {
+            margin-top: 15px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            display: none; /* Hidden by default, shown only when username is saved */
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+
+
+
+        .booking-grid {
+            max-height: calc(100vh - var(--header-height, 200px));
+            overflow-y: auto;
+        }
+
+
+        /* Landscape Configuration */
+        @media (orientation: landscape) {
+            .container {
+                margin: 20px auto !important;
+                max-height: calc(100vh - 40px) !important;
+                overflow: hidden !important;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                transform: none !important;
+                width: calc(100vw - 40px) !important;
+                height: calc(100vh - 40px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-sizing: border-box !important;
+            }
+            
+            .header h1 {
+                font-size: 2.3rem;
+            }
+            
+            .booking-grid {
+                padding: 15px;
+                padding-bottom: 15px;
+                max-height: none !important;
+                overflow: visible !important;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
+                min-height: 0 !important;
+            }
+            
+            /* Dynamic grid layout for landscape - utilizes full available height */
+        .time-slots {
+            display: grid !important;
+            grid-template-columns: repeat(6, 1fr) !important;
+            gap: 8px !important;
+            justify-content: center !important;
+            align-items: stretch !important;
+            height: auto !important;
+            margin-bottom: 10px !important;
+        }
+            
+            /* Time slots with dynamic height - will be set by JavaScript */
+        .time-slot {
+            /* width and height will be set by JavaScript */
+            padding: 5px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+            
+            /* Ensure morning and afternoon sections use same grid with dynamic height */
+            .morning-slots .time-slots,
+            .afternoon-slots .time-slots {
+                display: grid !important;
+                grid-template-columns: repeat(6, 1fr) !important;
+                gap: 8px !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+            
+            /* Time sections should flex to fill available space */
+            .time-section {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
+            }
+            
+            .time-text {
+                font-size: 1rem;
+            }
+            
+            .time-section {
+                margin-bottom: 8px;
+            }
+            
+            .section-header {
+                margin-bottom: 8px;
+            }
+            
+            .lunch-break {
+                margin: 5px 0;
+                padding: 8px;
+            }
+        }
+
+        /* Mobile Performance Optimization */
+        @media (max-width: 768px) {
+            .time-slot {
+                will-change: transform, background-color;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
+            
+            .time-slot.booked {
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0);
+            }
+        }
+        
+
+        /* Portrait Configuration */
+        @media (orientation: portrait) {
+            .container {
+                margin: 20px auto !important;
+                position: relative !important;
+                /* width: 95%; - Removed to allow JavaScript sizing */
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .time-slot {
+                /* min-height removed to allow JavaScript height calculation */
+                padding: 10px;
+            }
+            
+            .time-text {
+                font-size: 0.9rem;
+            }
+            
+            .date-tabs {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: nowrap;
+            }
+            
+            .date-tab {
+                flex: 1;
+                min-width: 0;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            /* Admin button - circular with icon only in portrait */
+            .header .admin-btn {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 1.2rem !important;
+                position: absolute !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            
+            .header .admin-btn span {
+                display: none !important;
+            }
+            
+            .header .admin-btn i {
+                margin: 0 !important;
+            }
+        }
+
+    </style>
 </head>
 <body>
     <div class="container">
@@ -1037,7 +2041,7 @@
                         console.log('- Content heights:', contentHeights);
                         console.log('- Available height:', availableHeight);
                         
-                        // Calculate button dimensions for portrait mode
+                        // Calculate button dimensions
                         const columns = 4; // Portrait mode should have 4 columns
                         const morningSlots = document.querySelectorAll('#morningSlots .time-slot');
                         const afternoonSlots = document.querySelectorAll('#afternoonSlots .time-slot');
@@ -1059,8 +2063,8 @@
                         // Apply to all time slots
                         allTimeSlots.forEach((slot, index) => {
                             slot.style.width = buttonWidth + 'px';
-                            slot.style.height = Math.max(60, buttonHeight) + 'px';
-                            slot.style.minHeight = Math.max(60, buttonHeight) + 'px';
+                            slot.style.height = buttonHeight + 'px';
+                            slot.style.minHeight = buttonHeight + 'px';
                             slot.style.boxSizing = 'border-box';
                             slot.style.flexShrink = '0';
                             
@@ -2482,7 +3486,7 @@
 
         function showAdminCaseCompletedConfirmation() {
             // Close the admin management modal
-            document.getElementId('adminManagementModal').style.display = 'none';
+            document.getElementById('adminManagementModal').style.display = 'none';
             
             // Show the admin case completed confirmation modal
             document.getElementById('adminCaseCompletedModal').style.display = 'block';

@@ -1,0 +1,205 @@
+/* TechCafe Booking Portal - Main Styles */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Main Container */
+.container {
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+    max-height: 100vh;
+    /* JavaScript will override these dimensions for strict sizing */
+    width: auto;
+    height: auto;
+}
+
+/* Header Styles */
+.header {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 20px 20px 0 0;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Button Styles */
+.admin-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.admin-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.admin-btn.admin-active {
+    background: #10b981;
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Kiosk Mode Button Styles */
+.kiosk-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kiosk-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.kiosk-btn.kiosk-active {
+    background: #10b981;
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.kiosk-btn.kiosk-active:hover {
+    background: #059669;
+    border-color: #059669;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+}
+
+/* Date Selector */
+.date-selector {
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.date-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.date-tab {
+    padding: 12px 24px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    font-weight: 500;
+    min-width: 0;
+    text-align: center;
+}
+
+.date-tab:hover {
+    border-color: #dc2626;
+    transform: translateY(-2px);
+}
+
+.date-tab.active {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+/* Layout Components */
+.scrollable-content {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-grid {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - var(--header-height, 200px));
+    overflow-y: auto;
+}
+
+/* Utility Classes */
+.browser-config {
+    margin-top: 8px;
+    padding: 4px 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    display: inline-block;
+    font-family: monospace;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #dc2626;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
