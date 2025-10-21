@@ -308,7 +308,7 @@
                     
                     // Add transient highlight
                     slotElement.classList.add('just-booked');
-                    setTimeout(() => slotElement.classList.remove('just-booked'), 5000);
+                    TimerManager.TimerManager.setTimeout(() => slotElement.classList.remove('just-booked'), 5000);
                 }
                 
                 // Update local bookings object
@@ -340,10 +340,116 @@
         let currentDate = '{{ dates[0].date }}';
         let currentSlot = null;
         let bookings = {};
-        let autoRefreshInterval = null;
-        let timeUpdateInterval = null;
         let deviceId = '';
         let isAdminSession = false;
+        
+        // Timer management system to prevent memory leaks
+        const TimerManager = {
+            intervals: new Set(),
+            timeouts: new Set(),
+            
+            setInterval(callback, delay) {
+                const id = setInterval(callback, delay);
+                this.intervals.add(id);
+                debugLog('Timer created (interval):', id);
+                return id;
+            },
+            
+            TimerManager.setTimeout(callback, delay) {
+                const id = TimerManager.setTimeout(() => {
+                    this.timeouts.delete(id);
+                    callback();
+                }, delay);
+                this.timeouts.add(id);
+                debugLog('Timer created (timeout):', id);
+                return id;
+            },
+            
+            clearInterval(id) {
+                if (this.intervals.has(id)) {
+                    clearInterval(id);
+                    this.intervals.delete(id);
+                    debugLog('Timer cleared (interval):', id);
+                }
+            },
+            
+            clearTimeout(id) {
+                if (this.timeouts.has(id)) {
+                    clearTimeout(id);
+                    this.timeouts.delete(id);
+                    debugLog('Timer cleared (timeout):', id);
+                }
+            },
+            
+            clearAll() {
+                debugLog('Clearing all timers - intervals:', this.intervals.size, 'timeouts:', this.timeouts.size);
+                this.intervals.forEach(id => clearInterval(id));
+                this.timeouts.forEach(id => clearTimeout(id));
+                this.intervals.clear();
+                this.timeouts.clear();
+            }
+        };
+        
+        // Global timer variables
+        let autoRefreshInterval = null;
+        let timeUpdateInterval = null;
+        
+        // DOM optimization system to reduce heavy manipulation
+        const DOMOptimizer = {
+            // Cache frequently accessed elements
+            cache: new Map(),
+            
+            // Debounce function to limit function calls
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = TimerManager.setTimeout(later, wait);
+                };
+            },
+            
+            // Throttle function to limit function calls
+            throttle(func, limit) {
+                let inThrottle;
+                return function(...args) {
+                    if (!inThrottle) {
+                        func.apply(this, args);
+                        inThrottle = true;
+                        TimerManager.setTimeout(() => inThrottle = false, limit);
+                    }
+                };
+            },
+            
+            // Batch DOM updates to reduce reflows
+            batchUpdates(updates) {
+                // Use requestAnimationFrame for smooth updates
+                requestAnimationFrame(() => {
+                    updates.forEach(update => update());
+                });
+            },
+            
+            // Get cached element or query and cache
+            getElement(selector) {
+                if (this.cache.has(selector)) {
+                    return this.cache.get(selector);
+                }
+                const element = document.querySelector(selector);
+                if (element) {
+                    this.cache.set(selector, element);
+                }
+                return element;
+            },
+            
+            // Clear cache when DOM changes significantly
+            clearCache() {
+                this.cache.clear();
+                debugLog('DOM cache cleared');
+            }
+        };
 
         // Generate or retrieve device ID
         function getOrCreateDeviceId() {
@@ -396,7 +502,7 @@
                 // Ensure we have valid dimensions
                 if (width <= 0 || height <= 0) {
                     debugLog('Invalid dimensions, retrying in 100ms...');
-                    setTimeout(detectScreenSize, 100);
+                    TimerManager.TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
                 
@@ -404,7 +510,7 @@
                 // Simple viewport check - back to working approach
                 if (width <= 0 || height <= 0) {
                     debugLog('Invalid dimensions, retrying in 100ms...');
-                    setTimeout(detectScreenSize, 100);
+                    TimerManager.TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
                 debugLog('Screen size:', width, 'x', height);
@@ -751,7 +857,7 @@
                 applyPortraitCSS();
                 
                 // Add dynamic time slot height calculation for portrait (single call to prevent multiple adjustments)
-                setTimeout(() => {
+                TimerManager.TimerManager.setTimeout(() => {
                     adjustPortraitLayout(containerWidth, containerHeight);
                 }, 100);
                 
@@ -959,7 +1065,7 @@
                     debugLog('Portrait layout adjustment completed');
                     
                     // Final height enforcement - ensure all slots use the calculated height
-                    setTimeout(() => {
+                    TimerManager.TimerManager.setTimeout(() => {
                         const finalSlots = document.querySelectorAll('.time-slot');
                         finalSlots.forEach(slot => {
                             slot.style.height = buttonHeight + 'px';
@@ -970,7 +1076,7 @@
                     }, 50);
                     
                     // Force a final check and adjustment
-                    setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         const finalSlots = document.querySelectorAll('.time-slot');
                         if (finalSlots.length > 0) {
                             debugLog('=== FINAL PORTRAIT HEIGHT CHECK ===');
@@ -1108,7 +1214,7 @@
             }
             
             // Force time slot height calculation
-            setTimeout(() => {
+            TimerManager.setTimeout(() => {
                 debugLog('=== Starting time slot height calculation ===');
                 const container = document.querySelector('.container');
                 debugLog('Container found:', !!container);
@@ -1401,7 +1507,7 @@
             document.body.addEventListener('touchend', function(e) {
                 if (touchStartElement && !hasMoved) {
                     // Small delay to allow scroll to complete first
-                    setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         if (touchStartElement && !hasMoved) {
                     const time = touchStartElement.dataset.time;
                             debugLog('Slot tapped (not scrolled):', time);
@@ -1427,7 +1533,7 @@
             loadBookings(currentDate).then(() => {
                     const loadEndTime = Date.now();
                     // Force immediate display update after booking load
-                    setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         updateTimeSlotsImmediate();
                         updateTimeVisualization(); // Update time visualization after booking states are applied
                     }, 50);
@@ -1439,7 +1545,7 @@
             
             // Simple initialization - back to working approach
             
-            setTimeout(function() {
+            TimerManager.setTimeout(function() {
                 isInitializing = true; // Set flag to prevent other calls
                 try {
                     // Run layout detection with mobile-specific timing
@@ -1451,17 +1557,17 @@
                     // Portrait fixes will be handled by applyContainerSizing for portrait mode
                     
                     // Clear initialization flag after a short delay
-                    setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         isInitializing = false; // Clear flag after initialization is complete
                         
                         // Mobile-specific additional layout check
                         // Removed multiple detectScreenSize calls to prevent re-adjustments
                         // if (isMobile) {
                         //     debugLog('Mobile: Running additional layout check...');
-                        //     setTimeout(() => {
+                        //     TimerManager.setTimeout(() => {
                         //         detectScreenSize();
                         //     }, 200);
-                        //     setTimeout(() => {
+                        //     TimerManager.setTimeout(() => {
                         //         detectScreenSize();
                         //     }, 500);
                         // }
@@ -1477,9 +1583,12 @@
 
         // Auto-refresh functionality
         function startAutoRefresh() {
+            // Stop any existing auto-refresh first
+            stopAutoRefresh();
+            
             // Reduced frequency since we have real-time WebSocket updates
             // This is now just a backup/fallback mechanism
-            autoRefreshInterval = setInterval(function() {
+            autoRefreshInterval = TimerManager.setInterval(function() {
                 if (isMobile) {
                     loadBookingsMobile(currentDate);
                 } else {
@@ -1491,14 +1600,45 @@
 
         function stopAutoRefresh() {
             if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
+                TimerManager.clearInterval(autoRefreshInterval);
                 autoRefreshInterval = null;
                 debugLog('Auto-refresh stopped');
             }
         }
 
+        // Global cleanup function
+        function cleanup() {
+            debugLog('Cleaning up all timers and resources...');
+            stopAutoRefresh();
+            stopTimeVisualization();
+            TimerManager.clearAll();
+            
+            // Disconnect WebSocket
+            if (typeof socket !== 'undefined' && socket) {
+                socket.disconnect();
+                debugLog('WebSocket disconnected');
+            }
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+        window.addEventListener('unload', cleanup);
+        
+        // Cleanup on page visibility change (mobile optimization)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                debugLog('Page hidden - pausing timers');
+                stopAutoRefresh();
+                stopTimeVisualization();
+            } else {
+                debugLog('Page visible - resuming timers');
+                startAutoRefresh();
+                startTimeVisualization();
+            }
+        });
+        
         // Start auto-refresh when page loads
-        setTimeout(function() {
+        TimerManager.setTimeout(function() {
             startAutoRefresh();
             startTimeVisualization();
             debugLog('Auto-refresh started (every 30 seconds - WebSocket provides real-time updates)');
@@ -1572,8 +1712,11 @@
 
         // Time visualization system
         function startTimeVisualization() {
+            // Stop any existing time visualization first
+            stopTimeVisualization();
+            
             // Update time visualization every minute
-            timeUpdateInterval = setInterval(updateTimeVisualization, 60000);
+            timeUpdateInterval = TimerManager.setInterval(updateTimeVisualization, 60000);
             // Also update immediately
             updateTimeVisualization();
             debugLog('Time visualization started (updating every minute)');
@@ -1581,7 +1724,7 @@
 
         function stopTimeVisualization() {
             if (timeUpdateInterval) {
-                clearInterval(timeUpdateInterval);
+                TimerManager.clearInterval(timeUpdateInterval);
                 timeUpdateInterval = null;
                 debugLog('Time visualization stopped');
             }
@@ -1703,58 +1846,64 @@
             configElement.textContent = 'Current Config: ' + (isLandscape ? 'Landscape' : 'Portrait');
         }
 
-        // Re-detect on window resize - DISABLED for portrait mode to prevent re-calculations
-        window.addEventListener('resize', function() {
+        // Optimized resize handler with debouncing and throttling
+        const optimizedResizeHandler = DOMOptimizer.debounce(function() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
             // Only recalculate for landscape mode, not portrait
             if (width > height) {
-                setTimeout(() => {
-                    detectScreenSize();
-                    updateBrowserConfig();
-                }, 100); // Debounce resize events
+                DOMOptimizer.batchUpdates([
+                    () => detectScreenSize(),
+                    () => updateBrowserConfig()
+                ]);
             } else {
                 debugLog('Resize detected in portrait mode - skipping recalculation to prevent layout changes');
             }
-        });
+        }, 150); // Increased debounce time for better performance
+        
+        window.addEventListener('resize', optimizedResizeHandler);
         
         // Mobile-specific scroll handler to fix layout issues - DISABLED to prevent multiple re-adjustments
         // let scrollTimeout;
         // window.addEventListener('scroll', function() {
         //     clearTimeout(scrollTimeout);
-        //     scrollTimeout = setTimeout(() => {
+        //     scrollTimeout = TimerManager.setTimeout(() => {
         //         debugLog('Scroll detected - recalculating layout');
         //         detectScreenSize();
         //     }, 150);
         // });
 
-        // Re-detect on orientation change - DISABLED for portrait mode to prevent re-calculations
-        window.addEventListener('orientationchange', function() {
+        // Optimized orientation change handler
+        const optimizedOrientationHandler = DOMOptimizer.throttle(function() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
             // Only recalculate when switching TO landscape mode, not when staying in portrait
             if (width > height) {
-                setTimeout(() => {
-                    detectScreenSize();
-                    debugLog('Orientation changed to landscape - recalculating');
-                }, 300);
+                DOMOptimizer.batchUpdates([
+                    () => {
+                        detectScreenSize();
+                        debugLog('Orientation changed to landscape - recalculating');
+                    }
+                ]);
             } else {
                 debugLog('Orientation change in portrait mode - skipping recalculation to prevent layout changes');
                 // Still apply CSS fixes but don't recalculate layout
-                setTimeout(() => {
-                    applyPortraitCSS();
-                }, 100);
+                DOMOptimizer.batchUpdates([
+                    () => applyPortraitCSS()
+                ]);
             }
-        });
+        }, 500); // Throttle orientation changes
+        
+        window.addEventListener('orientationchange', optimizedOrientationHandler);
         
         // Force refresh time slot dimensions on any layout change
         function refreshTimeSlotDimensions() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             if (width > height) {
-                setTimeout(() => {
+                TimerManager.setTimeout(() => {
                     adjustLandscapeLayout(width, height);
                 }, 200);
             }
@@ -1825,7 +1974,7 @@
         
         if (isMobile) {
             // Start mobile loading immediately
-            setTimeout(() => {
+            TimerManager.setTimeout(() => {
                 loadBookingsMobile(currentDate);
             }, 100);
         }
@@ -1933,20 +2082,20 @@
                     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     if (isMobile) {
                         debugLog('Mobile: Additional booking display update');
-                        setTimeout(() => {
+                        TimerManager.setTimeout(() => {
                             updateTimeSlotsImmediate();
                             // Update time visualization after slot classes are updated
                             updateTimeVisualization();
                         }, 100);
                     } else {
                         // For desktop, update time visualization after slot classes are updated
-                        setTimeout(() => {
+                        TimerManager.setTimeout(() => {
                             updateTimeVisualization();
                         }, 50);
                     }
                     
                     // Then apply smooth transitions
-                    setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         updateTimeSlotsSmooth();
                     }, 10);
                 } else {
@@ -1976,7 +2125,7 @@
                     }
                     if (isNewlyBooked) {
                         slot.classList.add('just-booked');
-                        setTimeout(() => slot.classList.remove('just-booked'), 5000);
+                        TimerManager.setTimeout(() => slot.classList.remove('just-booked'), 5000);
                     }
                 });
             }
@@ -1987,16 +2136,21 @@
             const slots = document.querySelectorAll('.time-slot');
             debugLog('Found slots for immediate update:', slots.length);
             
-            // Detect mobile and use appropriate update method
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                debugLog('Mobile device detected - using mobile-optimized update');
-                updateSlotsMobile(slots);
-            } else {
-                debugLog('Desktop device detected - using desktop update');
-                updateSlotsDesktop(slots);
-            }
+            // Use DOM batching for better performance
+            DOMOptimizer.batchUpdates([
+                () => {
+                    // Detect mobile and use appropriate update method
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    
+                    if (isMobile) {
+                        debugLog('Mobile device detected - using mobile-optimized update');
+                        updateSlotsMobile(slots);
+                    } else {
+                        debugLog('Desktop device detected - using desktop update');
+                        updateSlotsDesktop(slots);
+                    }
+                }
+            ]);
         }
         
         function updateSlotsMobile(slots) {
@@ -2213,7 +2367,11 @@
 
         function updateTimeSlotsSmooth() {
             const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => {
+            
+            // Use DOM batching for better performance
+            DOMOptimizer.batchUpdates([
+                () => {
+                    slots.forEach(slot => {
                 const time = slot.dataset.time;
                 const slotKey = `${currentDate}_${time}`;
                 
@@ -2254,7 +2412,7 @@
                         }
                         
                         // Remove transition after animation
-                        setTimeout(() => {
+                        TimerManager.setTimeout(() => {
                             slot.style.transition = '';
                         }, 300);
                     }
@@ -2269,12 +2427,14 @@
                         slot.querySelector('.booked-text').classList.remove('cancel-hint');
                         
                         // Remove transition after animation
-                        setTimeout(() => {
+                        TimerManager.setTimeout(() => {
                             slot.style.transition = '';
                         }, 300);
                     }
                 }
-            });
+                    });
+                }
+            ]);
         }
 
         function updateTimeSlots() {
@@ -2456,7 +2616,7 @@
                         
                         // Add transient highlight
                         bookedSlot.classList.add('just-booked');
-                        setTimeout(() => bookedSlot.classList.remove('just-booked'), 5000);
+                        TimerManager.setTimeout(() => bookedSlot.classList.remove('just-booked'), 5000);
                         
                         // Update the booked text
                         const bookedText = bookedSlot.querySelector('.booked-text');
@@ -2982,7 +3142,7 @@
             checkNotificationLimit();
             
             // Animate in
-            setTimeout(() => {
+            TimerManager.setTimeout(() => {
                 notification.style.opacity = '1';
                 notification.style.transform = 'translateX(-50%) translateY(0)';
             }, 10);
@@ -2994,7 +3154,7 @@
             
             // Auto dismiss after duration - ensure all notifications dismiss
             const duration = type === 'error' ? 5000 : 4000; // Increased duration for better visibility
-            const timeoutId = setTimeout(() => {
+            const timeoutId = TimerManager.setTimeout(() => {
                 // Double-check the notification still exists before dismissing
                 if (document.querySelector(`[data-notification-id="${notificationId}"]`)) {
                     dismissNotification(notificationId);
@@ -3022,7 +3182,7 @@
             notification.style.transform = 'translateX(-50%) translateY(-20px)';
             
             // Remove after animation
-            setTimeout(() => {
+            TimerManager.setTimeout(() => {
                 if (notification && notification.parentNode) {
                     notification.remove();
                 }
@@ -3390,7 +3550,7 @@
                 // Blur event - longer delay for mobile to allow touch events
                 newInput.addEventListener('blur', function() {
                     const delay = isMobileDevice ? 300 : 150;
-                    setTimeout(hideTypeahead, delay);
+                    TimerManager.setTimeout(hideTypeahead, delay);
                 });
 
                 // Keyboard navigation (desktop only)

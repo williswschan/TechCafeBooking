@@ -38,7 +38,7 @@ limiter.init_app(app)
 ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
 
 # Application version - update this when making changes
-APP_VERSION = "3.7"
+APP_VERSION = "3.8"
 
 # Debug mode for client-side logging (set to False in production)
 DEBUG_MODE = os.getenv('TECHCAFE_DEBUG', 'false').lower() == 'true'
