@@ -7,6 +7,7 @@ __pycache__/
 
 # Virtual environment
 venv/
+.venv/
 env/
 ENV/
 
@@ -22,3 +23,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Booking files
+booking_*.csv
+display_name.txt
