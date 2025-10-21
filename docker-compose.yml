@@ -1,0 +1,22 @@
+services:
+  techcafebooking:
+    image: registry.mymsngroup.com/techcafebooking:latest
+    container_name: techcafebooking
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_DEBUG=False
+      - ADMIN_PASSWORD=Nomura2025!
+    volumes:
+      - ./bookings.json:/app/bookings.json
+      - ./bookings_2025-10-22.csv:/app/bookings_2025-10-22.csv
+      - ./bookings_2025-10-23.csv:/app/bookings_2025-10-23.csv
+      - ./bad_words.txt:/app/bad_words.txt
+      - ./display_name.txt:/app/display_name.txt
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
