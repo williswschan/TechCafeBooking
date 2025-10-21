@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 3,
+    "failed_tests": 2,
+    "success_rate": 60.0
+  },
+  "results": [
+    {
+      "test_name": "API Endpoints Health",
+      "success": false,
+      "message": "Main page: 200; Time API: 200; Bookings API: 200; Admin page: 500",
+      "timestamp": "2025-10-21T22:00:13.641713"
+    },
+    {
+      "test_name": "WebSocket Endpoint",
+      "success": false,
+      "message": "Socket.IO endpoint: 404 (HTML: True)",
+      "timestamp": "2025-10-21T22:00:13.644808"
+    },
+    {
+      "test_name": "Booking Data Structure",
+      "success": true,
+      "message": "Response structure valid: success=True, bookings=True, is_success=True",
+      "timestamp": "2025-10-21T22:00:13.647468"
+    },
+    {
+      "test_name": "Time API Format",
+      "success": true,
+      "message": "Time API structure valid: required=True, time_fields=True, success=True",
+      "timestamp": "2025-10-21T22:00:13.650020"
+    },
+    {
+      "test_name": "App Version Check",
+      "success": true,
+      "message": "Version information found: True",
+      "timestamp": "2025-10-21T22:00:13.654940"
+    }
+  ],
+  "timestamp": "2025-10-21T22:00:13.656942"
+}
