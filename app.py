@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 # Admin password configuration
 ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
 
+# Application version - update this when making changes
+APP_VERSION = "3.3"
+
 # Persistent storage for bookings using JSON file
 BOOKINGS_FILE = 'bookings.json'
 bookings = {}
@@ -165,7 +168,8 @@ def index():
                          time_slots=time_slots,
                          morning_slots=morning_slots,
                          afternoon_slots=afternoon_slots,
-                         dates=get_available_dates())
+                         dates=get_available_dates(),
+                         version=APP_VERSION)
 
 @app.route('/book', methods=['POST'])
 def book_slot():
@@ -322,12 +326,12 @@ def get_server_date():
 @app.route('/admin')
 def admin_page():
     """Admin page with password protection"""
-    return render_template('admin.html')
+    return render_template('admin.html', version=APP_VERSION)
 
 @app.route('/readme')
 def readme():
     """Readme page showing usage and features"""
-    return render_template('readme.html')
+    return render_template('readme.html', version=APP_VERSION)
 
 @app.route('/admin/verify', methods=['POST'])
 def verify_admin_password():
