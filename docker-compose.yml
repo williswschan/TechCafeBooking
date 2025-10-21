@@ -15,9 +15,22 @@ services:
       - ./bad_words.txt:/app/bad_words.txt
       - ./display_name.txt:/app/display_name.txt
     restart: unless-stopped
+    # WebSocket support configuration
+    networks:
+      - techcafebooking_network
+    # Additional configuration for WebSocket handling
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Ensure proper WebSocket upgrade handling
+    command: ["python", "app.py"]
+    # Health check with WebSocket support
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+networks:
+  techcafebooking_network:
+    driver: bridge

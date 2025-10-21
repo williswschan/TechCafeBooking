@@ -18,8 +18,23 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.jinja_env.auto_reload = True
 
-# Initialize SocketIO for real-time updates
-socketio = SocketIO(app, cors_allowed_origins="*")
+# Initialize SocketIO for real-time updates with Docker-optimized settings
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*",
+    # Docker-optimized WebSocket configuration
+    async_mode='threading',
+    # Enable WebSocket transport with proper headers
+    transports=['websocket', 'polling'],
+    # Increase timeout for Docker networking
+    ping_timeout=60,
+    ping_interval=25,
+    # Enable WebSocket upgrade handling
+    allow_upgrades=True,
+    # Better error handling for Docker
+    logger=True,
+    engineio_logger=True
+)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -796,4 +811,13 @@ if __name__ == '__main__':
     logger.info("Started time broadcast timer")
     
     # Run with SocketIO for real-time capabilities
-    socketio.run(app, debug=debug_mode, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
+    socketio.run(
+        app, 
+        debug=debug_mode, 
+        host='0.0.0.0', 
+        port=5000, 
+        allow_unsafe_werkzeug=True,
+        # Docker-optimized WebSocket settings
+        use_reloader=False,  # Disable reloader in Docker
+        log_output=True      # Enable logging for debugging
+    )

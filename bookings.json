@@ -355,18 +355,6 @@
     "booked_at": "2025-10-21T20:52:34.409611",
     "kiosk": false
   },
-  "2025-10-22_09:30": {
-    "username": "Fuck Someone",
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-21T21:12:04.711454",
-    "kiosk": true
-  },
-  "2025-10-22_09:15": {
-    "username": "Fuck",
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-21T23:23:47.327172",
-    "kiosk": true
-  },
   "2025-10-22_10:15": {
     "username": "Fuck",
     "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
@@ -431,6 +419,24 @@
     "username": "Willis Chan",
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-22T01:36:08.943688",
+    "kiosk": false
+  },
+  "2025-10-22_09:15": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:39:05.949176",
+    "kiosk": true
+  },
+  "2025-10-22_09:30": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:39:08.451444",
+    "kiosk": false
+  },
+  "2025-10-22_14:30": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:42:23.397747",
     "kiosk": false
   }
 }
