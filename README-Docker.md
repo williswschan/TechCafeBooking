@@ -4,7 +4,19 @@ This document explains how to build and run the TechCafeBooking application as a
 
 ## 🐳 Quick Start
 
-### Build the Docker Image
+### Option 1: Use Pre-built Images (Recommended)
+```bash
+# Using private registry
+docker compose up -d
+
+# Using Docker Hub
+docker compose -f docker-compose.dockerhub.yml up -d
+
+# Using specific version from Docker Hub
+docker run -d -p 5000:5000 --name techcafebooking-app williswschan/techcafebooking:v3.9
+```
+
+### Option 2: Build from Source
 ```bash
 # Build with default tag (latest)
 ./build-docker.sh
@@ -13,16 +25,19 @@ This document explains how to build and run the TechCafeBooking application as a
 ./build-docker.sh v1.0
 ```
 
-### Run with Docker Compose (Recommended)
+### Run with Docker Compose
 ```bash
-# Start the application
-docker-compose up -d
+# Start the application (private registry)
+docker compose up -d
+
+# Start the application (Docker Hub)
+docker compose -f docker-compose.dockerhub.yml up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop the application
-docker-compose down
+docker compose down
 ```
 
 ### Run with Docker directly
