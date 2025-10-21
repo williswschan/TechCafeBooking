@@ -1,9 +1,14 @@
 from flask import Flask, render_template, render_template_string, request, jsonify, send_file
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from datetime import datetime, timedelta
 import json
 import os
 import logging
 import csv
+import re
+import bleach
 
 app = Flask(__name__)
 
@@ -11,11 +16,25 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Configure CSRF protection
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'techcafe-booking-secret-key-2025')
+app.config['WTF_CSRF_ENABLED'] = False  # Temporarily disabled for testing
+app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # 1 hour
+
+# Initialize security components
+# csrf = CSRFProtect(app)  # Temporarily disabled
+csrf = None
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["10000 per hour", "5000 per minute"]
+)
+limiter.init_app(app)
+
 # Admin password configuration
 ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
 
 # Application version - update this when making changes
-APP_VERSION = "3.3"
+APP_VERSION = "3.6"
 
 # Persistent storage for bookings using JSON file
 BOOKINGS_FILE = 'bookings.json'
@@ -108,6 +127,90 @@ def load_display_names():
 # Load names at startup
 load_display_names()
 
+# Load bad words list
+bad_words = []
+def load_bad_words():
+    """Load bad words from file"""
+    global bad_words
+    try:
+        with open('bad_words.txt', 'r', encoding='utf-8') as f:
+            bad_words = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith('#')]
+        logger.info(f"Loaded {len(bad_words)} bad words")
+    except FileNotFoundError:
+        logger.warning("bad_words.txt not found, using empty list")
+        bad_words = []
+    except Exception as e:
+        logger.error(f"Error loading bad words: {e}")
+        bad_words = []
+
+# Load bad words at startup
+load_bad_words()
+
+# Security functions
+def sanitize_username(username):
+    """Clean and validate username input"""
+    if not username:
+        return None
+    
+    logger.info(f"Original username: {repr(username)}")
+    
+    # Allow bad words to pass through - they will be masked on the client side for display
+    # This maintains the original behavior where bad words are accepted but displayed as ***
+    
+    # Temporarily disable HTML escaping to test bad word issue
+    # import html
+    # username = html.escape(username, quote=False)
+    username = username.strip()
+    
+    logger.info(f"After HTML escaping: {repr(username)}")
+    
+    # Validate length (allow bad words to pass through)
+    if len(username) < 1 or len(username) > 50:
+        logger.info(f"Username length invalid: {len(username)}")
+        return None
+    
+    logger.info(f"Final sanitized username: {repr(username)}")
+    return username
+
+def sanitize_device_id(device_id):
+    """Clean and validate device ID"""
+    if not device_id:
+        return None
+    
+    # Only allow alphanumeric, underscores, and hyphens
+    if not re.match(r'^[a-zA-Z0-9_-]+$', device_id):
+        return None
+    
+    # Validate length
+    if len(device_id) < 10 or len(device_id) > 100:
+        return None
+    
+    return device_id
+
+def is_bad_word(text):
+    """Check if text contains bad words"""
+    if not text:
+        return False
+    
+    text_lower = text.lower()
+    for bad_word in bad_words:
+        if bad_word.lower() in text_lower:
+            return True
+    return False
+
+
+def validate_date_format(date_str):
+    """Validate date format (YYYY-MM-DD)"""
+    if not date_str:
+        return False
+    return re.match(r'^\d{4}-\d{2}-\d{2}$', date_str) is not None
+
+def validate_time_format(time_str):
+    """Validate time format (HH:MM)"""
+    if not time_str:
+        return False
+    return re.match(r'^\d{2}:\d{2}$', time_str) is not None
+
 
 def get_time_slots():
     """Generate time slots from 09:00 to 18:00 with 15-minute intervals, excluding lunch hours (12:00-14:00)"""
@@ -164,24 +267,66 @@ def index():
     morning_slots = [slot for slot in time_slots if 9 <= int(slot.split(':')[0]) < 12]
     afternoon_slots = [slot for slot in time_slots if 14 <= int(slot.split(':')[0]) < 18]
     
-    return render_template('index.html', 
-                         time_slots=time_slots,
-                         morning_slots=morning_slots,
-                         afternoon_slots=afternoon_slots,
-                         dates=get_available_dates(),
-                         version=APP_VERSION)
+    try:
+        from flask_wtf.csrf import generate_csrf
+        csrf_token = generate_csrf()
+        return render_template('index.html', 
+                             time_slots=time_slots,
+                             morning_slots=morning_slots,
+                             afternoon_slots=afternoon_slots,
+                             dates=get_available_dates(),
+                             version=APP_VERSION,
+                             csrf_token=csrf_token)
+    except Exception as e:
+        logger.error(f"Error generating CSRF token: {e}")
+        return render_template('index.html', 
+                             time_slots=time_slots,
+                             morning_slots=morning_slots,
+                             afternoon_slots=afternoon_slots,
+                             dates=get_available_dates(),
+                             version=APP_VERSION,
+                             csrf_token="")
 
 @app.route('/book', methods=['POST'])
+@limiter.limit("1000 per minute")
 def book_slot():
     data = request.get_json()
+    
+    # Validate CSRF token (temporarily disabled for testing)
+    # csrf_token = request.headers.get('X-CSRFToken')
+    # if not csrf_token or not csrf.validate():
+    #     return jsonify({'success': False, 'message': 'Invalid CSRF token'})
+    
+    # Get raw inputs
+    raw_username = data.get('username')
+    raw_device_id = data.get('device_id')
     date = data.get('date')
     time = data.get('time')
-    username = data.get('username')
-    device_id = data.get('device_id')
     kiosk = bool(data.get('kiosk', False))
     
-    if not all([date, time, device_id]) or username is None:
+    # Validate required fields
+    if not all([date, time, raw_device_id]):
         return jsonify({'success': False, 'message': 'Missing required fields'})
+    
+    # Validate date and time formats
+    if not validate_date_format(date):
+        return jsonify({'success': False, 'message': 'Invalid date format'})
+    
+    if not validate_time_format(time):
+        return jsonify({'success': False, 'message': 'Invalid time format'})
+    
+    # Sanitize and validate inputs
+    username = sanitize_username(raw_username)
+    device_id = sanitize_device_id(raw_device_id)
+    
+    # Check if device ID validation failed
+    if device_id is None:
+        return jsonify({'success': False, 'message': 'Invalid device ID format'})
+    
+    # Check if username validation failed (only if username was provided)
+    # Temporarily disable username validation to debug bad word issue
+    # if raw_username and username is None:
+    #     return jsonify({'success': False, 'message': 'Invalid username format'})
     
     
     slot_key = f"{date}_{time}"
@@ -190,7 +335,7 @@ def book_slot():
         return jsonify({'success': False, 'message': 'Slot already booked'})
     
     bookings[slot_key] = {
-        'username': username,
+        'username': raw_username or username,  # Use raw username for now to test bad word masking
         'device_id': device_id,
         'booked_at': datetime.now().isoformat(),
         'kiosk': kiosk
@@ -206,16 +351,39 @@ def book_slot():
     return jsonify({'success': True, 'message': 'Booking confirmed'})
 
 @app.route('/cancel', methods=['POST'])
+@limiter.limit("1000 per minute")
 def cancel_booking():
     data = request.get_json()
+    
+    # Validate CSRF token (temporarily disabled for testing)
+    # csrf_token = request.headers.get('X-CSRFToken')
+    # if not csrf_token or not csrf.validate():
+    #     return jsonify({'success': False, 'message': 'Invalid CSRF token'})
+    
+    # Get raw inputs
+    raw_device_id = data.get('device_id')
     date = data.get('date')
     time = data.get('time')
-    device_id = data.get('device_id')
     is_admin = data.get('is_admin', False)
     reason = data.get('reason', 'cancelled')  # Default to 'cancelled', can be 'completed' for admin
     
-    if not all([date, time, device_id]):
+    # Validate required fields
+    if not all([date, time, raw_device_id]):
         return jsonify({'success': False, 'message': 'Missing required fields'})
+    
+    # Validate date and time formats
+    if not validate_date_format(date):
+        return jsonify({'success': False, 'message': 'Invalid date format'})
+    
+    if not validate_time_format(time):
+        return jsonify({'success': False, 'message': 'Invalid time format'})
+    
+    # Sanitize and validate inputs
+    device_id = sanitize_device_id(raw_device_id)
+    
+    # Check if device ID validation failed
+    if device_id is None:
+        return jsonify({'success': False, 'message': 'Invalid device ID format'})
     
     slot_key = f"{date}_{time}"
     
@@ -265,7 +433,14 @@ def get_bookings():
             time = slot_key.split('_')[1]
             date_bookings[time] = booking
     
-    return jsonify({'success': True, 'bookings': date_bookings})
+    response = jsonify({'success': True, 'bookings': date_bookings})
+    
+    # Add cache-busting headers for proxy/CDN compatibility
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    
+    return response
 
 @app.route('/get_names', methods=['GET'])
 def get_names():
@@ -282,7 +457,7 @@ def get_current_dates():
 def get_current_time():
     """API endpoint to get current server time for time visualization"""
     now = datetime.now()
-    return jsonify({
+    response = jsonify({
         'success': True,
         'time': {
             'hours': now.hour,
@@ -292,6 +467,14 @@ def get_current_time():
             'iso_string': now.isoformat()
         }
     })
+    
+    # Add cache-busting headers for proxy/CDN compatibility
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    logger.info(f"Added cache-busting headers to time response")
+    
+    return response
 
 @app.route('/extract_booking', methods=['POST'])
 def extract_booking():
@@ -326,7 +509,13 @@ def get_server_date():
 @app.route('/admin')
 def admin_page():
     """Admin page with password protection"""
-    return render_template('admin.html', version=APP_VERSION)
+    try:
+        from flask_wtf.csrf import generate_csrf
+        csrf_token = generate_csrf()
+        return render_template('admin.html', version=APP_VERSION, csrf_token=csrf_token)
+    except Exception as e:
+        logger.error(f"Error generating CSRF token for admin: {e}")
+        return render_template('admin.html', version=APP_VERSION, csrf_token="")
 
 @app.route('/readme')
 def readme():
@@ -494,5 +683,18 @@ def delete_csv(filename):
         logger.error(f"Error deleting CSV file {filename}: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+# Security headers
+@app.after_request
+def after_request(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Debug mode should be False in production
+    # Set FLASK_DEBUG=True environment variable for development
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)

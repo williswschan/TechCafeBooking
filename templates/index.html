@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token or '' }}">
     <title>TechCafe Booking Portal</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -37,8 +38,8 @@
                     <div class="date-tab {% if loop.first %}active{% endif %}" 
                          data-date="{{ date.date }}" 
                          onclick="selectDate('{{ date.date }}', this)">
-                        <div>{{ date.display.split('<br>')[0] }}</div>
-                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ date.display.split('<br>')[1] }}</div>
+                        <div>{{ date.display.split('<br>')[0] if date.display else date.date }}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ date.display.split('<br>')[1] if date.display else '' }}</div>
                     </div>
                     {% endfor %}
                 </div>
@@ -206,6 +207,12 @@
         
         function getCurrentVersion() {
             return APP_VERSION;
+        }
+        
+        // CSRF token management
+        function getCSRFToken() {
+            const token = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+            return token && token.length > 0 ? token : null;
         }
         
         function incrementVersion() {
@@ -1362,14 +1369,14 @@
 
         // Auto-refresh functionality
         function startAutoRefresh() {
-            // Refresh every 2 seconds to show new bookings faster
+            // Refresh every 2.5 seconds to show new bookings faster
             autoRefreshInterval = setInterval(function() {
                 if (isMobile) {
                     loadBookingsMobile(currentDate);
                 } else {
                 loadBookings(currentDate);
                 }
-            }, 2000); // Reduced from 3 seconds to 2 seconds
+            }, 2500); // 2.5 seconds as originally intended
         }
 
 
@@ -1472,20 +1479,27 @@
         }
 
         function updateTimeVisualization() {
-            // Get server time instead of client time
-            fetch('/get_current_time')
+            // Get server time instead of client time with cache-busting
+            const timestamp = new Date().getTime();
+            console.log('updateTimeVisualization called, currentDate:', currentDate);
+            fetch(`/get_current_time?_t=${timestamp}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const currentTime = data.time.total_minutes; // Server time in minutes since midnight
                         const serverDate = data.time.iso_string.split('T')[0]; // Server date
                         
+                        console.log('Time data received - currentTime:', currentTime, 'serverDate:', serverDate, 'currentDate:', currentDate);
+                        
                         // Only show time visualization for today's date (server date)
                         if (currentDate !== serverDate) {
                             // Clear all time indicators if not viewing today
+                            console.log('Not viewing today - clearing time visualization');
                             clearTimeVisualization();
                             return;
                         }
+                        
+                        console.log('Applying time visualization for today');
 
                         // Check for passed slots and extract them to CSV
                         checkAndExtractPassedSlots(currentTime, serverDate);
@@ -1866,7 +1880,7 @@
                 updateSlotsMobile(slots);
             } else {
                 console.log('Desktop device detected - using desktop update');
-            updateSlotsDesktop(slots);
+                updateSlotsDesktop(slots);
             }
         }
         
@@ -2290,11 +2304,17 @@
             localStorage.setItem('booking_username', username);
             }
 
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            const csrfToken = getCSRFToken();
+            if (csrfToken) {
+                headers['X-CSRFToken'] = csrfToken;
+            }
+            
             fetch('/book', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     date: currentDate,
                     time: currentSlot,
@@ -2312,11 +2332,23 @@
                     } else {
                     loadBookings(currentDate);
                     }
-                    // Add transient highlight to the newly booked slot
+                    // Update the slot to booked state
                     const bookedSlot = document.querySelector(`[data-time="${currentSlot}"]`);
                     if (bookedSlot) {
+                        // Update to booked state
+                        bookedSlot.classList.remove('available');
+                        bookedSlot.classList.add('booked');
+                        
+                        // Add transient highlight
                         bookedSlot.classList.add('just-booked');
                         setTimeout(() => bookedSlot.classList.remove('just-booked'), 5000);
+                        
+                        // Update the booked text
+                        const bookedText = bookedSlot.querySelector('.booked-text');
+                        if (bookedText) {
+                            bookedText.textContent = username || 'Booked';
+                            bookedText.style.display = 'block';
+                        }
                     }
                     const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
                     showNotification(message, 'success');
@@ -2331,11 +2363,17 @@
         }
 
         function confirmCancellation() {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            const csrfToken = getCSRFToken();
+            if (csrfToken) {
+                headers['X-CSRFToken'] = csrfToken;
+            }
+            
             fetch('/cancel', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     date: currentDate,
                     time: currentSlot,
@@ -2400,11 +2438,17 @@
 
         function markCaseCompleted() {
             // Use the same cancellation logic but with different success message
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            const csrfToken = getCSRFToken();
+            if (csrfToken) {
+                headers['X-CSRFToken'] = csrfToken;
+            }
+            
             fetch('/cancel', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         date: currentDate,
                         time: currentSlot,
@@ -2482,7 +2526,7 @@
 
         function showAdminCaseCompletedConfirmation() {
             // Close the admin management modal
-            document.getElementId('adminManagementModal').style.display = 'none';
+            document.getElementById('adminManagementModal').style.display = 'none';
             
             // Show the admin case completed confirmation modal
             document.getElementById('adminCaseCompletedModal').style.display = 'block';

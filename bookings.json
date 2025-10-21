@@ -199,12 +199,6 @@
     "booked_at": "2025-10-20T19:03:55.449359",
     "kiosk": false
   },
-  "2025-10-21_09:15": {
-    "username": "",
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-21T03:55:03.323297",
-    "kiosk": true
-  },
   "2025-10-21_16:30": {
     "username": "",
     "device_id": "device_1760545360241_rw5ow1kna_TW96aWxsYS",
@@ -216,5 +210,161 @@
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-21T10:29:55.012055",
     "kiosk": false
+  },
+  "2025-10-23_09:00": {
+    "username": "Clean Test User",
+    "device_id": "test_device_clean",
+    "booked_at": "2025-10-21T20:04:35.677438",
+    "kiosk": false
+  },
+  "2025-10-23_09:15": {
+    "username": "Sanitization Test",
+    "device_id": "test_device_sanitize",
+    "booked_at": "2025-10-21T20:04:43.190303",
+    "kiosk": false
+  },
+  "2025-10-22_14:45": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:07:06.562133",
+    "kiosk": false
+  },
+  "2025-10-22_17:45": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:07:31.739339",
+    "kiosk": false
+  },
+  "2025-10-22_17:30": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:08:39.811900",
+    "kiosk": false
+  },
+  "2025-10-22_17:00": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:09:16.979381",
+    "kiosk": false
+  },
+  "2025-10-22_16:30": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:09:25.820222",
+    "kiosk": false
+  },
+  "2025-10-22_16:45": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:09:37.943988",
+    "kiosk": false
+  },
+  "2025-10-21_09:30": {
+    "username": "Debug Test",
+    "device_id": "debug_device_123",
+    "booked_at": "2025-10-21T20:12:13.609469",
+    "kiosk": false
+  },
+  "2025-10-22_11:30": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:13:16.498138",
+    "kiosk": false
+  },
+  "2025-10-22_15:45": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:13:20.923252",
+    "kiosk": false
+  },
+  "2025-10-23_17:45": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:14:26.300009",
+    "kiosk": false
+  },
+  "2025-10-21_20:30": {
+    "username": "Debug Test 2",
+    "device_id": "debug_device_456",
+    "booked_at": "2025-10-21T20:16:48.950876",
+    "kiosk": false
+  },
+  "2025-10-21_20:45": {
+    "username": "Test Fix",
+    "device_id": "test_fix_123",
+    "booked_at": "2025-10-21T20:17:33.786969",
+    "kiosk": false
+  },
+  "2025-10-23_10:15": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:23:29.643437",
+    "kiosk": false
+  },
+  "2025-10-22_10:45": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:29:23.934413",
+    "kiosk": false
+  },
+  "2025-10-22_11:00": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:29:30.439283",
+    "kiosk": true
+  },
+  "2025-10-22_11:15": {
+    "username": "Amelia Ward",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:29:36.769326",
+    "kiosk": true
+  },
+  "2025-10-22_14:00": {
+    "username": null,
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T20:30:01.729920",
+    "kiosk": true
+  },
+  "2025-10-23_10:00": {
+    "username": "Test Bad Word",
+    "device_id": "test_bad_word_123",
+    "booked_at": "2025-10-21T20:35:09.133005",
+    "kiosk": false
+  },
+  "2025-10-23_12:00": {
+    "username": "simple test",
+    "device_id": "test_simple_final",
+    "booked_at": "2025-10-21T20:37:23.298482",
+    "kiosk": false
+  },
+  "2025-10-23_12:30": {
+    "username": "test",
+    "device_id": "test_debug",
+    "booked_at": "2025-10-21T20:37:48.653358",
+    "kiosk": false
+  },
+  "2025-10-23_13:15": {
+    "username": "test",
+    "device_id": "test_simple_again",
+    "booked_at": "2025-10-21T20:38:56.015796",
+    "kiosk": false
+  },
+  "2025-10-23_14:00": {
+    "username": "ADC Test",
+    "device_id": "adc_test_123",
+    "booked_at": "2025-10-21T20:48:13.699284",
+    "kiosk": false
+  },
+  "2025-10-21_21:00": {
+    "username": "Test Fix",
+    "device_id": "test_fix_final",
+    "booked_at": "2025-10-21T20:52:34.409611",
+    "kiosk": false
+  },
+  "2025-10-22_09:30": {
+    "username": "Fuck Someone",
+    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
+    "booked_at": "2025-10-21T21:12:04.711454",
+    "kiosk": true
   }
 }

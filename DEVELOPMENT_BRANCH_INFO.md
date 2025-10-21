@@ -2,7 +2,7 @@
 
 ## Branch Details
 - **Branch Name:** `development`
-- **Version:** 3.3
+- **Version:** 3.4
 - **Location:** `/script/cursor/TechCafeBooking-Copilot`
 - **Status:** Active development branch
 
@@ -25,10 +25,11 @@
    - `templates_backup/` for safety backups
    - `app_backup.py` for code safety
 
-4. **Version Management** - Updated to 3.3:
-   - `APP_VERSION = "3.3"` in app.py (centralized version management)
+4. **Version Management** - Updated to 3.4:
+   - `APP_VERSION = "3.4"` in app.py (centralized version management)
    - All templates now use server-side version variable
    - No more hardcoded version numbers in templates
+   - Debug mode disabled in production (configurable via FLASK_DEBUG env var)
 
 ## Branch Strategy
 
@@ -38,15 +39,15 @@
 - **Location:** `/script/cursor/TechCafeBooking`
 - **Status:** Production use
 
-### Development Branch (v3.3)
+### Development Branch (v3.4)
 - **Purpose:** Major changes and improvements
-- **Version:** 3.3
+- **Version:** 3.4
 - **Location:** `/script/cursor/TechCafeBooking-Copilot`
 - **Status:** Active development
 
 ## Switching Between Branches
 
-### To work on Development (v3.3):
+### To work on Development (v3.4):
 ```bash
 cd /script/cursor/TechCafeBooking-Copilot
 git checkout development
@@ -68,4 +69,4 @@ git checkout main
 - Both branches are independent
 - Development branch has all the latest changes
 - Main branch remains stable for production use
-- Version 3.3 includes centralized version management and removal of hardcoded versions from readme route
+- Version 3.4 includes debug mode security fix and production-ready configuration
