@@ -51,5 +51,8 @@ server.log
 templates_backup/
 templates_backup/**
 
+# Backup files
+app_backup.py
+
 # CSV files (optional - uncomment if you don't want to track CSV files)
 # *.csv
