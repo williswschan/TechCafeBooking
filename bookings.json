@@ -301,12 +301,6 @@
     "booked_at": "2025-10-21T20:29:23.934413",
     "kiosk": false
   },
-  "2025-10-22_11:00": {
-    "username": null,
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-21T20:29:30.439283",
-    "kiosk": true
-  },
   "2025-10-22_11:15": {
     "username": "Amelia Ward",
     "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
@@ -355,24 +349,6 @@
     "booked_at": "2025-10-21T20:52:34.409611",
     "kiosk": false
   },
-  "2025-10-22_10:15": {
-    "username": "Fuck",
-    "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
-    "booked_at": "2025-10-21T23:47:16.099497",
-    "kiosk": false
-  },
-  "2025-10-22_09:45": {
-    "username": "Fuck",
-    "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
-    "booked_at": "2025-10-21T23:47:42.661786",
-    "kiosk": false
-  },
-  "2025-10-22_10:00": {
-    "username": "Fuck",
-    "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
-    "booked_at": "2025-10-21T23:50:08.210874",
-    "kiosk": false
-  },
   "2025-10-23_09:30": {
     "username": null,
     "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
@@ -383,12 +359,6 @@
     "username": null,
     "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
     "booked_at": "2025-10-22T01:10:59.625600",
-    "kiosk": true
-  },
-  "2025-10-22_10:30": {
-    "username": null,
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-22T01:14:07.617723",
     "kiosk": true
   },
   "2025-10-22_15:15": {
@@ -409,23 +379,11 @@
     "booked_at": "2025-10-22T01:26:10.779172",
     "kiosk": true
   },
-  "2025-10-22_09:00": {
-    "username": null,
-    "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
-    "booked_at": "2025-10-22T01:36:02.896517",
-    "kiosk": true
-  },
   "2025-10-22_14:15": {
     "username": "Willis Chan",
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-22T01:36:08.943688",
     "kiosk": false
-  },
-  "2025-10-22_09:15": {
-    "username": null,
-    "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
-    "booked_at": "2025-10-22T01:39:05.949176",
-    "kiosk": true
   },
   "2025-10-22_09:30": {
     "username": "Willis Chan",
@@ -437,6 +395,72 @@
     "username": "Willis Chan",
     "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
     "booked_at": "2025-10-22T01:42:23.397747",
+    "kiosk": false
+  },
+  "2025-10-22_09:00": {
+    "username": "Mason Hill",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:47:48.691122",
+    "kiosk": false
+  },
+  "2025-10-22_09:15": {
+    "username": "Logan Reed",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:48:02.689632",
+    "kiosk": true
+  },
+  "2025-10-22_09:45": {
+    "username": "Ethan Brooks",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:48:08.823379",
+    "kiosk": true
+  },
+  "2025-10-22_11:00": {
+    "username": "Emma Mitchell",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:48:15.281288",
+    "kiosk": true
+  },
+  "2025-10-22_10:15": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T01:48:24.761132",
+    "kiosk": false
+  },
+  "2025-10-24_09:00": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:14:08.079772",
+    "kiosk": false
+  },
+  "2025-10-24_09:15": {
+    "username": null,
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:14:12.910313",
+    "kiosk": false
+  },
+  "2025-10-24_09:30": {
+    "username": null,
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:14:19.629936",
+    "kiosk": true
+  },
+  "2025-10-24_09:45": {
+    "username": null,
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:14:23.680808",
+    "kiosk": true
+  },
+  "2025-10-22_10:30": {
+    "username": null,
+    "device_id": "device_1761070659985_w4lct3ll3_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:17:41.945611",
+    "kiosk": true
+  },
+  "2025-10-22_10:00": {
+    "username": null,
+    "device_id": "device_1761069724579_2rs63zuiq_TW96aWxsYS",
+    "booked_at": "2025-10-22T02:18:21.397287",
     "kiosk": false
   }
 }

@@ -11,6 +11,10 @@
     <!-- Socket.IO for real-time updates -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     
+    <!-- External JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/app-config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/booking-utils.js') }}"></script>
+    
     <!-- External CSS Files -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/time-slots.css') }}">
@@ -207,10 +211,9 @@
         // Version management system
         // IMPORTANT: Update APP_VERSION in app.py when making changes (increment by 0.1)
         const APP_VERSION = "{{ version }}";
+        window.APP_VERSION = APP_VERSION; // Make available to external JS files
         
-        function getCurrentVersion() {
-            return APP_VERSION;
-        }
+        // getCurrentVersion() - MOVED TO app-config.js
         
         // CSRF token management
         function getCSRFToken() {
@@ -237,10 +240,7 @@
         
         // Production-safe logging function
         
-        // Error logging (always enabled for production debugging)
-        function errorLog(message, ...args) {
-            console.error(message, ...args);
-        }
+        // errorLog() - MOVED TO app-config.js
         
         // WebSocket connection for real-time updates
         const socket = io({
@@ -347,7 +347,7 @@
         let currentDate = '{{ dates[0].date }}';
         let currentSlot = null;
         let bookings = {};
-        let deviceId = '';
+        let deviceId = getOrCreateDeviceId(); // Initialize device ID
         let isAdminSession = false;
         
         // Mobile-specific initialization delay
@@ -465,27 +465,7 @@
             }
         };
 
-        // Generate or retrieve device ID
-        function getOrCreateDeviceId() {
-            // Check if device ID exists in localStorage
-            deviceId = localStorage.getItem('device_id');
-            
-            if (!deviceId) {
-                // Generate a unique device ID based on browser fingerprint
-                const timestamp = Date.now();
-                const random = Math.random().toString(36).substr(2, 9);
-                const userAgent = navigator.userAgent.substr(0, 50);
-                deviceId = 'device_' + timestamp + '_' + random + '_' + btoa(userAgent).substr(0, 10);
-                
-                // Store in localStorage (persistent across sessions)
-                localStorage.setItem('device_id', deviceId);
-
-            } else {
-
-            }
-            
-            return deviceId;
-        }
+        // getOrCreateDeviceId() - MOVED TO booking-utils.js
 
         // Flag to prevent multiple calls during initialization
         let isInitializing = false;
