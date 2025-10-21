@@ -366,5 +366,17 @@
     "device_id": "device_1760545226512_yxkki32lz_TW96aWxsYS",
     "booked_at": "2025-10-21T21:12:04.711454",
     "kiosk": true
+  },
+  "2025-10-22_09:00": {
+    "username": "Willis Chan",
+    "device_id": "device_1760545114793_004rlhi7g_TW96aWxsYS",
+    "booked_at": "2025-10-21T21:31:37.382914",
+    "kiosk": false
+  },
+  "2025-10-22_09:15": {
+    "username": "Fuck",
+    "device_id": "device_1760544077917_voqe9wbs4_TW96aWxsYS",
+    "booked_at": "2025-10-21T21:31:47.812155",
+    "kiosk": false
   }
 }

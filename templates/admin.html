@@ -487,6 +487,21 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // Production logging system
+        const DEBUG_MODE = {{ debug_mode|tojson }};
+        
+        // Production-safe logging function
+        function debugLog(message, ...args) {
+            if (DEBUG_MODE) {
+                console.log(message, ...args);
+            }
+        }
+        
+        // Error logging (always enabled for production debugging)
+        function errorLog(message, ...args) {
+            console.error(message, ...args);
+        }
+        
         // CSRF token management
         function getCSRFToken() {
             return document.querySelector('meta[name=csrf-token]').getAttribute('content');
@@ -734,9 +749,9 @@
             if (window.opener && !window.opener.closed) {
                 try {
                     window.opener.postMessage({ type: 'REFRESH_TYPEAHEAD' }, '*');
-                    console.log('Sent refresh message to opener window');
+                    debugLog('Sent refresh message to opener window');
                 } catch (e) {
-                    console.log('Could not communicate with opener window');
+                    debugLog('Could not communicate with opener window');
                 }
             }
             
@@ -744,16 +759,16 @@
             try {
                 const channel = new BroadcastChannel('techcafe-refresh');
                 channel.postMessage({ type: 'REFRESH_TYPEAHEAD' });
-                console.log('Sent refresh message via BroadcastChannel');
+                debugLog('Sent refresh message via BroadcastChannel');
                 channel.close();
             } catch (e) {
-                console.log('BroadcastChannel not supported');
+                debugLog('BroadcastChannel not supported');
             }
             
             // Method 3: Try to refresh if this is the same window (for testing)
             if (typeof loadNames === 'function') {
                 loadNames();
-                console.log('Refreshed type-ahead in current window');
+                debugLog('Refreshed type-ahead in current window');
             }
         }
 
@@ -840,9 +855,9 @@
             if (window.opener && !window.opener.closed) {
                 try {
                     window.opener.postMessage({ type: 'REFRESH_BAD_WORDS' }, '*');
-                    console.log('Sent bad words refresh message to opener window');
+                    debugLog('Sent bad words refresh message to opener window');
                 } catch (e) {
-                    console.log('Could not communicate with opener window');
+                    debugLog('Could not communicate with opener window');
                 }
             }
             
@@ -850,13 +865,13 @@
             if (typeof BroadcastChannel !== 'undefined') {
                 const channel = new BroadcastChannel('techcafe_booking');
                 channel.postMessage({ type: 'REFRESH_BAD_WORDS' });
-                console.log('Sent bad words refresh message via BroadcastChannel');
+                debugLog('Sent bad words refresh message via BroadcastChannel');
             }
             
             // Method 3: Refresh in current window if it's the main portal
             if (typeof refreshBadWords === 'function') {
                 refreshBadWords();
-                console.log('Refreshed bad words in current window');
+                debugLog('Refreshed bad words in current window');
             }
         }
 

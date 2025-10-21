@@ -2,6 +2,7 @@ from flask import Flask, render_template, render_template_string, request, jsoni
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import datetime, timedelta
 import json
 import os
@@ -11,6 +12,9 @@ import re
 import bleach
 
 app = Flask(__name__)
+
+# Initialize SocketIO for real-time updates
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +38,10 @@ limiter.init_app(app)
 ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
 
 # Application version - update this when making changes
-APP_VERSION = "3.6"
+APP_VERSION = "3.7"
+
+# Debug mode for client-side logging (set to False in production)
+DEBUG_MODE = os.getenv('TECHCAFE_DEBUG', 'false').lower() == 'true'
 
 # Persistent storage for bookings using JSON file
 BOOKINGS_FILE = 'bookings.json'
@@ -106,6 +113,59 @@ def extract_booking_to_csv(slot_key, booking, reason="completed"):
 
 # Load existing bookings on startup
 load_bookings()
+
+# WebSocket event handlers for real-time updates
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    logger.info(f"Client connected: {request.sid}")
+    emit('connected', {'message': 'Connected to real-time updates'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    logger.info(f"Client disconnected: {request.sid}")
+
+@socketio.on('join_date')
+def handle_join_date(data):
+    """Join a specific date room for real-time updates"""
+    date = data.get('date')
+    if date:
+        join_room(f"date_{date}")
+        logger.info(f"Client {request.sid} joined date room: {date}")
+        emit('joined_date', {'date': date})
+
+@socketio.on('leave_date')
+def handle_leave_date(data):
+    """Leave a specific date room"""
+    date = data.get('date')
+    if date:
+        leave_room(f"date_{date}")
+        logger.info(f"Client {request.sid} left date room: {date}")
+
+def broadcast_booking_update(date, slot_key, booking_data, action='update'):
+    """Broadcast booking update to all clients viewing this date"""
+    room = f"date_{date}"
+    socketio.emit('booking_update', {
+        'date': date,
+        'slot_key': slot_key,
+        'booking_data': booking_data,
+        'action': action  # 'book', 'cancel', 'update'
+    }, room=room)
+    logger.info(f"Broadcasted {action} for {slot_key} on {date} to room {room}")
+
+def broadcast_time_update():
+    """Broadcast current time to all connected clients"""
+    now = datetime.now()
+    time_data = {
+        'hours': now.hour,
+        'minutes': now.minute,
+        'seconds': now.second,
+        'total_minutes': now.hour * 60 + now.minute,
+        'iso_string': now.isoformat()
+    }
+    socketio.emit('time_update', time_data)
+    logger.info(f"Broadcasted time update: {now.strftime('%H:%M:%S')}")
 
 # Load display names from file (cached in memory for performance)
 display_names = []
@@ -285,7 +345,8 @@ def index():
                              afternoon_slots=afternoon_slots,
                              dates=get_available_dates(),
                              version=APP_VERSION,
-                             csrf_token="")
+                             csrf_token="",
+                             debug_mode=DEBUG_MODE)
 
 @app.route('/book', methods=['POST'])
 @limiter.limit("1000 per minute")
@@ -348,6 +409,9 @@ def book_slot():
     # Save to file
     save_bookings()
     
+    # Broadcast real-time update to all clients viewing this date
+    broadcast_booking_update(date, slot_key, bookings[slot_key], 'book')
+    
     return jsonify({'success': True, 'message': 'Booking confirmed'})
 
 @app.route('/cancel', methods=['POST'])
@@ -407,6 +471,9 @@ def cancel_booking():
     
     # Save to file
     save_bookings()
+    
+    # Broadcast real-time update to all clients viewing this date
+    broadcast_booking_update(date, slot_key, None, 'cancel')
     
     # Return success with CSV extraction info
     response = {'success': True, 'message': 'Booking cancelled'}
@@ -512,10 +579,10 @@ def admin_page():
     try:
         from flask_wtf.csrf import generate_csrf
         csrf_token = generate_csrf()
-        return render_template('admin.html', version=APP_VERSION, csrf_token=csrf_token)
+        return render_template('admin.html', version=APP_VERSION, csrf_token=csrf_token, debug_mode=DEBUG_MODE)
     except Exception as e:
         logger.error(f"Error generating CSRF token for admin: {e}")
-        return render_template('admin.html', version=APP_VERSION, csrf_token="")
+        return render_template('admin.html', version=APP_VERSION, csrf_token="", debug_mode=DEBUG_MODE)
 
 @app.route('/readme')
 def readme():
@@ -697,4 +764,25 @@ if __name__ == '__main__':
     # Debug mode should be False in production
     # Set FLASK_DEBUG=True environment variable for development
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
+    
+    # Start time broadcast timer for real-time updates
+    import threading
+    import time
+    
+    def time_broadcast_timer():
+        """Broadcast time updates every 5 seconds"""
+        while True:
+            try:
+                broadcast_time_update()
+                time.sleep(5)  # Broadcast every 5 seconds
+            except Exception as e:
+                logger.error(f"Error in time broadcast timer: {e}")
+                time.sleep(5)
+    
+    # Start time broadcast in background thread
+    timer_thread = threading.Thread(target=time_broadcast_timer, daemon=True)
+    timer_thread.start()
+    logger.info("Started time broadcast timer")
+    
+    # Run with SocketIO for real-time capabilities
+    socketio.run(app, debug=debug_mode, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
