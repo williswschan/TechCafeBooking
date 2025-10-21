@@ -1856,14 +1856,7 @@
             });
         }
 
-        // Function to update browser configuration display
-        function updateBrowserConfig() {
-            const configElement = document.getElementById('browserConfig');
-            if (configElement) {
-                const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-                configElement.textContent = 'Current Config: ' + (isLandscape ? 'Landscape' : 'Portrait');
-            }
-        }
+        // updateBrowserConfig() - MOVED TO app-config.js
 
         // Optimized resize handler with debouncing and throttling
         const optimizedResizeHandler = DOMOptimizer.debounce(function() {
@@ -3230,16 +3223,7 @@
             notificationStack = [];
         }
         
-        // Safety mechanism: Clear old notifications if too many accumulate
-        function checkNotificationLimit() {
-            if (notificationStack.length > 5) {
-                // Remove oldest notifications, keep only the 3 most recent
-                const toRemove = notificationStack.slice(0, notificationStack.length - 3);
-                toRemove.forEach(notification => {
-                    dismissNotification(notification.id);
-                });
-            }
-        }
+        // checkNotificationLimit() - MOVED TO app-config.js
         
         // Global function for debugging - clear all notifications
         window.clearAllNotifications = clearAllNotifications;
@@ -3345,12 +3329,7 @@
             ).slice(0, 10); // Limit to 10 results
         }
 
-        // Highlight matching text
-        function highlightText(text, query) {
-            if (!query) return text;
-            const regex = new RegExp(`(${query})`, 'gi');
-            return text.replace(regex, '<span class="highlight">$1</span>');
-        }
+        // highlightText() - MOVED TO app-config.js
 
         // Show typeahead dropdown
         function showTypeahead(names) {
