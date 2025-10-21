@@ -13,6 +13,11 @@ import bleach
 
 app = Flask(__name__)
 
+# Disable all caching for immediate changes
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.jinja_env.auto_reload = True
+
 # Initialize SocketIO for real-time updates
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -38,7 +43,7 @@ limiter.init_app(app)
 ADMIN_PASSWORD = os.getenv('TECHCAFE_ADMIN_PASSWORD', 'Nomura2025!')
 
 # Application version - update this when making changes
-APP_VERSION = "3.8"
+APP_VERSION = "3.9"
 
 # Debug mode for client-side logging (set to False in production)
 DEBUG_MODE = os.getenv('TECHCAFE_DEBUG', 'false').lower() == 'true'
@@ -328,15 +333,19 @@ def index():
     afternoon_slots = [slot for slot in time_slots if 14 <= int(slot.split(':')[0]) < 18]
     
     try:
-        from flask_wtf.csrf import generate_csrf
-        csrf_token = generate_csrf()
+        if app.config.get('WTF_CSRF_ENABLED', False):
+            from flask_wtf.csrf import generate_csrf
+            csrf_token = generate_csrf()
+        else:
+            csrf_token = ""
         return render_template('index.html', 
                              time_slots=time_slots,
                              morning_slots=morning_slots,
                              afternoon_slots=afternoon_slots,
                              dates=get_available_dates(),
                              version=APP_VERSION,
-                             csrf_token=csrf_token)
+                             csrf_token=csrf_token,
+                             debug_mode=DEBUG_MODE)
     except Exception as e:
         logger.error(f"Error generating CSRF token: {e}")
         return render_template('index.html', 
@@ -577,11 +586,14 @@ def get_server_date():
 def admin_page():
     """Admin page with password protection"""
     try:
-        from flask_wtf.csrf import generate_csrf
-        csrf_token = generate_csrf()
+        if app.config.get('WTF_CSRF_ENABLED', False):
+            from flask_wtf.csrf import generate_csrf
+            csrf_token = generate_csrf()
+        else:
+            csrf_token = ""
         return render_template('admin.html', version=APP_VERSION, csrf_token=csrf_token, debug_mode=DEBUG_MODE)
     except Exception as e:
-        logger.error(f"Error generating CSRF token for admin: {e}")
+        logger.error(f"Error rendering admin page: {e}")
         return render_template('admin.html', version=APP_VERSION, csrf_token="", debug_mode=DEBUG_MODE)
 
 @app.route('/readme')

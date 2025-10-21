@@ -238,7 +238,7 @@
         // Production-safe logging function
         function debugLog(message, ...args) {
             if (DEBUG_MODE) {
-                debugLog(message, ...args);
+                console.log(message, ...args);
             }
         }
         
@@ -308,7 +308,7 @@
                     
                     // Add transient highlight
                     slotElement.classList.add('just-booked');
-                    TimerManager.TimerManager.setTimeout(() => slotElement.classList.remove('just-booked'), 5000);
+                    TimerManager.setTimeout(() => slotElement.classList.remove('just-booked'), 5000);
                 }
                 
                 // Update local bookings object
@@ -334,7 +334,7 @@
         
         function handleRealTimeTimeUpdate(data) {
             // Update time visualization with real-time data
-            updateTimeVisualizationWithData(data);
+            updateTimeVisualization();
         }
         
         let currentDate = '{{ dates[0].date }}';
@@ -342,6 +342,15 @@
         let bookings = {};
         let deviceId = '';
         let isAdminSession = false;
+        
+        // Mobile-specific initialization delay
+        const initDelay = 100; // 100ms delay for mobile viewport stability
+        
+        // Refresh display function for admin mode changes
+        function refreshDisplay() {
+            debugLog('Refreshing display after admin mode change');
+            updateTimeSlots();
+        }
         
         // Timer management system to prevent memory leaks
         const TimerManager = {
@@ -355,8 +364,8 @@
                 return id;
             },
             
-            TimerManager.setTimeout(callback, delay) {
-                const id = TimerManager.setTimeout(() => {
+            setTimeout: function(callback, delay) {
+                const id = setTimeout(() => {
                     this.timeouts.delete(id);
                     callback();
                 }, delay);
@@ -502,7 +511,7 @@
                 // Ensure we have valid dimensions
                 if (width <= 0 || height <= 0) {
                     debugLog('Invalid dimensions, retrying in 100ms...');
-                    TimerManager.TimerManager.setTimeout(detectScreenSize, 100);
+                    TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
                 
@@ -510,7 +519,7 @@
                 // Simple viewport check - back to working approach
                 if (width <= 0 || height <= 0) {
                     debugLog('Invalid dimensions, retrying in 100ms...');
-                    TimerManager.TimerManager.setTimeout(detectScreenSize, 100);
+                    TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
                 debugLog('Screen size:', width, 'x', height);
@@ -857,7 +866,7 @@
                 applyPortraitCSS();
                 
                 // Add dynamic time slot height calculation for portrait (single call to prevent multiple adjustments)
-                TimerManager.TimerManager.setTimeout(() => {
+                TimerManager.setTimeout(() => {
                     adjustPortraitLayout(containerWidth, containerHeight);
                 }, 100);
                 
@@ -1065,7 +1074,7 @@
                     debugLog('Portrait layout adjustment completed');
                     
                     // Final height enforcement - ensure all slots use the calculated height
-                    TimerManager.TimerManager.setTimeout(() => {
+                    TimerManager.setTimeout(() => {
                         const finalSlots = document.querySelectorAll('.time-slot');
                         finalSlots.forEach(slot => {
                             slot.style.height = buttonHeight + 'px';
@@ -1842,8 +1851,10 @@
         // Function to update browser configuration display
         function updateBrowserConfig() {
             const configElement = document.getElementById('browserConfig');
-            const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-            configElement.textContent = 'Current Config: ' + (isLandscape ? 'Landscape' : 'Portrait');
+            if (configElement) {
+                const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+                configElement.textContent = 'Current Config: ' + (isLandscape ? 'Landscape' : 'Portrait');
+            }
         }
 
         // Optimized resize handler with debouncing and throttling
@@ -3061,11 +3072,6 @@
                     const regex = new RegExp(badWord, 'gi');
                     sanitized = sanitized.replace(regex, '*'.repeat(badWord.length));
                 }
-            }
-            
-            // If the entire name was inappropriate, show a generic message
-            if (sanitized.replace(/\*/g, '').trim().length === 0) {
-                return 'Inappropriate Name';
             }
             
             return sanitized;
