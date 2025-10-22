@@ -666,7 +666,7 @@
                     
                     // Safety check: ensure button height doesn't exceed available space with extra buffer
                     const maxButtonHeight = Math.floor((availableHeight - 20) / totalRows); // 20px extra buffer
-                    const finalButtonHeight = Math.min(buttonHeight, maxButtonHeight);
+                    const finalButtonHeight = Math.max(65, Math.min(buttonHeight, maxButtonHeight)); // Enforce 65px minimum
                     
 
 
@@ -726,7 +726,7 @@
                     if (totalContentHeight > (containerHeight - 10)) {
                         const excessHeight = totalContentHeight - (containerHeight - 10);
                         const heightReduction = Math.ceil(excessHeight / totalRows) + 5;
-                        const emergencyButtonHeight = Math.max(30, finalButtonHeight - heightReduction);
+                        const emergencyButtonHeight = Math.max(65, finalButtonHeight - heightReduction);
                         
 
                         
@@ -751,7 +751,7 @@
                     if (totalContentHeight > containerHeight) {
                         const excessHeight = totalContentHeight - containerHeight;
                         const heightReduction = Math.ceil(excessHeight / totalRows) + 5; // Add 5px buffer
-                        const adjustedButtonHeight = Math.max(30, buttonHeight - heightReduction);
+                        const adjustedButtonHeight = Math.max(65, buttonHeight - heightReduction);
                         
 
 
@@ -1028,7 +1028,7 @@
                     console.log('  - Calculated button width:', buttonWidth);
                     
                     // ULTRA-AGGRESSIVE height calculation to eliminate white space
-                    const minButtonHeight = 15; // Ultra minimal minimum height
+                    const minButtonHeight = 65; // Minimum height for portrait mode
                     let buttonHeight = Math.floor(availableHeight * 1.05 / totalRows); // Start with 105% of available height
                     
                     console.log('- Button height calculations:');
@@ -1079,7 +1079,7 @@
                     // Only reduce if we're actually overflowing
                     const finalTotalHeight = (buttonHeight * totalRows) + contentHeights;
                     if (finalTotalHeight > usableHeight + 5) { // Allow 5px tolerance
-                        buttonHeight = Math.floor((usableHeight - contentHeights) / totalRows);
+                        buttonHeight = Math.max(65, Math.floor((usableHeight - contentHeights) / totalRows));
 
                     }
                     
@@ -1096,17 +1096,18 @@
 
                     
                     // Apply dimensions to all time slots
+                    const finalButtonHeight = Math.max(65, buttonHeight); // Enforce 65px minimum
                     allTimeSlots.forEach(slot => {
                         slot.style.setProperty('width', buttonWidth + 'px', 'important');
-                        slot.style.setProperty('height', buttonHeight + 'px', 'important');
-                        slot.style.setProperty('min-height', buttonHeight + 'px', 'important');
+                        slot.style.setProperty('height', finalButtonHeight + 'px', 'important');
+                        slot.style.setProperty('min-height', finalButtonHeight + 'px', 'important');
                         slot.style.setProperty('box-sizing', 'border-box', 'important');
                         slot.style.setProperty('flex-shrink', '0', 'important');
                         
                         // Force the height with direct assignment to override any CSS
-                        slot.style.height = buttonHeight + 'px';
-                        slot.style.minHeight = buttonHeight + 'px';
-                        slot.style.maxHeight = buttonHeight + 'px';
+                        slot.style.height = finalButtonHeight + 'px';
+                        slot.style.minHeight = finalButtonHeight + 'px';
+                        slot.style.maxHeight = finalButtonHeight + 'px';
                     });
                     
                     // Adjust lunch break width to match time slot grid
@@ -1123,9 +1124,9 @@
                     TimerManager.setTimeout(() => {
                         const finalSlots = document.querySelectorAll('.time-slot');
                         finalSlots.forEach(slot => {
-                            slot.style.height = buttonHeight + 'px';
-                            slot.style.minHeight = buttonHeight + 'px';
-                            slot.style.maxHeight = buttonHeight + 'px';
+                            slot.style.height = finalButtonHeight + 'px';
+                            slot.style.minHeight = finalButtonHeight + 'px';
+                            slot.style.maxHeight = finalButtonHeight + 'px';
                         });
 
                     }, 50);
@@ -1161,7 +1162,7 @@
                                     if (extraHeight > 0) {
 
                                         finalSlots.forEach(slot => {
-                                            const newHeight = currentButtonHeight + extraHeight;
+                                            const newHeight = Math.max(65, currentButtonHeight + extraHeight);
                                             slot.style.height = newHeight + 'px';
                                             slot.style.minHeight = newHeight + 'px';
                                             slot.style.maxHeight = newHeight + 'px';
@@ -1325,7 +1326,7 @@
                         let buttonHeight = Math.floor(availableHeight / totalRows);
                         
                         // Make it more aggressive
-                        buttonHeight = Math.max(60, Math.floor(availableHeight * 0.9 / totalRows));
+                        buttonHeight = Math.max(65, Math.floor(availableHeight * 0.9 / totalRows));
                         
 
 
@@ -1335,8 +1336,8 @@
                         // Apply to all time slots
                         allTimeSlots.forEach((slot, index) => {
                             slot.style.width = buttonWidth + 'px';
-                            slot.style.height = Math.max(60, buttonHeight) + 'px';
-                            slot.style.minHeight = Math.max(60, buttonHeight) + 'px';
+                            slot.style.height = Math.max(65, buttonHeight) + 'px';
+                            slot.style.minHeight = Math.max(65, buttonHeight) + 'px';
                             slot.style.boxSizing = 'border-box';
                             slot.style.flexShrink = '0';
                             
@@ -1482,8 +1483,8 @@
                             
                             allTimeSlots.forEach((slot, index) => {
                                 slot.style.width = buttonWidth + 'px';
-                                slot.style.height = Math.max(60, buttonHeight) + 'px';
-                                slot.style.minHeight = Math.max(60, buttonHeight) + 'px';
+                                slot.style.height = Math.max(65, buttonHeight) + 'px';
+                                slot.style.minHeight = Math.max(65, buttonHeight) + 'px';
                                 slot.style.boxSizing = 'border-box';
                                 slot.style.flexShrink = '0';
                                 
