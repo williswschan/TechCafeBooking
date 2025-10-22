@@ -933,19 +933,16 @@
         }
         
         function adjustPortraitLayout(containerWidth, containerHeight) {
-            console.log('=== adjustPortraitLayout called ===');
-            console.log('- Container dimensions:', containerWidth, 'x', containerHeight);
+            // Portrait mode layout calculations
             
             // Prevent multiple simultaneous adjustments
             if (isAdjustingPortrait) {
-                console.log('- Skipping: Already adjusting portrait layout');
                 return;
             }
             
             isAdjustingPortrait = true;
             
             try {
-                console.log('- Starting portrait layout calculations');
                 
                 // Get heights of fixed elements
                 const header = document.querySelector('.header');
@@ -959,24 +956,12 @@
                 const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, header) => total + header.offsetHeight, 0);
                 const footerHeight = 40;
                 
-                console.log('- Fixed element heights:');
-                console.log('  - Header:', headerHeight);
-                console.log('  - Date Selector:', dateSelectorHeight);
-                console.log('  - Lunch Break:', lunchBreakHeight);
-                console.log('  - Section Headers:', sectionHeadersHeight);
-                console.log('  - Footer:', footerHeight);
-                
                 // Calculate usable space: container height minus header and footer
                 const usableHeight = containerHeight - headerHeight - footerHeight;
                 
                 // Calculate content heights (date selector + lunch break + section headers + portrait buffer)
                 const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + PORTRAIT_CONTENT_BUFFER;
                 const availableHeight = usableHeight - contentHeights;
-                
-                console.log('- Height calculations:');
-                console.log('  - Usable height:', usableHeight);
-                console.log('  - Content heights:', contentHeights);
-                console.log('  - Available height for slots:', availableHeight);
                 
 
 
@@ -997,49 +982,21 @@
                 const morningSlotsCount = morningSlots.length;
                 const afternoonSlotsCount = afternoonSlots.length;
                 
-                console.log('- Slot counts:');
-                console.log('  - Total slots:', allTimeSlots.length);
-                console.log('  - Morning slots:', morningSlotsCount);
-                console.log('  - Afternoon slots:', afternoonSlotsCount);
-                const totalSlots = allTimeSlots.length;
-                
-
-                
-                if (totalSlots > 0 && availableHeight > 0) {
+                if (allTimeSlots.length > 0 && availableHeight > 0) {
                     // Portrait mode: 4 columns for time slots
                     const columns = 4;
                     const morningRows = Math.ceil(morningSlotsCount / columns);
                     const afternoonRows = Math.ceil(afternoonSlotsCount / columns);
                     const totalRows = morningRows + afternoonRows;
                     
-                    console.log('- Grid calculations:');
-                    console.log('  - Columns:', columns);
-                    console.log('  - Morning rows:', morningRows);
-                    console.log('  - Afternoon rows:', afternoonRows);
-                    console.log('  - Total rows:', totalRows);
-                    
-                    // Calculate button dimensions
+                    // Calculate optimal button dimensions (same approach as Landscape mode)
                     const availableWidth = containerWidth - 40; // Account for container padding
                     const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for gaps
-                    
-                    console.log('- Button width calculations:');
-                    console.log('  - Available width:', availableWidth);
-                    console.log('  - Calculated button width:', buttonWidth);
-                    
-                    // Use same conservative approach as Landscape mode
-                    const minButtonHeight = 65; // Minimum height for portrait mode
                     const buttonHeight = Math.floor(availableHeight / totalRows); // Distribute height evenly across rows
-                    
-                    console.log('- Button height calculations:');
-                    console.log('  - Min button height:', minButtonHeight);
-                    console.log('  - Calculated button height:', buttonHeight);
                     
                     // Safety check: ensure button height doesn't exceed available space with extra buffer
                     const maxButtonHeight = Math.floor((availableHeight - PORTRAIT_CALCULATION_BUFFER) / totalRows);
-                    const finalButtonHeight = Math.max(minButtonHeight, Math.min(buttonHeight, maxButtonHeight)); // Enforce minimum
-                    
-                    console.log('  - Max button height:', maxButtonHeight);
-                    console.log('  - Final button height:', finalButtonHeight);
+                    const finalButtonHeight = Math.max(65, Math.min(buttonHeight, maxButtonHeight)); // Enforce 65px minimum
                     
 
 
