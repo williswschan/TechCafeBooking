@@ -290,62 +290,37 @@
         }
         
         function handleRealTimeBookingUpdate(data) {
-            console.log('=== handleRealTimeBookingUpdate called ===');
-            console.log('- Data:', data);
-            console.log('- Current date:', currentDate);
-            console.log('- Is admin mode:', isAdminSession);
-            
             const { date, slot_key, booking_data, action } = data;
             
-            if (date !== currentDate) {
-                console.log('- Skipping: Different date');
-                return; // Only update if viewing the same date
-            }
+            if (date !== currentDate) return; // Only update if viewing the same date
             
             if (action === 'book' && booking_data) {
-                console.log('- Processing book action for slot:', slot_key);
-                
                 // Update slot to booked state
                 const slotElement = document.querySelector(`[data-time="${slot_key.split('_')[1]}"]`);
-                console.log('- Slot element found:', !!slotElement);
-                
                 if (slotElement) {
-                    console.log('- Before class changes:');
-                    console.log('  - Classes:', slotElement.className);
-                    console.log('  - Has just-booked:', slotElement.classList.contains('just-booked'));
-                    
                     slotElement.classList.remove('available');
                     slotElement.classList.add('booked');
                     
-                    console.log('- After class changes:');
-                    console.log('  - Classes:', slotElement.className);
-                    
-                    // Update the booked text
+                    // Update the booked text - only show name if in admin mode
                     const bookedText = slotElement.querySelector('.booked-text');
                     if (bookedText) {
-                        bookedText.textContent = booking_data.username || 'Booked';
+                        if (isAdminMode) {
+                            // Admin mode: show the actual username
+                            bookedText.textContent = booking_data.username || 'Booked';
+                        } else {
+                            // Non-admin mode: just show "Booked"
+                            bookedText.textContent = 'Booked';
+                        }
                         bookedText.style.display = 'block';
-                        console.log('- Updated booked text to:', booking_data.username || 'Booked');
                     }
                     
                     // Add transient highlight
-                    console.log('- Adding just-booked class');
                     slotElement.classList.add('just-booked');
-                    console.log('- After adding just-booked:');
-                    console.log('  - Classes:', slotElement.className);
-                    console.log('  - Has just-booked:', slotElement.classList.contains('just-booked'));
-                    
-                    TimerManager.setTimeout(() => {
-                        console.log('- Removing just-booked class after 5 seconds');
-                        slotElement.classList.remove('just-booked');
-                        console.log('- After removing just-booked:');
-                        console.log('  - Classes:', slotElement.className);
-                    }, 5000);
+                    TimerManager.setTimeout(() => slotElement.classList.remove('just-booked'), 5000);
                 }
                 
                 // Update local bookings object
                 bookings[slot_key] = booking_data;
-                console.log('- Updated local bookings object');
             } else if (action === 'cancel') {
                 // Update slot to available state
                 const slotElement = document.querySelector(`[data-time="${slot_key.split('_')[1]}"]`);
@@ -2205,11 +2180,8 @@
         }
         
         function updateTimeSlotsImmediate() {
-            console.log('=== updateTimeSlotsImmediate called ===');
-            console.log('- Current bookings count:', Object.keys(bookings).length);
 
             const slots = document.querySelectorAll('.time-slot');
-            console.log('- Found slots:', slots.length);
 
             
             // Use DOM batching for better performance

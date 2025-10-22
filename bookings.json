@@ -468,5 +468,107 @@
     "device_id": "device_1761112014680_vca43wyuf_TW96aWxsYS",
     "booked_at": "2025-10-22T14:36:48.526173",
     "kiosk": false
+  },
+  "2025-10-23_11:00": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:08:53.837082",
+    "kiosk": false
+  },
+  "2025-10-24_10:00": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:08:59.740095",
+    "kiosk": false
+  },
+  "2025-10-24_10:15": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:09:54.534265",
+    "kiosk": false
+  },
+  "2025-10-24_11:30": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:11:22.018746",
+    "kiosk": false
+  },
+  "2025-10-24_11:00": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:15:29.263073",
+    "kiosk": false
+  },
+  "2025-10-24_11:15": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:15:45.771160",
+    "kiosk": false
+  },
+  "2025-10-24_14:00": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:15:55.332235",
+    "kiosk": false
+  },
+  "2025-10-24_14:15": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:16:05.737680",
+    "kiosk": false
+  },
+  "2025-10-24_16:30": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:16:10.494575",
+    "kiosk": false
+  },
+  "2025-10-24_14:30": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:19:29.250653",
+    "kiosk": false
+  },
+  "2025-10-24_14:45": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:19:38.544797",
+    "kiosk": false
+  },
+  "2025-10-24_15:00": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:19:43.945304",
+    "kiosk": false
+  },
+  "2025-10-24_15:15": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:23:04.940269",
+    "kiosk": false
+  },
+  "2025-10-24_17:45": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:23:14.564123",
+    "kiosk": false
+  },
+  "2025-10-24_16:15": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:23:40.639132",
+    "kiosk": false
+  },
+  "2025-10-24_17:00": {
+    "username": "Mason Hill",
+    "device_id": "device_1761108737946_5bg5yl1wf_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:25:25.271601",
+    "kiosk": false
+  },
+  "2025-10-24_15:30": {
+    "username": null,
+    "device_id": "device_1761126769380_brig9y39f_TW96aWxsYS",
+    "booked_at": "2025-10-22T19:29:55.027873",
+    "kiosk": false
   }
 }
