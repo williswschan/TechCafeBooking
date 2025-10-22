@@ -208,12 +208,8 @@
     
     /* Portrait mode buttons - applies to ALL devices in portrait orientation */
     .header .kiosk-btn, .header .admin-btn {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        max-width: 40px !important;
-        max-height: 40px !important;
+        width: 50px !important;
+        height: 50px !important;
         border-radius: 50% !important;
         padding: 0 !important;
         display: flex !important;
@@ -222,19 +218,14 @@
         font-size: 1.2rem !important;
         position: absolute !important;
         top: 20px !important;
-        box-sizing: border-box !important;
-        margin: 0 !important;
-        line-height: 1 !important;
     }
     
     .header .kiosk-btn {
         left: 20px !important;
-        right: auto !important;
     }
     
     .header .admin-btn {
         right: 20px !important;
-        left: auto !important;
     }
     
     .header .kiosk-btn span, .header .admin-btn span {
@@ -243,7 +234,5 @@
     
     .header .kiosk-btn i, .header .admin-btn i {
         margin: 0 !important;
-        font-size: 1.2rem !important;
-        line-height: 1 !important;
     }
 }
