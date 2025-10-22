@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token or '' }}">
+    <meta name="csrf-token" content="{{ csrf_token or ''|e }}">
     <title>TechCafe Booking Portal</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -211,7 +211,7 @@
     <script>
         // Version management system
         // IMPORTANT: Update APP_VERSION in app.py when making changes (increment by 0.1)
-        const APP_VERSION = "{{ version }}";
+        const APP_VERSION = "{{ version|e }}";
         window.APP_VERSION = APP_VERSION; // Make available to external JS files
         
         // getCurrentVersion() - MOVED TO app-config.js
@@ -3034,10 +3034,6 @@
                     adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin';
                 }
             }
-        }
-
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
         }
 
         // Enhanced Toast Notification System

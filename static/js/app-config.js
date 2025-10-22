@@ -11,7 +11,7 @@ function incrementVersion() {
     const versionParts = getCurrentVersion().split('.');
     const major = parseInt(versionParts[0]);
     const minor = parseFloat(versionParts[1]) + 0.1;
-    return `${major}.${minor.toFixed(1)}`;
+    return major + '.' + minor.toFixed(1);
 }
 
 // Logging functions
@@ -24,16 +24,16 @@ function updateBrowserConfig() {
     const configElement = document.getElementById('browserConfig');
     if (configElement) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const screenInfo = `${window.innerWidth}x${window.innerHeight}`;
+        const screenInfo = window.innerWidth + 'x' + window.innerHeight;
         const deviceType = isMobile ? 'Mobile' : 'Desktop';
-        configElement.textContent = `${deviceType} - ${screenInfo}`;
+        configElement.textContent = deviceType + ' - ' + screenInfo;
     }
 }
 
 // Text processing utilities
 function highlightText(text, query) {
     if (!query) return text;
-    const regex = new RegExp(`(${query})`, 'gi');
+    const regex = new RegExp('(' + query + ')', 'gi');
     return text.replace(regex, '<mark>$1</mark>');
 }
 
@@ -51,5 +51,11 @@ function checkNotificationLimit() {
     }
 }
 
+// CSRF token management
+function getCSRFToken() {
+    const token = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+    return token && token.length > 0 ? token : null;
+}
+
 // Make function globally available
-window.checkNotificationLimit = checkNotificationLimit;
+window.getCSRFToken = getCSRFToken;

@@ -6,5 +6,10 @@ function refreshDisplay() {
     updateTimeSlots();
 }
 
+// Loading state management
+function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+}
+
 // Make function globally available
-window.refreshDisplay = refreshDisplay;
+window.showLoading = showLoading;
