@@ -14,6 +14,7 @@
     <!-- External JavaScript Files -->
     <script src="{{ url_for('static', filename='js/app-config.js') }}"></script>
     <script src="{{ url_for('static', filename='js/booking-utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui-utils.js') }}"></script>
     
     <!-- External CSS Files -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -215,12 +216,6 @@
         
         // getCurrentVersion() - MOVED TO app-config.js
         
-        // CSRF token management
-        function getCSRFToken() {
-            const token = document.querySelector('meta[name=csrf-token]').getAttribute('content');
-            return token && token.length > 0 ? token : null;
-        }
-        
         function incrementVersion() {
             const versionParts = APP_VERSION.split('.');
             const major = parseInt(versionParts[0]);
@@ -352,11 +347,6 @@
         
         // Mobile-specific initialization delay
         const initDelay = 100; // 100ms delay for mobile viewport stability
-
-        // Refresh display function for admin mode changes
-        function refreshDisplay() {
-            updateTimeSlots();
-        }
         
         // Timer management system to prevent memory leaks
         const TimerManager = {
