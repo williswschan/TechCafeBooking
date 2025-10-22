@@ -2285,22 +2285,20 @@
             // Calculate available space for the booker name
             // Reserve space for time text + padding + margins
             const timeTextHeight = timeText.offsetHeight;
-            const padding = 30; // Total padding (15px top + 15px bottom)
-            const margin = 10; // Space between time and name
-            const minNameHeight = 20; // Minimum height needed for name text
+            const padding = 10; // Reduced padding (5px top + 5px bottom)
+            const margin = 5; // Reduced space between time and name
+            const minNameHeight = 15; // Reduced minimum height needed for name text
             
             const availableHeight = slotHeight - timeTextHeight - padding - margin;
             
             // Hide name if there's not enough space
             if (availableHeight < minNameHeight) {
-
                 return true;
             }
             
-            // Also hide if slot is very narrow (width < 100px)
+            // Also hide if slot is very narrow (width < 80px)
             const slotWidth = slotRect.width;
-            if (slotWidth < 100) {
-
+            if (slotWidth < 80) {
                 return true;
             }
             
