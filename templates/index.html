@@ -492,6 +492,13 @@
         let isInitializing = false;
         let isAdjustingPortrait = false; // Flag to prevent multiple portrait adjustments
         
+        // Separate buffer values for Portrait and Landscape modes
+        const LANDSCAPE_CONTENT_BUFFER = 80; // 80px buffer for Landscape mode
+        const PORTRAIT_CONTENT_BUFFER = 140; // 140px buffer for Portrait mode (reduced for better space utilization)
+        
+        const LANDSCAPE_CALCULATION_BUFFER = 20; // 20px extra buffer for Landscape mode
+        const PORTRAIT_CALCULATION_BUFFER = 60; // 60px extra buffer for Portrait mode (more conservative)
+        
         // Dynamic screen size detection and optimization - APPLY TO ALL DEVICES
         function detectScreenSize() {
             console.log('=== detectScreenSize called ===');
@@ -520,16 +527,8 @@
                     TimerManager.setTimeout(detectScreenSize, 100);
                     return;
                 }
-                
-                // Mobile-specific viewport stability check
-                // Simple viewport check - back to working approach
-                if (width <= 0 || height <= 0) {
 
-                    TimerManager.setTimeout(detectScreenSize, 100);
-                    return;
-                }
-
-                
+              
                 // Apply strict container sizing to ALL devices
                     const container = document.querySelector('.container');
                     if (!container) return;
@@ -636,7 +635,7 @@
                     const sectionHeadersHeight = Array.from(document.querySelectorAll('.section-header')).reduce((total, header) => total + header.offsetHeight, 0);
                     
                     // Calculate available height for time slots (usable space minus content elements)
-                    const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 80; // 80px for padding/margins (very conservative)
+                    const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + LANDSCAPE_CONTENT_BUFFER;
                     const availableHeight = usableHeight - contentHeights;
                     
 
@@ -665,7 +664,7 @@
                     const buttonHeight = Math.floor(availableHeight / totalRows); // Distribute height evenly across rows
                     
                     // Safety check: ensure button height doesn't exceed available space with extra buffer
-                    const maxButtonHeight = Math.floor((availableHeight - 20) / totalRows); // 20px extra buffer
+                    const maxButtonHeight = Math.floor((availableHeight - LANDSCAPE_CALCULATION_BUFFER) / totalRows);
                     const finalButtonHeight = Math.max(65, Math.min(buttonHeight, maxButtonHeight)); // Enforce 65px minimum
                     
 
@@ -970,8 +969,8 @@
                 // Calculate usable space: container height minus header and footer
                 const usableHeight = containerHeight - headerHeight - footerHeight;
                 
-                // Calculate content heights (date selector + lunch break + section headers + ultra minimal padding)
-                const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 5; // Ultra reduced to 5px for padding/margins
+                // Calculate content heights (date selector + lunch break + section headers + portrait buffer)
+                const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + PORTRAIT_CONTENT_BUFFER;
                 const availableHeight = usableHeight - contentHeights;
                 
                 console.log('- Height calculations:');
@@ -1027,61 +1026,20 @@
                     console.log('  - Available width:', availableWidth);
                     console.log('  - Calculated button width:', buttonWidth);
                     
-                    // ULTRA-AGGRESSIVE height calculation to eliminate white space
+                    // Use same conservative approach as Landscape mode
                     const minButtonHeight = 65; // Minimum height for portrait mode
-                    let buttonHeight = Math.floor(availableHeight * 1.05 / totalRows); // Start with 105% of available height
+                    const buttonHeight = Math.floor(availableHeight / totalRows); // Distribute height evenly across rows
                     
                     console.log('- Button height calculations:');
                     console.log('  - Min button height:', minButtonHeight);
-                    console.log('  - Initial button height (105%):', buttonHeight);
+                    console.log('  - Calculated button height:', buttonHeight);
                     
-
-
+                    // Safety check: ensure button height doesn't exceed available space with extra buffer
+                    const maxButtonHeight = Math.floor((availableHeight - PORTRAIT_CALCULATION_BUFFER) / totalRows);
+                    const finalButtonHeight = Math.max(minButtonHeight, Math.min(buttonHeight, maxButtonHeight)); // Enforce minimum
                     
-                    // Ensure minimum height but be very aggressive
-                    buttonHeight = Math.max(minButtonHeight, buttonHeight);
-                    
-                    // Calculate what the total height would be
-                    let totalContentHeight = (buttonHeight * totalRows) + contentHeights;
-                    let remainingSpace = usableHeight - totalContentHeight;
-                    
-
-
-
-                    
-                    // If we have ANY remaining space, use it all
-                    if (remainingSpace > 1) {
-                        const extraHeight = Math.floor(remainingSpace / totalRows);
-                        if (extraHeight > 0) {
-                            buttonHeight += extraHeight;
-                            totalContentHeight = (buttonHeight * totalRows) + contentHeights;
-                            remainingSpace = usableHeight - totalContentHeight;
-
-
-                        }
-                    }
-                    
-                    // Final ultra-aggressive check: if still space left, use it
-                    if (remainingSpace > 0) {
-                        const finalExtra = Math.floor(remainingSpace / totalRows);
-                        if (finalExtra > 0) {
-                            buttonHeight += finalExtra;
-
-                        }
-                        
-                        // Even more aggressive: add 1px to each row if there's still space
-                        if (remainingSpace > totalRows) {
-                            buttonHeight += 1;
-
-                        }
-                    }
-                    
-                    // Only reduce if we're actually overflowing
-                    const finalTotalHeight = (buttonHeight * totalRows) + contentHeights;
-                    if (finalTotalHeight > usableHeight + 5) { // Allow 5px tolerance
-                        buttonHeight = Math.max(65, Math.floor((usableHeight - contentHeights) / totalRows));
-
-                    }
+                    console.log('  - Max button height:', maxButtonHeight);
+                    console.log('  - Final button height:', finalButtonHeight);
                     
 
 
@@ -1096,7 +1054,6 @@
 
                     
                     // Apply dimensions to all time slots
-                    const finalButtonHeight = Math.max(65, buttonHeight); // Enforce 65px minimum
                     allTimeSlots.forEach(slot => {
                         slot.style.setProperty('width', buttonWidth + 'px', 'important');
                         slot.style.setProperty('height', finalButtonHeight + 'px', 'important');
@@ -1138,7 +1095,8 @@
 
                             const container = document.querySelector('.container');
                             if (container) {
-                                const currentContainerHeight = container.offsetHeight;
+                                // Use calculated height like Landscape mode, not actual offsetHeight
+                                const currentContainerHeight = window.innerHeight - 40;
                                 const header = document.querySelector('.header');
                                 const footer = document.querySelector('.footer-section');
                                 const headerHeight = header ? header.offsetHeight : 0;
@@ -1276,7 +1234,8 @@
 
                 if (container) {
                     const containerWidth = container.offsetWidth;
-                    const containerHeight = container.offsetHeight;
+                    // Use calculated height like Landscape mode, not actual offsetHeight
+                    const containerHeight = window.innerHeight - 40;
 
                     
                     // Get all time slots
@@ -1303,7 +1262,7 @@
                         const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, h) => total + h.offsetHeight, 0);
                         
                         const usableHeight = containerHeight - headerHeight - footerHeight;
-                        const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 20; // Minimal padding
+                        const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + PORTRAIT_CONTENT_BUFFER;
                         const availableHeight = usableHeight - contentHeights;
                         
 
@@ -1323,10 +1282,11 @@
                         const totalRows = morningRows + afternoonRows;
                         
                         const buttonWidth = Math.floor((containerWidth - 40 - (columns - 1) * 8) / columns);
-                        let buttonHeight = Math.floor(availableHeight / totalRows);
+                        const buttonHeight = Math.floor(availableHeight / totalRows);
                         
-                        // Make it more aggressive
-                        buttonHeight = Math.max(65, Math.floor(availableHeight * 0.9 / totalRows));
+                        // Safety check: ensure button height doesn't exceed available space with extra buffer
+                        const maxButtonHeight = Math.floor((availableHeight - PORTRAIT_CALCULATION_BUFFER) / totalRows);
+                        const finalButtonHeight = Math.max(65, Math.min(buttonHeight, maxButtonHeight));
                         
 
 
@@ -1336,8 +1296,8 @@
                         // Apply to all time slots
                         allTimeSlots.forEach((slot, index) => {
                             slot.style.width = buttonWidth + 'px';
-                            slot.style.height = Math.max(65, buttonHeight) + 'px';
-                            slot.style.minHeight = Math.max(65, buttonHeight) + 'px';
+                            slot.style.height = finalButtonHeight + 'px';
+                            slot.style.minHeight = finalButtonHeight + 'px';
                             slot.style.boxSizing = 'border-box';
                             slot.style.flexShrink = '0';
                             
@@ -1431,7 +1391,8 @@
                     if (allTimeSlots.length > 0) {
                         const container = document.querySelector('.container');
                         if (container) {
-                            const containerHeight = container.offsetHeight;
+                            // Use calculated height like Landscape mode, not actual offsetHeight
+                            const containerHeight = window.innerHeight - 40;
                             const header = document.querySelector('.header');
                             const footer = document.querySelector('.footer-section');
                             const headerHeight = header ? header.offsetHeight : 0;
@@ -1447,7 +1408,7 @@
                             const lunchBreakHeight = lunchBreak ? lunchBreak.offsetHeight : 0;
                             const sectionHeadersHeight = Array.from(sectionHeaders).reduce((total, header) => total + header.offsetHeight, 0);
                             
-                            const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + 60; // 60px for padding/margins and safety
+                            const contentHeights = dateSelectorHeight + lunchBreakHeight + sectionHeadersHeight + PORTRAIT_CONTENT_BUFFER;
                             const availableHeight = usableHeight - contentHeights;
                             
                             // Calculate button dimensions for portrait mode
@@ -1462,7 +1423,11 @@
                             const containerWidth = container.offsetWidth;
                             const availableWidth = containerWidth - 40; // Account for container padding
                             const buttonWidth = Math.floor((availableWidth - (columns - 1) * 8) / columns); // Account for gaps
-                            const buttonHeight = Math.floor(availableHeight * 0.9 / totalRows); // Use 90% of available height (after accounting for other content)
+                            const buttonHeight = Math.floor(availableHeight / totalRows);
+                            
+                            // Safety check: ensure button height doesn't exceed available space with extra buffer
+                            const maxButtonHeight = Math.floor((availableHeight - PORTRAIT_CALCULATION_BUFFER) / totalRows);
+                            const finalButtonHeight = Math.max(65, Math.min(buttonHeight, maxButtonHeight));
                             
 
 
@@ -1483,8 +1448,8 @@
                             
                             allTimeSlots.forEach((slot, index) => {
                                 slot.style.width = buttonWidth + 'px';
-                                slot.style.height = Math.max(65, buttonHeight) + 'px';
-                                slot.style.minHeight = Math.max(65, buttonHeight) + 'px';
+                                slot.style.height = finalButtonHeight + 'px';
+                                slot.style.minHeight = finalButtonHeight + 'px';
                                 slot.style.boxSizing = 'border-box';
                                 slot.style.flexShrink = '0';
                                 
@@ -3506,7 +3471,7 @@
                 dropdown.style.maxWidth = inputRect.width + 'px';
                 
                 // Adjust max-height based on available space
-                const availableHeight = viewportHeight - inputRect.bottom - 20;
+                const availableHeight = viewportHeight - inputRect.bottom - LANDSCAPE_CALCULATION_BUFFER;
                 const maxHeight = Math.min(300, Math.max(100, availableHeight));
                 dropdown.style.maxHeight = maxHeight + 'px';
                 
