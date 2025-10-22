@@ -2469,9 +2469,17 @@
                     const bookedText = slot.querySelector('.booked-text');
                     const rawUsername = bookings[time].username || 'Booked';
                     const username = sanitizeUsernameForDisplay(rawUsername);
-                    bookedText.textContent = username;
-                    bookedText.style.display = 'block';
-                    bookedText.classList.add('cancel-hint');
+                    
+                    // Only show booker names in admin mode
+                    if (isAdminSession) {
+                        bookedText.textContent = username;
+                        bookedText.style.display = 'block';
+                        bookedText.classList.add('cancel-hint');
+                    } else {
+                        bookedText.textContent = '';
+                        bookedText.style.display = 'none';
+                        bookedText.classList.remove('cancel-hint');
+                    }
                     
                     // Add italic style for empty usernames
                     if (!bookings[time].username) {
