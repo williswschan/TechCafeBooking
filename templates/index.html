@@ -320,12 +320,31 @@
                     console.log('- After class changes:');
                     console.log('  - Classes:', slotElement.className);
                     
-                    // Update the booked text
+                    // Update the booked text - only show name in admin mode
                     const bookedText = slotElement.querySelector('.booked-text');
                     if (bookedText) {
-                        bookedText.textContent = booking_data.username || 'Booked';
-                        bookedText.style.display = 'block';
-                        console.log('- Updated booked text to:', booking_data.username || 'Booked');
+                        const rawUsername = booking_data.username || 'Booked';
+                        const username = sanitizeUsernameForDisplay(rawUsername);
+                        
+                        // Check if text would overflow and hide name if needed
+                        if (shouldHideBookerName(slotElement, username)) {
+                            bookedText.textContent = '';
+                            bookedText.style.display = 'none';
+                            bookedText.classList.remove('cancel-hint', 'empty-username');
+                            console.log('- Hiding booker name due to overflow check');
+                        } else {
+                            bookedText.textContent = username;
+                            bookedText.style.display = 'block';
+                            bookedText.classList.add('cancel-hint');
+                            console.log('- Updated booked text to:', username);
+                            
+                            // Add italic style for empty usernames
+                            if (!booking_data.username) {
+                                bookedText.classList.add('empty-username');
+                            } else {
+                                bookedText.classList.remove('empty-username');
+                            }
+                        }
                     }
                     
                     // Add transient highlight
