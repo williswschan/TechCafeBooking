@@ -1828,12 +1828,9 @@
             
             if (isBooked) {
                 // Booked slot: grey to light red gradient (matching booked slot style)
-                // Only apply if not already booked (to preserve CSS .booked class styling)
-                if (!slot.classList.contains('booked')) {
-                    slot.style.background = `linear-gradient(to right, 
-                        #d1d5db ${progress * 100}%, 
-                        #fef2f2 ${progress * 100}%)`;
-                }
+                slot.style.background = `linear-gradient(to right, 
+                    #d1d5db ${progress * 100}%, 
+                    #fef2f2 ${progress * 100}%)`;
             } else if (isAvailable) {
                 // Available slot: grey to light blue gradient (matching available slot style)
                 slot.style.background = `linear-gradient(to right, 
@@ -1851,11 +1848,9 @@
             const slots = document.querySelectorAll('.time-slot');
             slots.forEach(slot => {
                 slot.classList.remove('time-past', 'time-current', 'time-future', 'admin-enabled');
-                // Only clear background if not booked (to preserve CSS .booked class styling)
-                if (!slot.classList.contains('booked')) {
-                    slot.style.background = '';
-                    slot.style.backgroundImage = '';
-                }
+                // Clear background for ALL slots when switching dates
+                slot.style.background = '';
+                slot.style.backgroundImage = '';
             });
         }
 

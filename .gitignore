@@ -27,3 +27,6 @@ Thumbs.db
 # Booking files
 booking_*.csv
 display_name.txt
+
+# Conversation history
+CONVERSATION_HISTORY.md
