@@ -1948,6 +1948,9 @@
                 joinDateRoom(currentDate);
             }
             
+            // Clear time visualization immediately when switching dates
+            clearTimeVisualization();
+            
             if (isMobile) {
                 loadBookingsMobile(date);
             } else {

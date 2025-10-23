@@ -514,6 +514,11 @@ def get_bookings():
     # Try to get date from both args and form data
     date = request.args.get('date') or request.form.get('date')
     
+    # Log request details for debugging mobile admin mode issue
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+    is_mobile = 'Mobile' in user_agent or 'Android' in user_agent or 'iPhone' in user_agent or 'iPad' in user_agent
+    logger.info(f"get_bookings request - Date: {date}, Method: {request.method}, Mobile: {is_mobile}, User-Agent: {user_agent[:50]}...")
+    
     if not date:
         return jsonify({'success': False, 'message': 'Date required'})
     
@@ -523,6 +528,7 @@ def get_bookings():
             time = slot_key.split('_')[1]
             date_bookings[time] = booking
     
+    logger.info(f"Returning {len(date_bookings)} bookings for date {date}")
     response = jsonify({'success': True, 'bookings': date_bookings})
     
     # Add cache-busting headers for proxy/CDN compatibility
@@ -621,9 +627,17 @@ def verify_admin_password():
     data = request.get_json()
     password = data.get('password', '').strip()
     
+    # Log admin access attempt
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+    is_mobile = 'Mobile' in user_agent or 'Android' in user_agent or 'iPhone' in user_agent or 'iPad' in user_agent
+    logger.info(f"Admin login attempt - Mobile: {is_mobile}, User-Agent: {user_agent[:50]}...")
+    logger.info(f"Admin password check - Provided: '{password}', Expected: '{ADMIN_PASSWORD}'")
+    
     if password == ADMIN_PASSWORD:
+        logger.info(f"Admin access granted - Mobile: {is_mobile}")
         return jsonify({'success': True, 'message': 'Admin access granted'})
     else:
+        logger.warning(f"Invalid admin password attempt - Mobile: {is_mobile}")
         return jsonify({'success': False, 'message': 'Invalid admin password'})
 
 @app.route('/admin/download_csv')
@@ -809,6 +823,12 @@ if __name__ == '__main__':
     timer_thread = threading.Thread(target=time_broadcast_timer, daemon=True)
     timer_thread.start()
     logger.info("Started time broadcast timer")
+    
+    # Log startup information for ACI debugging
+    logger.info("Starting Flask-SocketIO server...")
+    logger.info(f"Host: 0.0.0.0, Port: 5000")
+    logger.info(f"Debug mode: {debug_mode}")
+    logger.info("Server configuration complete, starting...")
     
     # Run with SocketIO for real-time capabilities
     socketio.run(

@@ -1,0 +1,3 @@
+Date,Time,Booked By,Device ID,Booked At,Updated At,Reason,Kiosk
+2025-10-27,09:00,Mason Hill,device_1761108737946_5bg5yl1wf_TW96aWxsYS,2025-10-23T00:03:13.969955,2025-10-23T00:03:13.970207,booked,no
+2025-10-27,10:00,Aiden Kelly,device_1761109632873_c0k1z7d7q_TW96aWxsYS,2025-10-23T01:01:05.399089,2025-10-23T01:01:05.399183,booked,yes
