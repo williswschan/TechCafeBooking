@@ -40,6 +40,22 @@
 
         <!-- Scrollable Content Area -->
         <div class="scrollable-content">
+            <!-- Slot Legend -->
+            <div class="slot-legend">
+                <div class="legend-item">
+                    <div class="legend-box available"></div>
+                    <span class="legend-text"><span class="legend-full">Available for Booking</span><span class="legend-short">Available</span></span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box booked"></div>
+                    <span class="legend-text"><span class="legend-full">Already Booked</span><span class="legend-short">Booked</span></span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box time-past"></div>
+                    <span class="legend-text"><span class="legend-full">Past Time Slots</span><span class="legend-short">Past</span></span>
+                </div>
+            </div>
+
             <div class="date-selector">
                 <div class="date-tabs">
                     {% for date in dates %}
@@ -142,7 +158,13 @@
     <div id="adminManagementModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-tools"></i> IT Support - Booking Management</h3>
-            <p id="adminBookingInfo">Booking: <span id="adminBookingUser"></span> - <span id="adminBookingDateTime"></span><br><br>What action would you like to take?<br><br></p>
+            <p id="adminBookingInfo">Booking: <span id="adminBookingUser"></span> - <span id="adminBookingDateTime"></span></p>
+            <div class="booking-id-display" style="margin: 20px 0;">
+                <strong>Booking Reference ID:</strong>
+                <span id="adminBookingIdDisplay" style="font-size: 1.2em; color: #dc2626; font-weight: bold; display: block; margin: 10px 0; padding: 8px; background: #fef2f2; border-radius: 4px; text-align: center;"></span>
+            </div>
+            <p>What action would you like to take?</p>
+            <div style="height: 20px;"></div>
             <div class="modal-buttons admin-buttons">
                 <button class="btn btn-success" onclick="showAdminCaseCompletedConfirmation()" title="IT support successfully resolved the user's issue">
                     <i class="fas fa-check-circle"></i> Case Completed - Free Slot
@@ -161,7 +183,11 @@
     <div id="cancelModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-user-times"></i> Cancel Booking</h3>
-            <p>Are you sure you want to cancel this booking?<br><br></p>
+            <p>Are you sure you want to cancel this booking?</p>
+            <div class="booking-id-display" style="margin: 20px 0;">
+                <strong>Booking Reference ID:</strong>
+                <span id="cancelBookingIdDisplay" style="font-size: 1.2em; color: #dc2626; font-weight: bold; display: block; margin: 10px 0; padding: 8px; background: #fef2f2; border-radius: 4px; text-align: center;"></span>
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-danger" onclick="confirmCancellation()">Yes, Cancel</button>
                 <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
@@ -173,10 +199,35 @@
     <div id="adminCancelModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-tools"></i> IT Support - Confirm Cancellation</h3>
-            <p>Are you sure you want to cancel this booking?<br><br>This action cannot be undone.<br><br></p>
+            <p>Are you sure you want to cancel this booking?</p>
+            <div class="booking-id-display" style="margin: 20px 0;">
+                <strong>Booking Reference ID:</strong>
+                <span id="adminCancelBookingIdDisplay" style="font-size: 1.2em; color: #dc2626; font-weight: bold; display: block; margin: 10px 0; padding: 8px; background: #fef2f2; border-radius: 4px; text-align: center;"></span>
+            </div>
+            <p>This action cannot be undone.</p>
+            <div style="height: 20px;"></div>
             <div class="modal-buttons">
                 <button class="btn btn-danger" onclick="confirmCancellation()">Yes, Cancel Booking</button>
                 <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Success Modal -->
+    <div id="bookingSuccessModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-check-circle" style="color: #22c55e;"></i> Booking Confirmed!</h3>
+            <div class="success-details">
+                <p>Your booking has been successfully confirmed.</p>
+                <div class="booking-id-display">
+                    <strong>Booking Reference ID:</strong>
+                    <span id="bookingIdDisplay" style="font-size: 1.5em; color: #dc2626; font-weight: bold; display: block; margin: 10px 0; padding: 10px; background: #fef2f2; border-radius: 4px; text-align: center;"></span>
+                </div>
+                <p style="font-size: 0.9em; color: #4b5563; margin-top: 10px;">Please keep this reference ID for your records.</p>
+            </div>
+            <div style="height: 20px;"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="closeModal()">OK</button>
             </div>
         </div>
     </div>
@@ -185,7 +236,13 @@
     <div id="adminCaseCompletedModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-tools"></i> IT Support - Confirm Case Completion</h3>
-            <p>Are you sure you want to mark this case as completed?<br><br>The slot will be freed up for new bookings.<br><br></p>
+            <p>Are you sure you want to mark this case as completed?</p>
+            <div class="booking-id-display" style="margin: 20px 0;">
+                <strong>Booking Reference ID:</strong>
+                <span id="adminCompletedBookingIdDisplay" style="font-size: 1.2em; color: #dc2626; font-weight: bold; display: block; margin: 10px 0; padding: 8px; background: #fef2f2; border-radius: 4px; text-align: center;"></span>
+            </div>
+            <p>The slot will be freed up for new bookings.</p>
+            <div style="height: 20px;"></div>
             <div class="modal-buttons">
                 <button class="btn btn-success" onclick="markCaseCompleted()">Yes, Mark as Completed</button>
                 <button class="btn btn-secondary" onclick="closeModal()">No, Keep Booking</button>
@@ -2531,7 +2588,8 @@
                         const bookingUser = document.getElementById('adminBookingUser');
                         const bookingDateTime = document.getElementById('adminBookingDateTime');
                         
-                        const username = bookings[time] ? bookings[time].username || 'Unknown User' : 'Unknown User';
+                        const booking = bookings[time];
+                        const username = booking ? booking.username || 'Unknown User' : 'Unknown User';
                         const dateTime = `${currentDate} ${time}`;
                         
                         // Sanitize username for display (replace inappropriate content)
@@ -2540,11 +2598,19 @@
                         bookingUser.textContent = sanitizedUsername;
                         bookingDateTime.textContent = dateTime;
                         
+                        // Display booking ID
+                        if (booking && booking.booking_id) {
+                            document.getElementById('adminBookingIdDisplay').textContent = booking.booking_id;
+                        }
+                        
                         adminModal.style.display = 'block';
                     } else {
-                        // Show regular cancel modal for non-admin users
-                        const cancelModal = document.getElementById('cancelModal');
-                        cancelModal.style.display = 'block';
+                        // Show regular cancel modal for non-admin users with booking ID
+                        const booking = bookings[time];
+                        if (booking && booking.booking_id) {
+                            document.getElementById('cancelBookingIdDisplay').textContent = booking.booking_id;
+                        }
+                        showModal('cancelModal');
                     }
                     pauseAutoRefresh();
                 } else {
@@ -2647,8 +2713,9 @@
                             bookedText.style.display = 'block';
                         }
                     }
-                    const message = username ? 'Booking confirmed!' : 'Booking confirmed! (No name provided)';
-                    showNotification(message, 'success');
+                    // Show booking success modal with booking ID
+                    document.getElementById('bookingIdDisplay').textContent = data.booking_id;
+                    showModal('bookingSuccessModal');
                 } else {
                     alert(data.message);
                 }
@@ -2817,6 +2884,10 @@
             // Close the admin management modal
             document.getElementById('adminManagementModal').style.display = 'none';
             
+            // Copy the booking ID to the cancel confirmation modal
+            const bookingId = document.getElementById('adminBookingIdDisplay').textContent;
+            document.getElementById('adminCancelBookingIdDisplay').textContent = bookingId;
+            
             // Show the admin cancel confirmation modal
             document.getElementById('adminCancelModal').style.display = 'block';
         }
@@ -2825,8 +2896,26 @@
             // Close the admin management modal
             document.getElementById('adminManagementModal').style.display = 'none';
             
+            // Copy the booking ID to the case completed confirmation modal
+            const bookingId = document.getElementById('adminBookingIdDisplay').textContent;
+            document.getElementById('adminCompletedBookingIdDisplay').textContent = bookingId;
+            
             // Show the admin case completed confirmation modal
             document.getElementById('adminCaseCompletedModal').style.display = 'block';
+        }
+
+        function showModal(modalId) {
+            // Hide all modals first
+            document.getElementById('bookingModal').style.display = 'none';
+            document.getElementById('cancelModal').style.display = 'none';
+            document.getElementById('adminManagementModal').style.display = 'none';
+            document.getElementById('adminCancelModal').style.display = 'none';
+            document.getElementById('adminCaseCompletedModal').style.display = 'none';
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('bookingSuccessModal').style.display = 'none';
+            
+            // Show the requested modal
+            document.getElementById(modalId).style.display = 'block';
         }
 
         function closeModal() {
@@ -2836,6 +2925,7 @@
             document.getElementById('adminCancelModal').style.display = 'none';
             document.getElementById('adminCaseCompletedModal').style.display = 'none';
             document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('bookingSuccessModal').style.display = 'none';
             document.getElementById('usernameInput').value = '';
             document.getElementById('adminPasswordInput').value = '';
             

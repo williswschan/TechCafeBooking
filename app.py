@@ -10,8 +10,21 @@ import logging
 import csv
 import re
 import bleach
+import random
 
 app = Flask(__name__)
+
+def generate_booking_id():
+    """Generate a unique booking ID: one letter (excluding O,I) + two digits (01-99)"""
+    letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'  # Excluding O, I
+    numbers = [f"{n:02d}" for n in range(1, 100)]  # 01-99
+    
+    # Keep generating until we find a unique ID
+    while True:
+        new_id = f"{random.choice(letters)}{random.choice(numbers)}"
+        # Check if this ID exists in any booking
+        if not any(booking.get('booking_id') == new_id for booking in bookings.values()):
+            return new_id
 
 # Disable all caching for immediate changes
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -109,10 +122,11 @@ def extract_booking_to_csv(slot_key, booking, reason="completed"):
             
             # Write header only if file doesn't exist
             if not file_exists:
-                writer.writerow(['Date', 'Time', 'Booked By', 'Device ID', 'Booked At', 'Updated At', 'Reason', 'Kiosk'])
+                writer.writerow(['Booking ID', 'Date', 'Time', 'Booked By', 'Device ID', 'Booked At', 'Updated At', 'Reason', 'Kiosk'])
             
             # Write data
             writer.writerow([
+                booking.get('booking_id', ''),
                 date_str,
                 time_str,
                 booking.get('username', ''),
@@ -418,11 +432,13 @@ def book_slot():
     if slot_key in bookings:
         return jsonify({'success': False, 'message': 'Slot already booked'})
     
+    booking_id = generate_booking_id()
     bookings[slot_key] = {
         'username': raw_username or username,  # Use raw username for now to test bad word masking
         'device_id': device_id,
         'booked_at': datetime.now().isoformat(),
-        'kiosk': kiosk
+        'kiosk': kiosk,
+        'booking_id': booking_id
     }
     
     # Extract booking to CSV for logging
@@ -435,7 +451,11 @@ def book_slot():
     # Broadcast real-time update to all clients viewing this date
     broadcast_booking_update(date, slot_key, bookings[slot_key], 'book')
     
-    return jsonify({'success': True, 'message': 'Booking confirmed'})
+    return jsonify({
+        'success': True, 
+        'message': f'Booking confirmed. Your booking reference is {booking_id}',
+        'booking_id': booking_id
+    })
 
 @app.route('/cancel', methods=['POST'])
 @limiter.limit("1000 per minute")
